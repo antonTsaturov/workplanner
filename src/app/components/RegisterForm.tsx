@@ -13,7 +13,7 @@ export default function RegisterForm({ onToggleToLogin }: RegisterFormProps) {
     name: '',
     email: '',
     password: '',
-    dept: '',
+    dept: 'CLN',
     //confirmPassword: '',
   });
   const [error, setError] = useState('');
@@ -25,6 +25,7 @@ export default function RegisterForm({ onToggleToLogin }: RegisterFormProps) {
       ...prev,
       [name]: value
     }));
+    //console.log(formData)
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -47,23 +48,24 @@ export default function RegisterForm({ onToggleToLogin }: RegisterFormProps) {
       setError('Password must be at least 6 characters long');
       return;
     }
-
-    // Here you would typically make an API call to your backend
-    console.log('Register data:', formData);
     
-    // Simulate API call
+    // API call
     try {
-      handleRegistration(formData)
-        .then(success => {
-          setSuccess('Registration successful! You can now login.');
-          setTimeout(() => {
-            onToggleToLogin();
-          }, 2000);
-        });
+      let result = await handleRegistration(formData)
+      if (result.error) {
+        setError(result.error)
+        console.log('handleRegistration result on client: ', result.error)
+      } else {
+        setSuccess(result.success)
+        setTimeout(() => {
+          onToggleToLogin();
+        }, 2000);        
+      } 
+      
 
-      // await registerUser(formData);
     } catch (err) {
-      setError('Registration failed. Please try again.');
+      console.log('catch err: ', err)
+      setError('Registration failed on client side. Please try later.');
     }
   };
 
@@ -131,8 +133,8 @@ export default function RegisterForm({ onToggleToLogin }: RegisterFormProps) {
             //placeholder="Confirm your password"
             
           >
-            <option>Clinical</option>
-            <option>Data managment</option>
+            <option value="CLN">Clinical</option>
+            <option value="DM">Data managment</option>
           </select>
         </div>
 

@@ -80,15 +80,20 @@
       });
 
       const result = await response.json();
+      console.log('fetch result: ', result)
+      return result;
 
-      if (result.success) {
-        console.log('User success submitted')
-        return result.data;
-      } else {
-        console.log(` handleSubmitEventInfo Error: ${result.error}`);
-      }
+      //if (result.success) {
+        //console.log('User registrated')
+        //return result;
+        
+      //} else {
+        //console.log(` handleRegistration Error: ${result.error}`);
+        //return result;
+        
+      //}
     } catch (error) {
-      console.log(' handleSubmitEventInfo Error creating event');
+      console.log(' handleRegistration Error creating user', error);
       
     } finally {
       console.log('final');

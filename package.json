@@ -16,6 +16,7 @@
     "@fullcalendar/react": "^6.1.19",
     "@fullcalendar/timegrid": "^6.1.19",
     "bcrypt": "^6.0.0",
+    "bcryptjs": "^3.0.2",
     "better-sqlite3": "^12.4.1",
     "next": "16.0.0",
     "react": "19.2.0",

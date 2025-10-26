@@ -1,9 +1,24 @@
 /* /api/user */
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
-import { getDatabase } from '../../../lib/database';
+import { getDatabas, getUsersDatabase, query } from '../../../lib/database';
 
 //import { query } from '@/lib/db';
+
+export function GET(request) {
+  try {
+    const db = getUsersDatabase();
+    const events = db.prepare(request).all();
+    
+    return NextResponse.json({ success: true, data: events });
+  } catch (error) {
+    return NextResponse.json(
+      { success: false, error: error.message },
+      { status: 500 }
+    );
+  }
+}
+
 
 export async function POST(request) {
   try {
@@ -26,13 +41,13 @@ export async function POST(request) {
 
     // Is user exist?
     const existingUser = await query(
-      'SELECT id FROM users WHERE email = $1',
-      [email]
+      'SELECT id FROM users WHERE email = ?',
+      email
     );
 
-    if (existingUser.rows.length > 0) {
+    if (existingUser.rows != undefined) {
       return NextResponse.json(
-        { error: 'User with email exist' },
+        { error: 'A user with this email already exists.' },
         { status: 409 }
       );
     }
@@ -41,22 +56,12 @@ export async function POST(request) {
     const hashedPassword = await bcrypt.hash(password, 12);
 
     // Save to DB
-    //const result = await query(
-      //'INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id, name, email',
-      //[name, email, hashedPassword]
-    //);
     const db = getUsersDatabase();
     const stmt = db.prepare('INSERT INTO users (name, email, password, dept) VALUES (?, ?, ?, ?)');
     const result = stmt.run(name, email, password, dept);
 
-
-    const user = result.rows[0];
-
     return NextResponse.json(
-      { 
-        message: 'Registration success',
-        user: { id: user.id, name: user.name, email: user.email, dept:user.dept }
-      },
+      { success: 'Registration success' },
       { status: 201 }
     );
 

@@ -63,7 +63,7 @@ export async function DELETE(request) {
   try {
     const id = request.headers.get('X-Event-ID');
     
-    console.log(id);
+    //console.log(id);
     
     if (!id) {
       return NextResponse.json(
