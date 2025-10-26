@@ -17,4 +17,24 @@ export function getDatabase() {
     `);
   }
   return db;
+};
+
+export function getUsersDatabase() {
+  if (!db) {
+    db = new Database('users.sqlite');
+    
+    // Create table if it doesn't exist
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        email TEXT NOT NULL,
+        password TEXT NOT NULL,
+        dept TEXT NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+  }
+  return db;
 }
+

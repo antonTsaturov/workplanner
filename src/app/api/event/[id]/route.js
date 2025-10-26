@@ -1,3 +1,4 @@
+/* /api/user */
 import { getDatabase } from '../../../lib/database';
 import { NextResponse } from 'next/server';
 

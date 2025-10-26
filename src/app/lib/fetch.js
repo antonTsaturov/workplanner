@@ -13,7 +13,7 @@
       const result = await response.json();
 
       if (result.success) {
-        console.log('Success')
+        console.log('Event success submitted')
       } else {
         console.log(` handleSubmitEventInfo Error: ${result.error}`);
       }
@@ -66,5 +66,34 @@
     }
   };
 
+  // FETCH FOR USER DB
   
+    export const handleRegistration = async (e) => {
+    
+    try {
+      const response = await fetch('/api/user/[id]', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(e),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        console.log('User success submitted')
+        return result.data;
+      } else {
+        console.log(` handleSubmitEventInfo Error: ${result.error}`);
+      }
+    } catch (error) {
+      console.log(' handleSubmitEventInfo Error creating event');
+      
+    } finally {
+      console.log('final');
+      
+    }
+  };
+
   
