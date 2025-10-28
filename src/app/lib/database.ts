@@ -28,7 +28,7 @@ export function getUsersDatabase() {
       CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
-        email TEXT NOT NULL,
+        email TEXT NOT NULL UNIQUE,
         password TEXT NOT NULL,
         dept TEXT NOT NULL,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -40,13 +40,15 @@ export function getUsersDatabase() {
 
 export async function query(sql: string, params: string): Promise<QueryResult> {
   try {
-    // Инициализируем базу данных если это первое подключение
+     //Инициализируем базу данных если это первое подключение
     if (!db) {
       db = new Database('users.sqlite');
     }
+    //await getUsersDatabase();
 
     // Выполняем запрос
-    const result = await db.prepare(sql).get(params);
+    const preresult = await db.prepare(sql)
+    const result = preresult.get(params);
     //const result = await stmt.get(params);
     //await stmt.finalize();
 
@@ -70,7 +72,24 @@ export async function query(sql: string, params: string): Promise<QueryResult> {
     throw error;
     
   }
+};
+
+export async function getUserByEmail(email: string): Promise<any | null> {
+  try {
+    const result = await query(
+      'SELECT * FROM users WHERE email = ?',
+      [email]
+    );
+    
+    //console.log(result)
+    return result;
+    
+  } catch (error) {
+    console.error('Error getting user by email:', error);
+    throw error;
+  }
 }
+
 
 // Функция для закрытия соединения с базой данных
 export async function closeDatabase(): Promise<void> {

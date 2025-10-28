@@ -1,13 +1,5 @@
 import type { Metadata } from "next";
-
-// import {
-//   ClerkProvider,
-//   SignInButton,
-//   SignUpButton,
-//   SignedIn,
-//   SignedOut,
-//   UserButton,
-// } from '@clerk/nextjs'
+import { SessionProvider } from './components/Providers';
 
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -23,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Welcome to Workplanner",
+  title: "Workplanner",
   description: "Plan your work fast and easy",
 };
 
@@ -35,7 +27,9 @@ export default function RootLayout({
   return (
       <html lang="en">
         <body className={`${geistSans.variable} ${geistMono.variable}`}>
-          {children}
+          <SessionProvider>
+            {children}
+          </SessionProvider>
         </body>
       </html>
   );

@@ -11,7 +11,7 @@ export default function AuthPage() {
   const toggleToLogin = () => setIsLogin(true);
 
   return (
-    <div className="container">
+    <div className="auth-container">
       {isLogin ? (
         <LoginForm onToggleToRegister={toggleToRegister} />
       ) : (

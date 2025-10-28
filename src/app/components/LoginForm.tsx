@@ -1,12 +1,18 @@
 'use client';
 
 import { useState } from 'react';
+import { handleLogin } from '../lib/fetch';
+import { useRouter } from 'next/navigation';
+
 
 interface LoginFormProps {
   onToggleToRegister: () => void;
 }
 
 export default function LoginForm({ onToggleToRegister }: LoginFormProps) {
+  
+  const router = useRouter();
+  
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -21,23 +27,21 @@ export default function LoginForm({ onToggleToRegister }: LoginFormProps) {
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit= async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-
     // Basic validation
     if (!formData.email || !formData.password) {
       setError('Please fill in all fields');
       return;
     }
-
-    // Here you would typically make an API call to your backend
-    console.log('Login data:', formData);
     
-    // Simulate API call
     try {
-      // await loginUser(formData);
-      alert('Login successful!');
+      let result = await handleLogin(formData);
+      console.log('handleLogin client side: ', result)
+      //Redirect
+      result.error ? setError('Login failed. Please check your credentials.') : await router.push('/calendar');
+      
     } catch (err) {
       setError('Login failed. Please check your credentials.');
     }
@@ -45,7 +49,7 @@ export default function LoginForm({ onToggleToRegister }: LoginFormProps) {
 
   return (
     <div className="auth-card">
-      <h1 className="auth-title">Welcome Back</h1>
+      <h1 className="auth-title">Sign in</h1>
       
       <form onSubmit={handleSubmit} className="auth-form">
         <div className="form-group">

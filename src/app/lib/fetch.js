@@ -1,4 +1,3 @@
-
   export const handleSubmitEventInfo = async (e) => {
     
     try {
@@ -68,10 +67,10 @@
 
   // FETCH FOR USER DB
   
-    export const handleRegistration = async (e) => {
+  export const handleRegistration = async (e) => {
     
     try {
-      const response = await fetch('/api/user/[id]', {
+      const response = await fetch('/api/user/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -83,15 +82,6 @@
       console.log('fetch result: ', result)
       return result;
 
-      //if (result.success) {
-        //console.log('User registrated')
-        //return result;
-        
-      //} else {
-        //console.log(` handleRegistration Error: ${result.error}`);
-        //return result;
-        
-      //}
     } catch (error) {
       console.log(' handleRegistration Error creating user', error);
       
@@ -100,5 +90,64 @@
       
     }
   };
+  
+  export const handleLogin = async (e) => {
+    
+    try {
+      const response = await fetch('/api/user/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(e),
+      });
+
+      const result = await response.json();
+      console.log('handleLogin Result: ', result)
+      return result;
+
+    } catch (error) {
+      console.log(' handleLogin Error: ', error);
+      
+    } finally {
+      console.log('final');
+      
+    }
+  };
+
+  export const getSessionInfo = async () => {
+    
+    try {
+      const response = await fetch('/api/user/session', {
+        method: 'GET',
+      });
+  
+      const result = await response.json()
+      return result;
+  
+    } catch (error) {
+      console.log(' getSessionInfo fetch Error: ', error);
+      
+    } 
+  };
 
   
+  export const logout = async () => {
+    
+    try {
+      const response = await fetch('/api/user/logout', {
+        method: 'GET',
+      });
+  
+      const result = await response.json()
+      console.log(result)
+      return result;
+  
+    } catch (error) {
+      console.log(' /app/lib/feth logout func Error: ', error);
+      
+    } finally {
+      console.log('final');
+      
+    }
+  };
