@@ -4,7 +4,7 @@ let db;
 
 export function getDatabase() {
   if (!db) {
-    db = new Database('mydatabase.sqlite');
+    db = new Database('events.sqlite');
     
     // Create table if it doesn't exist
     db.exec(`
@@ -12,6 +12,12 @@ export function getDatabase() {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         start TEXT NOT NULL,
         end TEXT NOT NULL,
+        title TEXT NOT NULL,
+        subtitle TEXT NOT NULL,
+        project TEXT NOT NULL,
+        dept TEXT NOT NULL,
+        author TEXT NOT NULL,
+        comments TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )
     `);
@@ -48,7 +54,7 @@ export async function query(sql: string, params: string): Promise<QueryResult> {
 
     // Выполняем запрос
     const preresult = await db.prepare(sql)
-    const result = preresult.get(params);
+    const result = await preresult.get(params);
     //const result = await stmt.get(params);
     //await stmt.finalize();
 

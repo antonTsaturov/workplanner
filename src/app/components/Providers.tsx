@@ -1,75 +1,156 @@
-// components/session-provider.tsx
+//// components/session-provider.tsx
 'use client';
+
+//import { createContext, useContext, useEffect, useState } from 'react';
+//import NaviBar from './NaviBar';
+//import { getSessionInfo } from '../lib/fetch';
+import { storage } from '../utils/localStorage';
+
+//interface SessionContextType {
+  //session: UserSession | null;
+  //isLoading: boolean;
+//}
+
+//const SessionContext = createContext<SessionContextType>({
+  //session: null,
+  //isLoading: true,
+//});
+
+//export function SessionProvider({ 
+  //children,
+//}: { 
+  //children: React.ReactNode,
+//}) {
+  
+  //const [session, setSession] = useState();
+  ////const [userData, setUserData] = useState(null);
+  //async function loadSession() {
+    //const session = await getSessionInfo();
+    //setSession(session)
+//}
+
+  
+    
+  //useEffect(() => {
+    //loadSession()
+
+  //}, []);
+
+  //const resetSession = () => {
+    //setSession(null)
+  //}
+  ////console.log('Providers session: ', session)
+  
+  //return (
+    //<SessionContext.Provider 
+      //value={{ session }}
+    //>
+      //{<NaviBar
+        //session={session}
+        //resetSession={resetSession}
+      ///>}
+      //{children}
+    //</SessionContext.Provider>
+  //);
+//}
+
+
+//export const useSession = () => useContext(SessionContext);
+
+// components/session-provider.tsx
+//'use client';
 
 import { createContext, useContext, useEffect, useState } from 'react';
 import NaviBar from './NaviBar';
 import { getSessionInfo } from '../lib/fetch';
-import { useRouter } from 'next/navigation';
 
+// Типы
+interface UserSession {
+  id: string;
+  email: string;
+  name: string;
+  // добавьте другие поля по необходимости
+}
 
 interface SessionContextType {
   session: UserSession | null;
   isLoading: boolean;
+  resetSession: () => void;
+  refreshSession: () => Promise<void>;
 }
 
-const SessionContext = createContext<SessionContextType>({
-  session: null,
-  isLoading: true,
-});
+// Создание контекста с default values
+const SessionContext = createContext<SessionContextType | undefined>(undefined);
 
 export function SessionProvider({ 
-  children 
+  children,
 }: { 
-  children: React.ReactNode 
+  children: React.ReactNode;
 }) {
   const [session, setSession] = useState<UserSession | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const router = useRouter();
-  
-   useEffect(() => {
-    //async function loadSession() {
-      //try {
-        //const response = await fetch('/api/user/session');
-        //if (response.ok) {
-          
-          //const userSession = await response.json()
-          //console.log('SessionProvider : ', userSession)
-          //setSession(userSession);
-        //} else {
-          //setSession(null);
-        //}
-      //} catch (error) {
-        //console.error('Failed to load session:', error);
-        //setSession(null);
-      //} finally {
-        //setIsLoading(false);
-      //}
+
+  async function loadSession() {
+    try {
+      setIsLoading(true);
+      const sessionData = await getSessionInfo();
+      storage.set('user', sessionData.user)
+      //console.log('sessionData.user: ', sessionData.user)
+      setSession(sessionData);
+    } catch (error) {
+      console.error('Failed to load session:', error);
+      setSession(null);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  const resetSession = () => {
+    setSession(null);
+    // Дополнительно можно очистить localStorage/cookies
+  }
+
+  const refreshSession = async () => {
+    await loadSession();
+  }
+
+  useEffect(() => {
+    // Проверяем есть ли сохраненная сессия в localStorage
+    //const savedSession = storage.get('user');
+    //if (savedSession) {
+      //setSession(savedSession);
+      //setIsLoading(false);
+    //} else {
+      loadSession();
     //}
-
-    //loadSession();
-     async function loadSession() {
-       const session = await getSessionInfo();
-       console.log('SessionProvider : ', session)
-       if (session.authenticated === false) {
-         router.push('/auth');
-       }
-       setSession(session)
-     }
-     loadSession()
-
-   }, []);
-
+  }, []);
+  // Значение контекста
+  const contextValue: SessionContextType = {
+    session,
+    isLoading,
+    resetSession,
+    refreshSession,
+  };
   
-  
+  //console.log(session)
   return (
-    <SessionContext.Provider value={{ session, isLoading }}>
-      {session &&
-        <NaviBar 
-        userData={session.session}
-      />}
-        {children}
+    <SessionContext.Provider value={contextValue}>
+      <NaviBar
+        //session={session}
+        resetSession={resetSession}
+      />
+      {children}
     </SessionContext.Provider>
   );
 }
 
-export const useSession = () => useContext(SessionContext);
+// Хук для использования сессии
+export function useSession() {
+  const context = useContext(SessionContext);
+  
+  if (context === undefined) {
+    throw new Error('useSession must be used within a SessionProvider');
+  }
+  
+  return context;
+}

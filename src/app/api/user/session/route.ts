@@ -29,7 +29,7 @@ export async function GET() {
     // Возвращаем данные сессии
     return NextResponse.json({
       authenticated: true,
-      session: {
+      user: {
         userId: (session as any).userId,
         email: (session as any).email,
         name: (session as any).name,

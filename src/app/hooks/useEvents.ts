@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { CalendarEvent } from '@/types/event';
-import { handleSubmitEventInfo, handleGetEventInfo } from '../lib/fetch'
+import { handleGetEventInfo } from '../lib/fetch'
 
 
 interface CalendarEvent {

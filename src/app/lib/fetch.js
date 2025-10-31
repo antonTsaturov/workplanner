@@ -1,4 +1,4 @@
-  export const handleSubmitEventInfo = async (e) => {
+  export const handleSubmitEvent = async (e) => {
     
     try {
       const response = await fetch('/api/event/[id]', {
@@ -8,20 +8,15 @@
         },
         body: JSON.stringify(e),
       });
-
       const result = await response.json();
+      return result;
 
-      if (result.success) {
-        console.log('Event success submitted')
-      } else {
-        console.log(` handleSubmitEventInfo Error: ${result.error}`);
-      }
     } catch (error) {
-      console.log(' handleSubmitEventInfo Error creating event');
+      console.log(`handleSubmitEvent Error: ${error}`);
+      return error;
       
     } finally {
-      console.log('final');
-      
+      console.log('Event created');
     }
   };
   
@@ -51,20 +46,53 @@
 
       if (response.ok) {
         // Remove event 
-        alert('Event deleted successfully');
+        //alert('Event deleted successfully');
+        return response
       } else {
-        const error = await response.json();
-        alert(`Error: ${error.error}`);
+        //const error = await response.json();
+        //alert(`Error: ${error.error}`);
+        return response
       }
     } catch (error) {
       console.error('Delete error:', error);
-      alert('Error deleting event');
+      //alert('Error deleting event');
+      return error
       
     } finally {
       console.log('Deleting final');
+      
     }
   };
 
+
+  export const handleUpdateEvent = async (e) => {
+    try {
+      const response = await fetch('/api/event/[id]', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(e),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        console.log('Event updated')
+        return result;
+      } else {
+        console.log(` handleUpdateEvent Error: ${result.error}`);
+        return result;
+      }
+    } catch (error) {
+      console.log(' handleUpdateEvent Error updating event');
+      return result;
+      
+    } finally {
+      console.log('final');
+      
+    }
+  }
   // FETCH FOR USER DB
   
   export const handleRegistration = async (e) => {
@@ -103,14 +131,14 @@
       });
 
       const result = await response.json();
-      console.log('handleLogin Result: ', result)
+      //console.log('handleLogin Result: ', result)
       return result;
 
     } catch (error) {
       console.log(' handleLogin Error: ', error);
       
     } finally {
-      console.log('final');
+      //console.log('final');
       
     }
   };

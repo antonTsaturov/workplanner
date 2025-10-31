@@ -3,30 +3,29 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link'
 import '../globals.css';
 
-
-
 import { useRouter } from 'next/navigation';
 import { getSessionInfo } from '../lib/fetch';
 import { logout } from '../lib/fetch';
+import { storage } from '../utils/localStorage';
+import { useSession } from './Providers';
 
-const NaviBar = ({userData}) => {
 
-  //const [userData, setUserData] = useState({});
-
-  // useEffect(()=>{
-  //   let data = getSessionInfo()
-  //     .then(success=> {setUserData(success.success)})
-  // }, [])
+const NaviBar = ({resetSession}) => {
+  const { session, isLoading, refreshSession } = useSession();
   
+  const router = useRouter();  
   const hadleLogout = async () => {
+    resetSession()
     const response = await logout();
     await router.push('/auth');
+    storage.remove('user')
+    //hadleUserData()
     //console.log(response)
   }
 
-  console.log('userData',userData)
-  const router = useRouter();  
+  //console.log('Navibar: ', session)
   
+  //userData &&
   return (
     <nav className="navigation">
       <div className="nav-container">
@@ -51,8 +50,8 @@ const NaviBar = ({userData}) => {
           <div className="nav-user-section">
               <div className="user-info">
                 <div className="user-details">
-                  <div className="user-name">{userData?.name}</div>
-                    <div className="user-dept">{userData?.dept}</div>
+                  <div className="user-name">{session?.user?.name}</div>
+                    <div className="user-dept">{session?.user?.dept}</div>
                 </div>
                 
                 <div className="dropdown-container">

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { handleLogin } from '../lib/fetch';
-import { useRouter } from 'next/navigation';
+import { useRouter, redirect, replace} from 'next/navigation';
 
 
 interface LoginFormProps {
@@ -38,12 +38,13 @@ export default function LoginForm({ onToggleToRegister }: LoginFormProps) {
     
     try {
       let result = await handleLogin(formData);
-      console.log('handleLogin client side: ', result)
+      //console.log('handleLogin client side: ', result)
       //Redirect
-      result.error ? setError('Login failed. Please check your credentials.') : await router.push('/calendar');
-      
+      result.error ? setError(result.error) : window.location.href = '/calendar'//router.push('/calendar');
+      //console.log('handleLogin client side: ', result)
     } catch (err) {
       setError('Login failed. Please check your credentials.');
+      console.log(err)
     }
   };
 

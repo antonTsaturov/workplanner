@@ -39,11 +39,6 @@ const Modal = ({ isOpen, onClose, children }: { isOpen: boolean, onClose: () => 
         
         {children}
         
-        <div className="modal-button-container">
-          <button className="modal-button">
-              Save
-          </button>
-        </div>
       </div>
       
     </div>

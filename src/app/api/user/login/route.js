@@ -37,7 +37,7 @@ export async function POST(request) {
       name: user.rows.name,
       dept: user.rows.dept,
     }
-    console.log(sessionPayload)
+    //console.log(sessionPayload)
     // Create session (sets HTTP-only cookie)
     const token = await createSessionToken(sessionPayload)
 

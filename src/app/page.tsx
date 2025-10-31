@@ -9,13 +9,13 @@ import { useRouter } from 'next/navigation';
 export default function Home() {
 
   const router = useRouter();
-  useEffect(()=>{
-    router.push('/auth');
-  })
+  //useEffect(()=>{
+    //router.push('/auth');
+  //})
 
   return (
       <div className={styles.page}>
-          
+        Hello
       </div>
   );
 }
