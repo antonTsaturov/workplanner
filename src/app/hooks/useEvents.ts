@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { CalendarEvent } from '@/types/event';
+import { useState, useEffect, useCallback } from 'react';
+//import { CalendarEvent } from '@/types/event';
 import { handleGetEventInfo } from '../lib/fetch'
 
 
@@ -11,18 +11,21 @@ interface CalendarEvent {
 
 export function useEvents() {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
-
+  
   const fetchEvents = async () => {
     handleGetEventInfo()
       .then(result => {
         setEvents(result);
       });
-
   };
 
   useEffect(() => {
     fetchEvents();
   }, []);
   
-  return { events };
+  const reloadEvents = useCallback(() => {
+    fetchEvents();
+  }, [])
+  
+  return { events, reloadEvents};
 }

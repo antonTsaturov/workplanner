@@ -45,27 +45,6 @@ export async function decrypt(token: string): SessionPayload | null {
   }
 }
 
-// Create session and set cookie
-//export async function createSession(userData: SessionPayload) {
-  //try {
-    //const token = encrypt(userData)
-    //const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
-
-    //const cookieStore = await cookies();
-
-    //cookieStore.set('session', token, {
-      //httpOnly: true,
-      //expiresAt: expiresAt,
-      ////secure: process.env.NODE_ENV === 'production',
-      //path: '/',
-    //})
-    //return token
-  //} catch (error) {
-    //console.log(error)
-    //return error
-  //}
-//}
-
 export async function getCurrentSession() {
   try {
     const cookieStore = await cookies(); // Ждем cookies

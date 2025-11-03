@@ -4,9 +4,9 @@ let db;
 
 export function getDatabase() {
   if (!db) {
-    db = new Database('events.sqlite');
+    db = new Database('wpdb.sqlite');
     
-    // Create table if it doesn't exist
+    // Create tables if it doesn't exist
     db.exec(`
       CREATE TABLE IF NOT EXISTS events (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -21,15 +21,6 @@ export function getDatabase() {
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )
     `);
-  }
-  return db;
-};
-
-export function getUsersDatabase() {
-  if (!db) {
-    db = new Database('users.sqlite');
-    
-    // Create table if it doesn't exist
     db.exec(`
       CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -40,6 +31,7 @@ export function getUsersDatabase() {
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )
     `);
+
   }
   return db;
 };
@@ -47,9 +39,8 @@ export function getUsersDatabase() {
 export async function query(sql: string, params: string): Promise<QueryResult> {
   try {
      //Инициализируем базу данных если это первое подключение
-    if (!db) {
-      db = new Database('users.sqlite');
-    }
+    //!db && db = new Database('wpdb.sqlite');
+    !db && getDatabase();
     //await getUsersDatabase();
 
     // Выполняем запрос
@@ -75,6 +66,7 @@ export async function query(sql: string, params: string): Promise<QueryResult> {
 
   } catch (error) {
     console.error('Database query error:', error);
+    closeDatabase()
     throw error;
     
   }

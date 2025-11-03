@@ -1,7 +1,7 @@
 /* /api/user/register */
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
-import { getUsersDatabase } from '../../../lib/database';
+import { getDatabase, getUserByEmail } from '../../../lib/database';
 
 export async function POST(request) {
   try {
@@ -22,7 +22,7 @@ export async function POST(request) {
     }
 
     // Is user exist?
-    const db = getUsersDatabase();
+    const db = getDatabase();
     const sql = `SELECT id FROM users WHERE email = ?`;
     const existingUser = await db.prepare(sql).get(email);
     if (existingUser) {

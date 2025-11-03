@@ -38,10 +38,7 @@ export default function LoginForm({ onToggleToRegister }: LoginFormProps) {
     
     try {
       let result = await handleLogin(formData);
-      //console.log('handleLogin client side: ', result)
-      //Redirect
-      result.error ? setError(result.error) : window.location.href = '/calendar'//router.push('/calendar');
-      //console.log('handleLogin client side: ', result)
+      result.error ? setError(result.error) : window.location.href = '/pages/calendar'
     } catch (err) {
       setError('Login failed. Please check your credentials.');
       console.log(err)

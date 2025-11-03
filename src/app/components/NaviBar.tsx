@@ -4,19 +4,18 @@ import Link from 'next/link'
 import '../globals.css';
 
 import { useRouter } from 'next/navigation';
-import { getSessionInfo } from '../lib/fetch';
+//import { getSessionInfo } from '../lib/fetch';
 import { logout } from '../lib/fetch';
 import { storage } from '../utils/localStorage';
 import { useSession } from './Providers';
 
-
 const NaviBar = ({resetSession}) => {
   const { session, isLoading, refreshSession } = useSession();
-  
-  const router = useRouter();  
+
+  const router = useRouter();
   const hadleLogout = async () => {
     resetSession()
-    const response = await logout();
+    await logout();
     await router.push('/auth');
     storage.remove('user')
     //hadleUserData()
@@ -24,7 +23,7 @@ const NaviBar = ({resetSession}) => {
   }
 
   //console.log('Navibar: ', session)
-  
+
   //userData &&
   return (
     <nav className="navigation">
@@ -34,15 +33,15 @@ const NaviBar = ({resetSession}) => {
           {/* Left block */}
           <div className="nav-section">
             <div className="nav-links">
-              <Link href="/" className="nav-link">
-                Home
+              <Link href="/pages/calendar" className="nav-link">
+                Calendar
               </Link>
-              <Link href="/about" className="nav-link">
-                About
+              <Link href="/pages/staff" className="nav-link">
+                Staff
               </Link>
-                <Link href="/dashboard" className="nav-link">
-                  Dashboard
-                </Link>
+              <Link href="" className="nav-link">
+                Dashboard
+              </Link>
             </div>
           </div>
 
@@ -53,32 +52,35 @@ const NaviBar = ({resetSession}) => {
                   <div className="user-name">{session?.user?.name}</div>
                     <div className="user-dept">{session?.user?.dept}</div>
                 </div>
-                
+
                 <div className="dropdown-container">
                   <button className="dropdown-toggle">
                     <span>Account</span>
                     <span className="dropdown-arrow">▼</span>
                   </button>
-                  
+
                   <div className="dropdown-menu">
-                    <Link 
-                      href="/profile" 
-                      className="dropdown-item"
-                    >
-                      Profile
-                    </Link>
-                    <Link 
-                      href="/settings" 
-                      className="dropdown-item"
-                    >
-                      Settings
-                    </Link>
-                    <button
-                      onClick={hadleLogout}
-                      className="dropdown-item logout-button"
-                    >
-                      Logout
-                    </button>
+                  {session ? (
+                    <div>
+                      <button
+                        className="dropdown-item-button"
+                      >
+                        Profile
+                      </button>
+                      <button
+                        className="dropdown-item-button"
+                      >
+                        Settings
+                      </button>
+                      <button
+                        onClick={hadleLogout}
+                        className="dropdown-item-button logout-button"
+                      >
+                        Logout
+                      </button>
+                    </div>
+                    ) : null
+                  }
                   </div>
                 </div>
               </div>

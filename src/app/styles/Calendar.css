@@ -1,4 +1,8 @@
 /* Calendar container */
+
+.demo-app-main {
+  width: -webkit-fill-available;
+}
 .calendar-container {
   padding: 20px;
   background: #fff;
@@ -29,7 +33,7 @@
 }
 
 .fc-button {
-  background-color: #133A86 !important;
+  background: linear-gradient(135deg, #3e3e3e, #616161) !important;
   border: none !important;
   border-radius: 6px !important;
   padding: 0.5rem 1rem !important;
@@ -38,12 +42,13 @@
   transition: all 0.2s ease;
 }
 
-/*
 .fc-button:hover {
+/*
   background-color: #3182ce !important;
-  transform: translateY(-1px);
-}
 */
+  background: linear-gradient(135deg, #616161, #3e3e3e) !important;
+}
+
 .fc-button-active {
   background-color: #2c5aa0 !important;
 }
@@ -139,6 +144,36 @@
   font-size: 0.8rem;
   color: #718096;
   font-weight: 500;
+}
+
+.chevron::before {
+	border-style: solid;
+  border-radius:2px;
+	border-width: 2px 2px 0 0;
+	content: '';
+	display: inline-block;
+	height: 0.45em;
+	left: 0.15em;
+	position: relative;
+	top: 0.15em;
+	transform: rotate(-45deg);
+	vertical-align: top;
+	width: 0.45em;
+}
+
+.chevron.right:before {
+	left: 0;
+	transform: rotate(45deg);
+}
+
+.chevron.bottom:before {
+	top: 0;
+	transform: rotate(135deg);
+}
+
+.chevron.left:before {
+	left: 0.25em;
+	transform: rotate(-135deg);
 }
 
 /* Responsive design */

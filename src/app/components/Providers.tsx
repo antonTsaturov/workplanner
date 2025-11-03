@@ -1,65 +1,6 @@
-//// components/session-provider.tsx
 'use client';
 
-//import { createContext, useContext, useEffect, useState } from 'react';
-//import NaviBar from './NaviBar';
-//import { getSessionInfo } from '../lib/fetch';
 import { storage } from '../utils/localStorage';
-
-//interface SessionContextType {
-  //session: UserSession | null;
-  //isLoading: boolean;
-//}
-
-//const SessionContext = createContext<SessionContextType>({
-  //session: null,
-  //isLoading: true,
-//});
-
-//export function SessionProvider({ 
-  //children,
-//}: { 
-  //children: React.ReactNode,
-//}) {
-  
-  //const [session, setSession] = useState();
-  ////const [userData, setUserData] = useState(null);
-  //async function loadSession() {
-    //const session = await getSessionInfo();
-    //setSession(session)
-//}
-
-  
-    
-  //useEffect(() => {
-    //loadSession()
-
-  //}, []);
-
-  //const resetSession = () => {
-    //setSession(null)
-  //}
-  ////console.log('Providers session: ', session)
-  
-  //return (
-    //<SessionContext.Provider 
-      //value={{ session }}
-    //>
-      //{<NaviBar
-        //session={session}
-        //resetSession={resetSession}
-      ///>}
-      //{children}
-    //</SessionContext.Provider>
-  //);
-//}
-
-
-//export const useSession = () => useContext(SessionContext);
-
-// components/session-provider.tsx
-//'use client';
-
 import { createContext, useContext, useEffect, useState } from 'react';
 import NaviBar from './NaviBar';
 import { getSessionInfo } from '../lib/fetch';
@@ -69,7 +10,7 @@ interface UserSession {
   id: string;
   email: string;
   name: string;
-  // добавьте другие поля по необходимости
+  dept: string;
 }
 
 interface SessionContextType {

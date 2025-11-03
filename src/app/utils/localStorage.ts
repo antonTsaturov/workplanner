@@ -39,17 +39,17 @@ export const storage = {
 };
 
 // Использование
-export default function Settings() {
-  const saveSettings = () => {
-    storage.set('settings', {
-      theme: 'dark',
-      language: 'ru',
-      notifications: true
-    });
-  };
+//export default function Settings() {
+  //const saveSettings = () => {
+    //storage.set('settings', {
+      //theme: 'dark',
+      //language: 'ru',
+      //notifications: true
+    //});
+  //};
 
-  const loadSettings = () => {
-    const settings = storage.get('settings');
-    console.log('Settings:', settings);
-  };
-}
+  //const loadSettings = () => {
+    //const settings = storage.get('settings');
+    //console.log('Settings:', settings);
+  //};
+//}

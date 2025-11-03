@@ -1,9 +1,9 @@
-import '../globals.css';
+//import '../globals.css';
+import '../styles/EventForm.css';
 import { subtasks} from '../lib/tasks'
 import { useState, useEffect } from 'react';
 import { handleSubmitEvent, handleDeleteEvent } from '../lib/fetch'
-import NotificationContainer from './NotificationContainer';
-import useNotification from '../hooks/useNotification';
+import { formatDate, formatTime } from '../utils/format'
 
 export interface EventFormProps {
   eventInfo: {
@@ -24,29 +24,8 @@ export interface EventFormProps {
   handleNotify: () => void;
 }
 
-function formatDate(dateString: string) {
-  const date = new Date(dateString);
-  return new Intl.DateTimeFormat('en-GB', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric'
-  }).format(date);
-}
-  
-function formatTime(dateString: string) {
-  const date = new Date(dateString);
-  return date.toLocaleTimeString('en-GB', {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false
-  });
-}
 
-
-
-
-
-const EventForm = ({eventInfo, tasks, subtasks, userData, handleModal, handleNotify, rerender}: EventFormProps) => {
+const EventForm = ({eventInfo, tasks, subtasks, userData, handleModal, handleNotify}: EventFormProps) => {
     
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -103,8 +82,7 @@ const EventForm = ({eventInfo, tasks, subtasks, userData, handleModal, handleNot
       const response = await handleSubmitEvent(formData);
       if (!response.error) {
         handleModal()
-        setTimeout(()=> {handleNotify('success')}, 1000 )
-        rerender()
+        setTimeout(()=> {handleNotify('success')}, 400 )
       } else {
         console.log('response: ', response.message)
         setTimeout(()=> {handleNotify('error')}, 500 )
@@ -252,9 +230,6 @@ const EventForm = ({eventInfo, tasks, subtasks, userData, handleModal, handleNot
 
 
         </form>
-        <div className="event-error">
-          {error}
-        </div>
       </div>
 
     );

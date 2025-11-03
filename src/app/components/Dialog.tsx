@@ -4,13 +4,18 @@ import { useState } from 'react';
 
 
 
-const Dialog = ({eventInfo, handleModal}: EventFormProps) => {
+const Dialog = ({eventInfo, handleModal, handleNotify}: EventFormProps) => {
   //console.log('dialog: ', eventInfo)
-  const [error, setError] = useState();
   
   const updateEvent = async () => {
     const response = await handleUpdateEvent(eventInfo)
-    response.success ? handleModal() : setError(response.error)
+    if (response.success) {
+      handleModal()
+      setTimeout(()=> {handleNotify('success')}, 500 )
+    } else {
+      console.log(response)
+      setTimeout(()=> {handleNotify('error')}, 500 )
+    }
   }
 
   return (
@@ -20,21 +25,18 @@ const Dialog = ({eventInfo, handleModal}: EventFormProps) => {
       </div>
       <div className="modal-dialog-container">
         <button
-          className="modal-dialog-button-confirm"
-          onClick={updateEvent}
-        >
-          <h4 className="button-text" >Update</h4>
-        </button>
-        <button
           className="modal-dialog-button-decline"
           onClick={handleModal}
         >
           <h4 className="button-text" >Cancel</h4>
         </button>
+        <button
+          className="modal-dialog-button-confirm"
+          onClick={updateEvent}
+        >
+          <h4 className="button-text" >Update</h4>
+        </button>
       </div>
-        <div className="dialog-error">
-          {error}
-        </div>
     </div>
   )
 }
