@@ -79,7 +79,7 @@ const Notification = ({
   duration = 5000, 
   onClose,
   id,
-  style = 'frosted' // 'default', 'glass', 'frosted', 'transparent', 'dark', 'gradient'
+  style = 'default' // 'default', 'glass', 'frosted', 'transparent', 'dark', 'gradient'
 }) => {
   const [isVisible, setIsVisible] = useState(true);
 

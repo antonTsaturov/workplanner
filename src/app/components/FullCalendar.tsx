@@ -25,6 +25,7 @@ import { showNotification } from '../utils/notifications';
 import { observer } from 'mobx-react';
 import { dateStore } from '../store/dateStore';
 
+const MILLISEC_IN_HOUR = 3600000;
 
 
 //###############################################################################
@@ -89,6 +90,7 @@ const Calendar = observer(() => {
       id: info.event.id,
       start: info.event.start,
       end: info.event.end,
+      duration: ((info.event.end - info.event.start) / MILLISEC_IN_HOUR),
       title: info.event.title,
       subtitle: info.event.extendedProps.subtitle,
       project: info.event.extendedProps.project,
@@ -124,6 +126,7 @@ const Calendar = observer(() => {
       id: eventDropInfo.event.id,
       start: eventDropInfo.event.start,
       end: eventDropInfo.event.end,
+      duration: ((eventDropInfo.event.end - eventDropInfo.event.start) / MILLISEC_IN_HOUR),
       title: eventDropInfo.event.title,
       subtitle: eventDropInfo.event.extendedProps.subtitle,
       project: eventDropInfo.event.extendedProps.project,
@@ -134,26 +137,56 @@ const Calendar = observer(() => {
   //console.log(session)
   //if (!session) {
     //return <div>Загрузка...</div>;
-  //}  
+  //}
+  
   const calendarRef = useRef(null);
   const [isVisible, setIsVisible] = useState(false);
-
+  
   const panelVisibility = () => {
     if (!isVisible) {
       setIsVisible(true)
       dateStore.setFcApi(calendarRef)
-      //dateStore.setFcDate(calendarApi.currentData.currentDate)
     } else {
       setIsVisible(false)
       calendarRerender()
+      
     }
   }
   
+  const getEventsDuration = () => {
+    if (calendarRef.current) {
+      const calendarApi = calendarRef.current.getApi()
+      const currentViewStart = calendarApi.view.activeStart
+      const currentViewEnd = calendarApi.view.activeEnd
+      
+      // Получаем все события
+      const allEvents = calendarApi.getEvents()
+      
+      // Фильтруем события по видимой области
+      const visibleEvents = allEvents.filter(event => {
+        const eventStart = event.start
+        const eventEnd = event.end || eventStart
+        return (eventStart > currentViewStart && eventEnd < currentViewEnd)
+      })
+      
+      const eventsDuration = visibleEvents.map(event => ({
+        duration: ((event.end - event.start) / MILLISEC_IN_HOUR),
+      }))
+       
+      
+      const result = eventsDuration.reduce((sum, item) => sum + item.duration, 0); //sum durations of visible events
+      dateStore.setDuration(result)
+    } else {
+      console.log('Calendar API not available')
+    }
+  }
+  getEventsDuration()
+  
+    
   const calendarRerender = () => {
     if (calendarRef.current) {
       const calendarApi = calendarRef.current.getApi();
       setTimeout(()=>{calendarApi.updateSize()},400)
-      //console.log(calendarApi.currentData.currentDate)
     }
   };
       
@@ -186,6 +219,7 @@ const Calendar = observer(() => {
                 const calendarApi = calendarRef.current.getApi();
                 calendarApi.next()
                 dateStore.setFcDate(calendarApi.currentData.currentDate)
+                getEventsDuration()
               }
             },
             customPrev: {
@@ -194,6 +228,7 @@ const Calendar = observer(() => {
                 const calendarApi = calendarRef.current.getApi();
                 calendarApi.prev()
                 dateStore.setFcDate(calendarApi.currentData.currentDate)
+                getEventsDuration()
               }
             }
           }}

@@ -1,5 +1,6 @@
 'use client'
 import React, { useEffect, useState } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Link from 'next/link'
 import '../globals.css';
 
@@ -8,21 +9,33 @@ import { useRouter } from 'next/navigation';
 import { logout } from '../lib/fetch';
 import { storage } from '../utils/localStorage';
 import { useSession } from './Providers';
+import { useLocation } from 'react-router-dom';
 
 const NaviBar = ({resetSession}) => {
   const { session, isLoading, refreshSession } = useSession();
-
+  const [pathname, setPathname] = useState(location?.pathname || window.location.pathname)
+  
   const router = useRouter();
+  
+  //console.log('Navibar: ', location)
+  
   const hadleLogout = async () => {
     resetSession()
     await logout();
     await router.push('/auth');
     storage.remove('user')
-    //hadleUserData()
-    //console.log(response)
+    setPathname('')
   }
 
-  //console.log('Navibar: ', session)
+  //useEffect(() => {
+    //handleClick()
+  //},[])
+
+  const handleClick = (page?) => {
+    !page ? setPathname(location?.pathname || window.location.pathname) : setPathname(page)
+    console.log('Navibar: ', page)
+  }
+  
 
   //userData &&
   return (
@@ -33,10 +46,18 @@ const NaviBar = ({resetSession}) => {
           {/* Left block */}
           <div className="nav-section">
             <div className="nav-links">
-              <Link href="/pages/calendar" className="nav-link">
+              <Link
+                href="/pages/calendar"
+                className={`nav-link ${pathname.includes('calendar') ? 'active' : ''}`}
+                onClick={()=>handleClick('calendar')}
+              >
                 Calendar
               </Link>
-              <Link href="/pages/staff" className="nav-link">
+              <Link
+                href="/pages/staff"
+                className={`nav-link ${pathname.includes('staff') ? 'active' : ''}`}
+                onClick={()=>handleClick('staff')}
+              >
                 Staff
               </Link>
               <Link href="" className="nav-link">

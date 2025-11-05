@@ -4,6 +4,7 @@ class DateStore {
   date = '';
   fcDate = '';
   fcApi = null;
+  duration = null;
 
   constructor() {
     makeAutoObservable(this);
@@ -19,6 +20,10 @@ class DateStore {
   
   setFcApi(api) {
     this.fcApi = api;
+  }
+  
+  setDuration(int) {
+    this.duration = int;
   }
 
   reset() {

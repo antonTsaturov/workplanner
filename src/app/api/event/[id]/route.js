@@ -20,7 +20,7 @@ export async function GET() {
 // POST - Create a new event
 export async function POST(request) {
   try {
-    const { start, end, title, subtitle, project, dept, author, comments } = await request.json();
+    const { start, end, duration, title, subtitle, project, dept, author, comments } = await request.json();
     
     //Validate input
     if (!start || !end) {
@@ -31,8 +31,8 @@ export async function POST(request) {
     } 
     
     const db = getDatabase();
-    const stmt = db.prepare('INSERT INTO events (start, end, title, subtitle, project, dept, author, comments) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
-    const result = stmt.run(start, end, title, subtitle, project, dept, author, comments);
+    const stmt = db.prepare('INSERT INTO events (start, end, duration, title, subtitle, project, dept, author, comments) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
+    const result = stmt.run(start, end, duration, title, subtitle, project, dept, author, comments);
 
     return NextResponse.json(
       { 
@@ -103,7 +103,7 @@ export async function DELETE(request) {
 // PUT - Update an existing event
 export async function PUT(request) {
   try {
-    const { id, start, end, title, subtitle, project, comments } = await request.json();
+    const { id, start, end, duration, title, subtitle, project, comments } = await request.json();
         
     const db = getDatabase();
     
@@ -118,8 +118,8 @@ export async function PUT(request) {
     }
 
     // Update the event
-    const stmt = db.prepare('UPDATE events SET start = ?, end = ?, title = ?, subtitle = ?, project = ?, comments = ? WHERE id = ?');
-    const result = stmt.run(start, end, title, subtitle, project, comments, id);
+    const stmt = db.prepare('UPDATE events SET start = ?, end = ?, duration = ?, title = ?, subtitle = ?, project = ?, comments = ? WHERE id = ?');
+    const result = stmt.run(start, end, duration, title, subtitle, project, comments, id);
 
     return NextResponse.json(
       { 

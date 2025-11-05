@@ -4,6 +4,8 @@ import { storage } from '../utils/localStorage';
 import { createContext, useContext, useEffect, useState } from 'react';
 import NaviBar from './NaviBar';
 import { getSessionInfo } from '../lib/fetch';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
 
 // Типы
 interface UserSession {
@@ -76,10 +78,12 @@ export function SessionProvider({
   //console.log(session)
   return (
     <SessionContext.Provider value={contextValue}>
+      <Router>
       <NaviBar
         //session={session}
         resetSession={resetSession}
       />
+      </Router>
       {children}
     </SessionContext.Provider>
   );

@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react';
-//import { CalendarEvent } from '@/types/event';
 import { handleGetEventInfo } from '../lib/fetch'
 
 
@@ -7,6 +6,7 @@ interface CalendarEvent {
   id: number;
   start: string;
   end: string;
+  duration: number;
 }
 
 export function useEvents() {
@@ -23,6 +23,7 @@ export function useEvents() {
     fetchEvents();
   }, []);
   
+  //console.log(events)
   const reloadEvents = useCallback(() => {
     fetchEvents();
   }, [])

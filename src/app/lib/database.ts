@@ -12,6 +12,7 @@ export function getDatabase() {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         start TEXT NOT NULL,
         end TEXT NOT NULL,
+        duration TEXT NOT NULL,
         title TEXT NOT NULL,
         subtitle TEXT NOT NULL,
         project TEXT NOT NULL,

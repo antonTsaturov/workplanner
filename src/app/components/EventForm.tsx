@@ -9,6 +9,7 @@ export interface EventFormProps {
   eventInfo: {
     start: string,
     end: string,
+    duration: string,
     title?: string,
     subtitle?: string,
     project?: string,
@@ -24,9 +25,10 @@ export interface EventFormProps {
   handleNotify: () => void;
 }
 
+const MILLISEC_IN_HOUR = 3600000;
 
 const EventForm = ({eventInfo, tasks, subtasks, userData, handleModal, handleNotify}: EventFormProps) => {
-    
+  
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const projects = [
@@ -39,6 +41,7 @@ const EventForm = ({eventInfo, tasks, subtasks, userData, handleModal, handleNot
   const [formData, setFormData] = useState({
     start: eventInfo.start,
     end: eventInfo.end,
+    duration: ((new Date(eventInfo.end) - new Date(eventInfo.start)) / MILLISEC_IN_HOUR),
     title: tasks[0].title,
     subtitle: subtasks[0].details[0].subtitle,
     project: 0,

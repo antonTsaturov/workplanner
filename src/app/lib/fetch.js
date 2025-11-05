@@ -46,16 +46,12 @@
 
       if (response.ok) {
         // Remove event 
-        //alert('Event deleted successfully');
         return response
       } else {
-        //const error = await response.json();
-        //alert(`Error: ${error.error}`);
         return response
       }
     } catch (error) {
       console.error('Delete error:', error);
-      //alert('Error deleting event');
       return error
       
     } finally {

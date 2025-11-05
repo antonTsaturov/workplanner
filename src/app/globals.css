@@ -347,6 +347,11 @@ a {
   transition: color 0.2s ease;
 }
 
+.nav-link.active {
+  color: rgb(191 219 254);
+}
+
+
 .nav-link:hover {
   color: rgb(191 219 254);
   background-color: rgba(255, 255, 255, 0.1);

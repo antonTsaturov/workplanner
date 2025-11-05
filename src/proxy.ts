@@ -11,6 +11,8 @@ export async function proxy(request: NextRequest) {
     request.nextUrl.pathname.startsWith(route)
   );
   const session = request.cookies.get('session')?.value
+  
+  console.log(session)
     
   if (request.nextUrl.pathname === '/' || request.nextUrl.pathname == protectedRoutes && !session) {
     return NextResponse.redirect(new URL('/auth', request.url));
