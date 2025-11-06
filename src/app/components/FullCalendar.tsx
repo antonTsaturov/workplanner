@@ -7,8 +7,8 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import '../styles/Calendar.css'
 
-import  Modal  from './Modal'
-import  EventForm  from './EventForm';
+import Modal  from './Modal'
+import EventForm  from './EventForm';
 import Dialog from './Dialog';
 import SidePanel from './SidePanel';
 
@@ -18,6 +18,8 @@ import useNotification from '../hooks/useNotification';
 
 import { handleSubmitEventInfo, handleDeleteEvent, handleGetEventInfo } from '../lib/fetch'
 import { useEvents } from '../hooks/useEvents';
+import { useModal } from '../hooks/useModal';
+
 import { storage } from '../utils/localStorage';
 import { tasks, subtasks } from '../lib/tasks';
 import { useSession } from './Providers';
@@ -67,16 +69,16 @@ const Calendar = observer(() => {
   }, [tasks, subtasks, session]);
 
     
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const { isModalOpen, open, close} = useModal();
+  
   const [selectedPeriodInfo, setSelectedPeriodInfo] = useState({});
   const [selected, setSelected] = useState();
   const [currentEvents, setCurrentEvents] = useState([])
   const [clickInfo, setClickInfo] = useState();
 
-  const openModal = () => setIsModalOpen(true);  
   
   const closeModal = () => {
-    setIsModalOpen(false);
+    close()
     selected ? selected.view.calendar.unselect() : null; //unselect current slots after close modal
     setSelected(false)
     reloadEvents()
@@ -85,7 +87,7 @@ const Calendar = observer(() => {
   function handleEventClick(info) {
     setClickInfo(info.event);
     setIsEventUpdated(false);
-    openModal()
+    open()
     setSelectedPeriodInfo({
       id: info.event.id,
       start: info.event.start,
@@ -101,7 +103,7 @@ const Calendar = observer(() => {
   const handleNewEvent = (e) => {
     setSelected(true)
     setIsEventUpdated(false);
-    openModal()
+    open()
     setSelectedPeriodInfo({
       start: e.startStr.slice(0,-6).toString(),
       end: e.endStr.slice(0,-6).toString()
@@ -109,7 +111,7 @@ const Calendar = observer(() => {
   };
   
   const handleModal = (subaction) => {
-    closeModal()
+    close()
     subaction === 'eventDelete' && clickInfo.remove()
     setClickInfo(null)
   }
@@ -120,7 +122,7 @@ const Calendar = observer(() => {
   
   const handleEventUpdate = (eventDropInfo) => {
     setIsEventUpdated(true)
-    openModal()
+    open()
     
     setSelectedPeriodInfo({
       id: eventDropInfo.event.id,

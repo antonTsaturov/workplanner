@@ -266,6 +266,12 @@
   flex-direction: column;
   margin-top: 1rem;
   padding-top: 1rem;
+  max-height: 300px;
+  overflow: auto;
+  box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.1);
+  scroll-behavior: smooth;
+  background: #f8f9fa;
+  border-radius: var(--radius-md);
 }
 
 .staff-item {
@@ -277,12 +283,13 @@
   margin-bottom: 0.75rem;
   background: var(--background-primary);
   transition: var(--transition);
+  width: 95%;
+  align-self: center;
 }
 
 .staff-item:hover {
-  border-color: var(--primary-color);
-  box-shadow: var(--shadow-sm);
-  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+  cursor: pointer;
 }
 
 .staff-item-avatar {

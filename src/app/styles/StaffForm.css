@@ -22,7 +22,7 @@
   --transition: all 0.2s ease-in-out;
 }
 
-.event-form-container, .modal-dialog {
+.staff-form-container {
 
   display: flex;
   flex-direction: column;
@@ -32,25 +32,18 @@
   padding: 0.1rem;
   background: var(--background-secondary);
   border-radius: 5px;
-  
-/*
-  width:117%
-*/
-
 }
 
-.event-form-title {
-  font-size: 1.2rem;
+.staff-form-title {
+  font-size: 1rem;
   font-weight: 700;
   color: var(--text-primary);
-/*
-  margin-bottom: 1.5rem;
-*/
+  margin-bottom: 3.5rem;
   text-align: center;
   position: relative;
 }
 
-.event-form-title::after {
+.staff-form-title::after {
   content: '';
   position: absolute;
   bottom: -0.5rem;
@@ -62,18 +55,18 @@
   border-radius: 2px;
 }
 
-.event-form-content {
+.staff-form-content {
   background: var(--background-primary);
-  margin: 0 2rem 2rem;
+  margin: 2rem 3rem 2rem;
   padding: 1rem 1rem 0;
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
   min-width: 450px;
-  max-width: 800px;
+  max-width: 900px;
 
 }
 
-.event-form-content-columns {
+.staff-form-content-columns {
   display: flex;
   flex-direction: row;
   column-gap: 2.5rem;
@@ -83,7 +76,7 @@
   flex-wrap: wrap;
 }
 
-.event-form-input, .event-form-select {
+.staff-form-input, .staff-form-select {
   width: -moz-available;
   max-width: 220px;
   height: 2.75rem;
@@ -95,20 +88,21 @@
   background: var(--background-primary);
   transition: var(--transition);
   box-shadow: var(--shadow-sm);
+  /* margin-bottom: 1.5rem; */
 }
 
-.event-form-input:focus, .event-form-select:focus {
+.staff-form-input:focus, .staff-form-select:focus {
   outline: none;
   border-color: var(--primary-active);
   box-shadow: 0 0 3px rgb(99 102 241 / 0.1);
 }
 
-.event-form-input:hover, .event-form-select:hover, .event-form-textarea:hover {
+.staff-form-input:hover, .staff-form-select:hover, .staff-form-textarea:hover {
   outline: none;
   box-shadow: 0 0 0 3px rgb(99 102 241 / 0.1);
 }
 
-.event-form-select {
+.staff-form-select {
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
   background-repeat: no-repeat;
@@ -117,30 +111,6 @@
   padding-right: 2.5rem;
 }
 
-.event-form-textarea {
-  max-width: 220px;
-  height: 7.6rem;
-  border-radius: var(--radius-md);
-  border: 1.5px solid var(--border-color);
-  padding: 0.75rem;
-  font-size: 0.875rem;
-  color: var(--text-primary);
-  background: var(--background-primary);
-  resize: none;
-  transition: var(--transition);
-  box-shadow: var(--shadow-sm);
-  font-family: inherit;
-  line-height: 1.4;
-}
-
-.event-form-textarea:focus {
-  outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgb(99 102 241 / 0.1);
-/*
-  transform: translateY(-1px);
-*/
-}
 
 .event-button-container, .modal-dialog-container {
 /*
@@ -221,17 +191,16 @@
   box-shadow: var(--shadow-sm);
 }
 
-/*
-.event-error, .dialog-error {
-  color: var(--danger-color);
-  font-style: italic;
-  font-size: 0.75rem;
-  margin-top: 0.25rem;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
+.staff-form-label {
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin-bottom: .5rem;
+  font-size: .75rem;
+  font-weight: 600;
+  display: block;  
 }
-*/
+
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
@@ -255,4 +224,45 @@
     transform: translateY(-12px) scale(1.01);
   }
 */
+}
+
+/* Add these to your existing StaffForm.css */
+
+.input-error {
+  border-color: var(--danger-color) !important;
+  box-shadow: 0 0 0 3px rgb(239 68 68 / 0.1) !important;
+}
+
+.error-message {
+  color: var(--danger-color);
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+  display: block;
+  font-weight: 500;
+  height: 1.6rem;
+}
+
+.staff-form-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.staff-form-label:after {
+  content: attr(data-required);
+  color: var(--danger-color);
+  margin-left: 0.25rem;
+}
+
+.event-button-save:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.event-button-save:disabled:hover {
+  transform: none !important;
+  box-shadow: var(--shadow-sm) !important;
 }

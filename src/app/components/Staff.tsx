@@ -1,5 +1,14 @@
 
 import '../styles/Staff.css';
+import '../globals.css';
+
+
+import  Modal  from './Modal';
+import StaffAddForm from './StaffAddForm';
+import StaffViewForm from './StaffViewForm';
+import { useModal } from '../hooks/useModal';
+
+
 
 import React, { useState, useEffect } from 'react';
 
@@ -12,9 +21,11 @@ const Staff = () => {
       email: 'john.smith@company.com',
       phone: '+1 (555) 123-4567',
       department: 'Engineering',
-      project: 'Website Redesign',
+      projects: 'Website Redesign',
       position: 'Senior Developer',
-      status: 'Active'
+      status: 'Active',
+      location: 'Los Angeles',
+      hireDate: '02 Feb 2024',
     },
     {
       id: 2,
@@ -22,9 +33,11 @@ const Staff = () => {
       email: 'sarah.j@company.com',
       phone: '+1 (555) 987-6543',
       department: 'Marketing',
-      project: 'Q4 Campaign',
+      projects: 'Q4 Campaign',
       position: 'Marketing Manager',
-      status: 'Active'
+      status: 'Inactive',
+      location: 'Los Angeles',
+      hireDate: '02 Feb 2024',
     },
     {
       id: 3,
@@ -32,9 +45,11 @@ const Staff = () => {
       email: 'michael.chen@company.com',
       phone: '+1 (555) 456-7890',
       department: 'Engineering',
-      project: 'Mobile App',
+      projects: 'Mobile App',
       position: 'Frontend Developer',
-      status: 'Active'
+      status: 'Active',
+      location: 'Los Angeles',
+      hireDate: '02 Feb 2024',
     },
     {
       id: 4,
@@ -42,9 +57,11 @@ const Staff = () => {
       email: 'emily.davis@company.com',
       phone: '+1 (555) 234-5678',
       department: 'HR',
-      project: 'Recruitment Drive',
+      projects: 'Recruitment Drive',
       position: 'HR Specialist',
-      status: 'On Leave'
+      status: 'On Leave',
+      location: 'Los Angeles',
+      hireDate: '02 Feb 2024',
     },
     {
       id: 5,
@@ -52,26 +69,51 @@ const Staff = () => {
       email: 'r.wilson@company.com',
       phone: '+1 (555) 876-5432',
       department: 'Sales',
-      project: 'Enterprise Clients',
+      projects: 'Enterprise Clients',
       position: 'Sales Director',
-      status: 'Active'
-    }
+      status: 'Active',
+      location: 'Los Angeles',
+      hireDate: '02 Feb 2024',
+    },
+    {
+      id: 6,
+      name: 'Martin Luter',
+      email: 'm.luter@company.com',
+      phone: '+1 (555) 236-5431',
+      department: 'Sales',
+      projects: 'Enterprise Clients',
+      position: 'Sales Director',
+      status: 'Active',
+      location: 'Los Angeles',
+      hireDate: '02 Feb 2024',
+    },
   ]);
+
+  const { isModalOpen, open, close} = useModal();
+  const openModal = () => {
+    open();
+    
+  }
+  
+  const closeModal = () => {
+    close();
+    
+  }
 
   // State for filters and search
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState({
     department: '',
-    project: '',
+    projects: '',
     status: ''
   });
   const [activeFilters, setActiveFilters] = useState([]);
   const [sortBy, setSortBy] = useState('name');
   const [filteredEmployees, setFilteredEmployees] = useState([]);
 
-  // Departments and projects for filter options
+  // Departments and projectss for filter options
   const departments = ['Engineering', 'Marketing', 'HR', 'Sales', 'Finance', 'Operations'];
-  const projects = ['Website Redesign', 'Mobile App', 'Q4 Campaign', 'Recruitment Drive', 'Enterprise Clients'];
+  const projectss = ['Website Redesign', 'Mobile App', 'Q4 Campaign', 'Recruitment Drive', 'Enterprise Clients'];
   const statusOptions = ['Active', 'On Leave', 'Inactive'];
 
   // Quick filter options
@@ -79,7 +121,7 @@ const Staff = () => {
     { label: 'Engineering', value: 'Engineering', type: 'department' },
     { label: 'Active', value: 'Active', type: 'status' },
     { label: 'Marketing', value: 'Marketing', type: 'department' },
-    { label: 'Website Project', value: 'Website Redesign', type: 'project' }
+    { label: 'Website projects', value: 'Website Redesign', type: 'projects' }
   ];
 
   // Filter employees based on search and filters
@@ -94,7 +136,7 @@ const Staff = () => {
         employee.email.toLowerCase().includes(term) ||
         employee.phone.toLowerCase().includes(term) ||
         employee.department.toLowerCase().includes(term) ||
-        employee.project.toLowerCase().includes(term)
+        employee.projects.toLowerCase().includes(term)
       );
     }
 
@@ -102,8 +144,8 @@ const Staff = () => {
     if (filters.department) {
       results = results.filter(employee => employee.department === filters.department);
     }
-    if (filters.project) {
-      results = results.filter(employee => employee.project === filters.project);
+    if (filters.projects) {
+      results = results.filter(employee => employee.projects === filters.projects);
     }
     if (filters.status) {
       results = results.filter(employee => employee.status === filters.status);
@@ -125,6 +167,7 @@ const Staff = () => {
     });
 
     setFilteredEmployees(results);
+    console.log(filteredEmployees)
   }, [employees, searchTerm, filters, activeFilters, sortBy]);
 
   // Handle search input change
@@ -153,19 +196,19 @@ const Staff = () => {
   };
 
   // Remove active filter
-  const removeActiveFilter = (index) => {
+  const removeActiveFilter = (index:number) => {
     setActiveFilters(prev => prev.filter((_, i) => i !== index));
   };
 
   // Clear all filters
   const clearAllFilters = () => {
     setSearchTerm('');
-    setFilters({ department: '', project: '', status: '' });
+    setFilters({ department: '', projects: '', status: '' });
     setActiveFilters([]);
   };
 
   // Get initials for avatar
-  const getInitials = (name) => {
+  const getInitials = (name:string) => {
     return name
       .split(' ')
       .map(part => part[0])
@@ -180,8 +223,47 @@ const Staff = () => {
     //alert('Changes saved successfully!');
   };
 
+  interface TargetEmployeInfo {
+    id: number;
+    name: string;
+    email: string;
+    phone: string;
+    department: string;
+    projects: string;
+    position: string;
+    status: string;
+  }
+  // Show detailed employe card
+  const [emplData, setEmplData] = useState<TargetEmployeInfo>()
+  const showEmplCard = (id:number) => {
+    const [targetEmployeInfo] = employees.filter(item => item.id == id)
+    openModal();
+    setEmplData(targetEmployeInfo)
+  }
+
+  // Add new employe
+  const addNewEmpl = () => {
+    setEmplData('')
+    openModal()
+  }
+
+
   return (
     <div className="staff-container">
+    
+      <Modal isOpen={isModalOpen} onClose={closeModal}>
+        {emplData ? (
+          <StaffViewForm 
+            emplData={emplData}
+          />
+        ) : (
+          <StaffAddForm />
+          
+        )
+          }
+      </Modal>
+    
+    
       <div className="staff-content">
         {/* Search Section */}
         <div className="staff-search-section">
@@ -190,7 +272,7 @@ const Staff = () => {
               <input
                 type="text"
                 className="staff-search-input"
-                placeholder="Search by name, email, phone, department, or project..."
+                placeholder="Search by name, email, phone, department, or projects..."
                 value={searchTerm}
                 onChange={handleSearchChange}
               />
@@ -252,15 +334,15 @@ const Staff = () => {
           </div>
 
           <div className="staff-filter-group">
-            <label className="staff-filter-label">Project</label>
+            <label className="staff-filter-label">projects</label>
             <select
               className="staff-content-select"
-              value={filters.project}
-              onChange={(e) => handleFilterChange('project', e.target.value)}
+              value={filters.projects}
+              onChange={(e) => handleFilterChange('projects', e.target.value)}
             >
-              <option value="">All Projects</option>
-              {projects.map(project => (
-                <option key={project} value={project}>{project}</option>
+              <option value="">All projectss</option>
+              {projectss.map(projects => (
+                <option key={projects} value={projects}>{projects}</option>
               ))}
             </select>
           </div>
@@ -301,34 +383,29 @@ const Staff = () => {
         </div>
 
         {/* Employee List */}
-        <div className="staff-content-items">
+        <div className="staff-content-items"  >
           {filteredEmployees.length > 0 ? (
             filteredEmployees.map(employee => (
-              <div key={employee.id} className="staff-item">
-                <div className="staff-item-avatar">
+              <div id={employee.id} key={employee.id} className="staff-item" onClick={(item)=>showEmplCard(item.target.id)} >
+                <div id={employee.id} className="staff-item-avatar">
                   {getInitials(employee.name)}
                 </div>
-                <div className="staff-item-details">
-                  <div className="staff-item-name">{employee.name}</div>
-                  <div className="staff-item-meta">
-                    <span className="staff-item-contact">
+                <div id={employee.id} className="staff-item-details">
+                  <div id={employee.id} className="staff-item-name">{employee.name}</div>
+                  <div id={employee.id} className="staff-item-meta">
+                    <span id={employee.id} className="staff-item-contact">
                       📧 {employee.email}
                     </span>
-                    <span className="staff-item-contact">
+                    <span id={employee.id} className="staff-item-contact">
                       {'             '}
                     </span>
-                    <span className="staff-item-contact">
+                    <span id={employee.id} className="staff-item-contact">
                       📞 {employee.phone}
                     </span>
-                    <span className="staff-item-contact">
+                    <span id={employee.id} className="staff-item-contact">
                       💼 {employee.position}
                     </span>
                   </div>
-                </div>
-                <div className="staff-item-actions">
-                  <button className="staff-button-save" style={{ height: '35px', padding: '0 1rem' }}>
-                    Edit
-                  </button>
                 </div>
               </div>
             ))
@@ -347,8 +424,8 @@ const Staff = () => {
 
         {/* Action Buttons */}
         <div className="staff-button-container">
-          <button className="staff-button-save" onClick={handleSave}>
-            <span className="button-text">Add new</span>
+          <button className="staff-button-save" onClick={addNewEmpl}>
+            <span className="button-text">Add new employee</span>
           </button>
         </div>
       </div>

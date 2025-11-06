@@ -1,4 +1,4 @@
-/* Event Form - Modernized */
+/* Employee View - Modernized */
 :root {
   --primary-color: #6366f1;
   --primary-hover: #A9A5E8;
@@ -22,8 +22,7 @@
   --transition: all 0.2s ease-in-out;
 }
 
-.event-form-container, .modal-dialog {
-
+.employee-view-container {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -32,25 +31,18 @@
   padding: 0.1rem;
   background: var(--background-secondary);
   border-radius: 5px;
-  
-/*
-  width:117%
-*/
-
 }
 
-.event-form-title {
+.employee-view-title {
   font-size: 1.2rem;
   font-weight: 700;
   color: var(--text-primary);
-/*
-  margin-bottom: 1.5rem;
-*/
   text-align: center;
   position: relative;
+  margin-bottom: 3.5rem;
 }
 
-.event-form-title::after {
+.employee-view-title::after {
   content: '';
   position: absolute;
   bottom: -0.5rem;
@@ -62,18 +54,17 @@
   border-radius: 2px;
 }
 
-.event-form-content {
+.employee-view-content {
   background: var(--background-primary);
-  margin: 0 2rem 2rem;
-  padding: 1rem 1rem 0;
+  margin: 2rem 3rem 3rem 2rem;
+  padding: 1.5rem;
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
   min-width: 450px;
-  max-width: 800px;
-
+  max-width: 900px;
 }
 
-.event-form-content-columns {
+.employee-view-content-columns {
   display: flex;
   flex-direction: row;
   column-gap: 2.5rem;
@@ -83,83 +74,51 @@
   flex-wrap: wrap;
 }
 
-.event-form-input, .event-form-select {
-  width: -moz-available;
-  max-width: 220px;
-  height: 2.75rem;
+.employee-info-group {
+  margin-bottom: 1.5rem;
+  flex: 1 1 200px;
+  min-width: 200px;
+}
+
+.employee-info-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+.employee-info-value {
+  display: flex;
+  align-items: center;
+  min-height: 2.75rem;
   border-radius: var(--radius-md);
   border: 1.5px solid var(--border-color);
   padding: 0 0.875rem;
   font-size: 0.875rem;
   color: var(--text-primary);
-  background: var(--background-primary);
+  background: var(--background-secondary);
   transition: var(--transition);
   box-shadow: var(--shadow-sm);
+  word-break: break-word;
 }
 
-.event-form-input:focus, .event-form-select:focus {
-  outline: none;
-  border-color: var(--primary-active);
-  box-shadow: 0 0 3px rgb(99 102 241 / 0.1);
+.employee-info-value-empty {
+  color: var(--text-secondary);
+  font-style: italic;
 }
 
-.event-form-input:hover, .event-form-select:hover, .event-form-textarea:hover {
-  outline: none;
-  box-shadow: 0 0 0 3px rgb(99 102 241 / 0.1);
-}
-
-.event-form-select {
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 0.75rem center;
-  background-size: 1rem;
-  padding-right: 2.5rem;
-}
-
-.event-form-textarea {
-  max-width: 220px;
-  height: 7.6rem;
-  border-radius: var(--radius-md);
-  border: 1.5px solid var(--border-color);
-  padding: 0.75rem;
-  font-size: 0.875rem;
-  color: var(--text-primary);
-  background: var(--background-primary);
-  resize: none;
-  transition: var(--transition);
-  box-shadow: var(--shadow-sm);
-  font-family: inherit;
-  line-height: 1.4;
-}
-
-.event-form-textarea:focus {
-  outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgb(99 102 241 / 0.1);
-/*
-  transform: translateY(-1px);
-*/
-}
-
-.event-button-container, .modal-dialog-container {
-/*
-  width: 100%;
-*/
+.employee-view-actions {
   margin: 1.5rem 0 1rem 0;
   padding-top: 1.5rem;
   border-top: 1px solid var(--border-color);
   text-align: end;
-/*
-  height: 2rem;
-*/
 }
 
-.event-button-save, .modal-dialog-button-confirm {
+.employee-view-button-edit {
   height: 47px;
-/*
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
-*/
   background: linear-gradient(135deg, var(--primary-color), var(--primary-color));
   color: white;
   border-radius: var(--radius-md);
@@ -173,10 +132,10 @@
   display: inline-block;
 }
 
-.event-button-delete, .modal-dialog-button-decline {
+.employee-view-button-back {
   height: 47px;
   background: var(--background-primary);
-  color: var(--danger-color);
+  color: var(--text-secondary);
   border-radius: var(--radius-md);
   border: 1.5px solid var(--border-color);
   padding: 0 1.5rem;
@@ -189,70 +148,67 @@
   margin: 0 1rem 0 0;
 }
 
-.button-text {
-  pointer-events: none;
-  margin-top: 16px;
-}
-
-.event-button-save:hover, .modal-dialog-button-confirm:hover {
+.employee-view-button-edit:hover {
   background: linear-gradient(135deg, var(--primary-hover), var(--primary-active));
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
 }
 
-.event-button-delete:hover, .modal-dialog-button-decline:hover {
-  background: var(--danger-color);
+.employee-view-button-back:hover {
+  background: var(--text-secondary);
   color: white;
-  border-color: var(--danger-color);
+  border-color: var(--text-secondary);
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
 }
 
-.event-button-save:active, .modal-dialog-button-confirm:active {
+.employee-view-button-edit:active {
   background: linear-gradient(135deg, var(--primary-active), var(--primary-color));
   transform: translateY(0);
   box-shadow: var(--shadow-sm);
 }
 
-.event-button-delete:active, .modal-dialog-button-decline:active {
-  background: var(--danger-active);
-  border-color: var(--danger-active);
+.employee-view-button-back:active {
+  background: var(--text-primary);
+  border-color: var(--text-primary);
   transform: translateY(0);
   box-shadow: var(--shadow-sm);
 }
 
-/*
-.event-error, .dialog-error {
-  color: var(--danger-color);
-  font-style: italic;
+/* Status badges */
+.employee-status-active {
+  background: linear-gradient(135deg, var(--success-color), #34d399);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-sm);
   font-size: 0.75rem;
-  margin-top: 0.25rem;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
+  font-weight: 600;
+  display: inline-block;
 }
-*/
+
+.employee-status-inactive {
+  background: linear-gradient(135deg, var(--text-secondary), #9ca3af);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: inline-block;
+}
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-  .event-form-content-columns {
+  .employee-view-content-columns {
     flex-direction: column;
     row-gap: 1.5rem;
     column-gap: 0;
   }
   
-  .event-form-input, .event-form-select, .event-form-textarea {
-    max-width: 100%;
+  .employee-info-group {
+    flex: 1 1 100%;
   }
   
-  .event-button-container, .modal-dialog-container {
-    justify-content: center;
+  .employee-view-actions {
+    text-align: center;
   }
-
-/*
-  .event-button-save:hover, .modal-dialog-button-confirm:hover,
-  .event-button-delete:hover, .modal-dialog-button-decline:hover {
-    transform: translateY(-12px) scale(1.01);
-  }
-*/
 }

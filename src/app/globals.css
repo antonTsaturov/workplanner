@@ -71,28 +71,14 @@ a {
 }
 
 .modal-content {
-
-/*
-  background: white;
-  border-radius: 8px;
-*/
-  max-width: 550px;
+  max-width: 950px;
   min-width: 87vh;
   max-height: 100vh;
   min-width: 55vh;
-/*
-  overflow-y: auto;
-*/
-/*
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-*/
   transform: translateY(-20px) scale(0.95);
-/*
-  padding: 0 36px;
-*/
   opacity: 0;
-  width: -moz-available;
-  width: -webkit-fill-available;
+  /* width: -moz-available;
+  width: -webkit-fill-available; */
 
   transition: all 0.3s ease-in-out;
   position: relative;

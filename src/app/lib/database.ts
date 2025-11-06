@@ -32,6 +32,20 @@ export function getDatabase() {
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )
     `);
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS staff (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        email TEXT NOT NULL UNIQUE,
+        dept TEXT NOT NULL,
+        phone TEXT NOT NULL,
+        location TEXT NOT NULL,
+        project TEXT NOT NULL,
+        position TEXT NOT NULL,
+        status TEXT NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
 
   }
   return db;

@@ -1,7 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import '../globals.css';
 
-const Modal = ({ isOpen, onClose, children }: { isOpen: boolean, onClose: () => void, children: React.ReactNode }) => {
+interface ModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  children: React.ReactNode;
+}
+
+const Modal = ({ 
+  isOpen,
+  onClose,
+  children
+}: { 
+  isOpen: boolean,
+  onClose: () => void,
+  children: React.ReactNode
+}) => {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
