@@ -2,7 +2,7 @@
 
 import '../styles/StaffForm.css';
 import { useState, useEffect } from 'react';
-import { handleSaveNewEmpl } from '../lib/fetch'
+import { handleFetch } from '../lib/fetch'
 
 interface StaffAddFormProps {
   emplData: {
@@ -190,22 +190,24 @@ const StaffAddForm = ({emplData, handleModal, handleNotify}:StaffAddFormProps) =
 
     console.log('Form data is valid:', formData);
     
-     try {
-
-       const response = await handleSaveNewEmpl(formData);
-       if (!response.error) {
-         console.log(response)
-         setTimeout(()=> {handleModal()}, 800 )
-         setTimeout(()=> {handleNotify('success')}, 700 )
-       } else {
-         console.log('response error: ', response.message)
-         setTimeout(()=> {handleNotify('error')}, 500 )
-       }
+    try {
+      //const response = await handleSaveNewEmpl(formData);
+      const response = await handleFetch('staff', 'POST', formData);
       
-     } catch (err) {
-       setTimeout(()=> {handleNotify('error')}, 500 )
-       console.log('response error: ', err)
-     }
+    if (!response.error) {
+      console.log(response)
+      setTimeout(()=> {handleModal()}, 800 )
+      setTimeout(()=> {handleNotify('success')}, 700 )
+      
+    } else {
+      console.log('response error: ', response.message)
+      setTimeout(()=> {handleNotify('error')}, 500 )
+    }
+
+    } catch (err) {
+      setTimeout(()=> {handleNotify('error')}, 500 )
+      console.log('response error: ', err)
+    }
   };
 
   // Add CSS for error states (add this to your StaffForm.css)

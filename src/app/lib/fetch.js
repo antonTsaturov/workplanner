@@ -49,13 +49,14 @@ const API_PATHS = {
   register: '/api/user/register',
   login: '/api/user/login',
   logout: '/api/user/logout',
+  session: '/api/user/session',
 };
 
 export const handleFetch = async (pathKey, method, data = null) => {
   // Get the API path template
   
   let apiPath = API_PATHS[pathKey]
-  if (method === 'GET' && data.includes('@')) {
+  if (method === 'GET' && data?.includes('@')) {
       apiPath += `?email=${data}`;
   }
   
@@ -191,113 +192,113 @@ export const handleFetch = async (pathKey, method, data = null) => {
 
 // FETCH FOR USER REGISTRATION AND AUTHORIZATION
 
-export const handleRegistration = async (e) => {
+//export const handleRegistration = async (e) => {
   
-  try {
-    const response = await fetch('/api/user/register', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(e),
-    });
+  //try {
+    //const response = await fetch('/api/user/register', {
+      //method: 'POST',
+      //headers: {
+        //'Content-Type': 'application/json',
+      //},
+      //body: JSON.stringify(e),
+    //});
 
-    const result = await response.json();
-    console.log('fetch result: ', result)
-    return result;
+    //const result = await response.json();
+    //console.log('fetch result: ', result)
+    //return result;
 
-  } catch (error) {
-    console.log(' handleRegistration Error creating user', error);
+  //} catch (error) {
+    //console.log(' handleRegistration Error creating user', error);
     
-  } finally {
-    console.log('final');
-    
-  }
-};
-
-export const handleLogin = async (e) => {
-  
-  try {
-    const response = await fetch('/api/user/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(e),
-    });
-
-    const result = await response.json();
-    //console.log('handleLogin Result: ', result)
-    return result;
-
-  } catch (error) {
-    console.log(' handleLogin Error: ', error);
-    
-  } finally {
+  //} finally {
     //console.log('final');
     
-  }
-};
+  //}
+//};
 
-export const getSessionInfo = async () => {
+//export const handleLogin = async (e) => {
   
-  try {
-    const response = await fetch('/api/user/session', {
-      method: 'GET',
-    });
+  //try {
+    //const response = await fetch('/api/user/login', {
+      //method: 'POST',
+      //headers: {
+        //'Content-Type': 'application/json',
+      //},
+      //body: JSON.stringify(e),
+    //});
 
-    const result = await response.json()
-    return result;
+    //const result = await response.json();
+    ////console.log('handleLogin Result: ', result)
+    //return result;
 
-  } catch (error) {
-    console.log(' getSessionInfo fetch Error: ', error);
+  //} catch (error) {
+    //console.log(' handleLogin Error: ', error);
     
-  } 
-};
+  //} finally {
+    ////console.log('final');
+    
+  //}
+//};
 
-
-export const logout = async () => {
+//export const getSessionInfo = async () => {
   
-  try {
-    const response = await fetch('/api/user/logout', {
-      method: 'GET',
-    });
+  //try {
+    //const response = await fetch('/api/user/session', {
+      //method: 'GET',
+    //});
 
-    const result = await response.json()
-    console.log(result)
-    return result;
+    //const result = await response.json()
+    //return result;
 
-  } catch (error) {
-    console.log(' /app/lib/feth logout func Error: ', error);
+  //} catch (error) {
+    //console.log(' getSessionInfo fetch Error: ', error);
     
-  } finally {
-    console.log('final');
+  //} 
+//};
+
+
+//export const logout = async () => {
+  
+  //try {
+    //const response = await fetch('/api/user/logout', {
+      //method: 'GET',
+    //});
+
+    //const result = await response.json()
+    //console.log(result)
+    //return result;
+
+  //} catch (error) {
+    //console.log(' /app/lib/feth logout func Error: ', error);
     
-  }
-};
+  //} finally {
+    //console.log('final');
+    
+  //}
+//};
 
 // FETCH FOR STAFF
 
-export const handleSaveNewEmpl = async (e) => {
+//export const handleSaveNewEmpl = async (e) => {
 
-try {
-  const response = await fetch('/api/staff/[id]', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(e),
-  });
-  const result = await response.json();
-  return result;
+//try {
+  //const response = await fetch('/api/staff/[id]', {
+    //method: 'POST',
+    //headers: {
+      //'Content-Type': 'application/json',
+    //},
+    //body: JSON.stringify(e),
+  //});
+  //const result = await response.json();
+  //return result;
 
-} catch (error) {
-  console.log(`handleSaveNewEmpl Error: ${error}`);
-  return error;
+//} catch (error) {
+  //console.log(`handleSaveNewEmpl Error: ${error}`);
+  //return error;
   
-}
-//finally {
-  //console.log('Employee record created');
 //}
+////finally {
+  ////console.log('Employee record created');
+////}
 
-}
+//}

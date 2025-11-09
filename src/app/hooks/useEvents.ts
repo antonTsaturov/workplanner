@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { handleGetEventInfo, handleFetch } from '../lib/fetch'
+import { handleFetch } from '../lib/fetch'
 import { useSession } from '../components/Providers';
 
 

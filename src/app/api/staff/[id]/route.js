@@ -1,6 +1,37 @@
 import { getDatabase } from '../../../lib/database';
 import { NextResponse } from 'next/server';
 
+
+export async function GET() {
+  
+  try {
+    const db = await getDatabase();
+    const stmt = db.prepare('SELECT * FROM staff')
+    const events = stmt.all(); //').all();
+    
+    if (!events) {
+      return NextResponse.json(
+        { error: 'Events not found' },
+        { status: 404 }
+      );
+    }
+      
+    return NextResponse.json(
+      { success: true, data: events },
+      { status: 200 }
+    );
+    
+  }
+  catch (error) {
+    //console.log(error)
+    return NextResponse.json(
+      { success: false, error: error.message },
+      { status: 500 }
+    );
+  }
+}
+
+
 export async function POST(request) {
   try {
     const { dept, email, name, hireDate, location, phone, position, projects, status } = await request.json();

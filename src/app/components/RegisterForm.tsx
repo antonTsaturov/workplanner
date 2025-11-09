@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { handleRegistration, handleFetch } from '../lib/fetch'
+import { handleFetch } from '../lib/fetch'
 import { weakPasswordPatterns } from '../utils/passcheck'
 
 
@@ -92,21 +92,20 @@ export default function RegisterForm({ onToggleToLogin }: RegisterFormProps) {
     setError('');
     setSuccess('');
 
-    // Validation
-    //if (!formData.name || !formData.email || !formData.password ) {
-      //setError('Please fill in all fields');
-      //return;
-    //}
+     Validation
+    if (!formData.name || !formData.email || !formData.password ) {
+      setError('Please fill in all fields');
+      return;
+    }
 
 
-    //if (formData.password.length < 6) {
-      //setError('Password must be at least 6 characters long');
-      //return;
-    //}
+    if (formData.password.length < 6) {
+      setError('Password must be at least 6 characters long');
+      return;
+    }
     
     // API call
     try {
-      //let result = await handleRegistration(formData)
       const result = await handleFetch('register', 'POST', formData)
       if (result.error) {
         setError(result.error)

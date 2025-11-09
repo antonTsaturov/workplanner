@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { handleLogin } from '../lib/fetch';
+import { handleFetch } from '../lib/fetch';
 import { useRouter, redirect, replace} from 'next/navigation';
 
 
@@ -37,8 +37,9 @@ export default function LoginForm({ onToggleToRegister }: LoginFormProps) {
     }
     
     try {
-      let result = await handleLogin(formData);
+      const result = await handleFetch('login', 'POST', formData);
       result.error ? setError(result.error) : window.location.href = '/pages/calendar'
+      
     } catch (err) {
       setError('Login failed. Please check your credentials.');
       console.log(err)

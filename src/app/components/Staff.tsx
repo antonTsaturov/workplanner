@@ -7,6 +7,7 @@ import  Modal  from './Modal';
 import StaffAddForm from './StaffAddForm';
 import StaffViewForm from './StaffViewForm';
 import { useModal } from '../hooks/useModal';
+import { useEmployee } from '../hooks/useEmployee';
 import useNotification from '../hooks/useNotification';
 import NotificationContainer from './NotificationContainer';
 
@@ -30,80 +31,82 @@ const Staff = () => {
   }; 
   
   // Sample employee data
-  const [employees, setEmployees] = useState([
-    {
-      id: 1,
-      name: 'John Smith',
-      email: 'john.smith@company.com',
-      phone: '+1 (555) 123-4567',
-      dept: 'Engineering',
-      projects: 'Website Redesign',
-      position: 'Senior Developer',
-      status: 'Active',
-      location: 'Los Angeles',
-      hireDate: '02 Feb 2024',
-    },
-    {
-      id: 2,
-      name: 'Sarah Johnson',
-      email: 'sarah.j@company.com',
-      phone: '+1 (555) 987-6543',
-      dept: 'Marketing',
-      projects: 'Q4 Campaign',
-      position: 'Marketing Manager',
-      status: 'Inactive',
-      location: 'Los Angeles',
-      hireDate: '02 Feb 2024',
-    },
-    {
-      id: 3,
-      name: 'Michael Chen',
-      email: 'michael.chen@company.com',
-      phone: '+1 (555) 456-7890',
-      dept: 'Engineering',
-      projects: 'Mobile App',
-      position: 'Frontend Developer',
-      status: 'Active',
-      location: 'Los Angeles',
-      hireDate: '02 Feb 2024',
-    },
-    {
-      id: 4,
-      name: 'Emily Davis',
-      email: 'emily.davis@company.com',
-      phone: '+1 (555) 234-5678',
-      dept: 'HR',
-      projects: 'Recruitment Drive',
-      position: 'HR Specialist',
-      status: 'On Leave',
-      location: 'Los Angeles',
-      hireDate: '02 Feb 2024',
-    },
-    {
-      id: 5,
-      name: 'Robert Wilson',
-      email: 'r.wilson@company.com',
-      phone: '+1 (555) 876-5432',
-      dept: 'Sales',
-      projects: 'Enterprise Clients',
-      position: 'Sales Director',
-      status: 'Active',
-      location: 'Los Angeles',
-      hireDate: '02 Feb 2024',
-    },
-    {
-      id: 6,
-      name: 'Martin Luter',
-      email: 'm.luter@company.com',
-      phone: '+1 (555) 236-5431',
-      dept: 'Sales',
-      projects: 'Enterprise Clients',
-      position: 'Sales Director',
-      status: 'Active',
-      location: 'Los Angeles',
-      hireDate: '02 Feb 2024',
-    },
-  ]);
+    const { employees, reloadEmplData } = useEmployee();
+
+  //const [employees, setEmployees] = useState([
+    //{
+      //id: 1,
+      //name: 'John Smith',
+      //email: 'john.smith@company.com',
+      //phone: '+1 (555) 123-4567',
+      //dept: 'Engineering',
+      //projects: 'Website Redesign',
+      //position: 'Senior Developer',
+      //status: 'Active',
+      //location: 'Los Angeles',
+      //hireDate: '02 Feb 2024',
+    //},
+    //{
+      //id: 2,
+      //name: 'Sarah Johnson',
+      //email: 'sarah.j@company.com',
+      //phone: '+1 (555) 987-6543',
+      //dept: 'Marketing',
+      //projects: 'Q4 Campaign',
+      //position: 'Marketing Manager',
+      //status: 'Inactive',
+      //location: 'Los Angeles',
+      //hireDate: '02 Feb 2024',
+    //},
+    //{
+      //id: 3,
+      //name: 'Michael Chen',
+      //email: 'michael.chen@company.com',
+      //phone: '+1 (555) 456-7890',
+      //dept: 'Engineering',
+      //projects: 'Mobile App',
+      //position: 'Frontend Developer',
+      //status: 'Active',
+      //location: 'Los Angeles',
+      //hireDate: '02 Feb 2024',
+    //},
+    //{
+      //id: 4,
+      //name: 'Emily Davis',
+      //email: 'emily.davis@company.com',
+      //phone: '+1 (555) 234-5678',
+      //dept: 'HR',
+      //projects: 'Recruitment Drive',
+      //position: 'HR Specialist',
+      //status: 'On Leave',
+      //location: 'Los Angeles',
+      //hireDate: '02 Feb 2024',
+    //},
+    //{
+      //id: 5,
+      //name: 'Robert Wilson',
+      //email: 'r.wilson@company.com',
+      //phone: '+1 (555) 876-5432',
+      //dept: 'Sales',
+      //projects: 'Enterprise Clients',
+      //position: 'Sales Director',
+      //status: 'Active',
+      //location: 'Los Angeles',
+      //hireDate: '02 Feb 2024',
+    //},
+    //{
+      //id: 6,
+      //name: 'Martin Luter',
+      //email: 'm.luter@company.com',
+      //phone: '+1 (555) 236-5431',
+      //dept: 'Sales',
+      //projects: 'Enterprise Clients',
+      //position: 'Sales Director',
+      //status: 'Active',
+      //location: 'Los Angeles',
+      //hireDate: '02 Feb 2024',
+    //},
+  //]);
 
   const { isModalOpen, open, close} = useModal();
   const openModal = () => {

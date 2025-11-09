@@ -3,7 +3,7 @@
 import { storage } from '../utils/localStorage';
 import { createContext, useContext, useEffect, useState } from 'react';
 import NaviBar from './NaviBar';
-import { getSessionInfo } from '../lib/fetch';
+import { handleFetch } from '../lib/fetch';
 
 interface UserSession {
   id: string;
@@ -33,7 +33,7 @@ export function SessionProvider({
   async function loadSession() {
     try {
       setIsLoading(true);
-      const sessionData = await getSessionInfo();
+      const sessionData = await handleFetch('session', 'GET');
       storage.set('user', sessionData.user)
       //console.log('sessionData.user: ', sessionData.user)
       setSession(sessionData);

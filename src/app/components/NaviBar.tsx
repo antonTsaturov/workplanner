@@ -5,7 +5,7 @@ import Link from 'next/link'
 import '../globals.css';
 
 import { useRouter } from 'next/navigation';
-import { logout } from '../lib/fetch';
+import { handleFetch} from '../lib/fetch';
 import { storage } from '../utils/localStorage';
 import { useSession } from './Providers';
 
@@ -24,7 +24,7 @@ const NaviBar = ({resetSession}) => {
     
   const hadleLogout = async () => {
     resetSession()
-    await logout();
+    await handleFetch('logout', 'GET');
     await router.push('/auth');
     storage.remove('user')
     setPathname('auth')
