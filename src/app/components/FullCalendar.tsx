@@ -23,7 +23,6 @@ import { useModal } from '../hooks/useModal';
 import { storage } from '../utils/localStorage';
 import { tasks, subtasks } from '../lib/tasks';
 import { useSession } from './Providers';
-import { showNotification } from '../utils/notifications';
 import { observer } from 'mobx-react';
 import { dateStore } from '../store/dateStore';
 
@@ -36,7 +35,7 @@ const Calendar = observer(() => {
   
   const showNotification = (type, style = 'default') => {
     const messages = {
-      success: 'Operation completed.',
+      success: 'Completed.',
       error: 'Something went wrong. Please try again.',
       warning: 'Select a project code.',
       info: 'Event deleted.'
@@ -78,10 +77,11 @@ const Calendar = observer(() => {
 
   
   const closeModal = () => {
-    close()
-    selected ? selected.view.calendar.unselect() : null; //unselect current slots after close modal
-    setSelected(false)
-    reloadEvents()
+    //close()
+    //selected ? selected.view.calendar.unselect() : null; //unselect current slots after close modal
+    //setSelected(false)
+    
+    //reloadEvents()
   }
   
   function handleEventClick(info) {
@@ -111,9 +111,14 @@ const Calendar = observer(() => {
   };
   
   const handleModal = (subaction) => {
-    close()
+    //closeModal()
+    
+    close() // close modal
+    selected ? selected.view.calendar.unselect() : null; //unselect current slots after close modal
+    setSelected(false) 
     subaction === 'eventDelete' && clickInfo.remove()
-    setClickInfo(null)
+    setClickInfo(null) //Remove info about clicked event
+    !subaction && reloadEvents() //Reload all events after new event added only
   }
   
   const handleNotify = (status) => {
@@ -147,7 +152,7 @@ const Calendar = observer(() => {
   const panelVisibility = () => {
     if (!isVisible) {
       setIsVisible(true)
-      dateStore.setFcApi(calendarRef)
+      dateStore.setFcApi(calendarRef) //Month calendar will change view in FullCalendar
     } else {
       setIsVisible(false)
       calendarRerender()
@@ -177,12 +182,19 @@ const Calendar = observer(() => {
        
       
       const result = eventsDuration.reduce((sum, item) => sum + item.duration, 0); //sum durations of visible events
+      //return result;
       dateStore.setDuration(result)
+      
     } else {
       console.log('Calendar API not available')
     }
   }
-  getEventsDuration()
+  
+  const [curDate, setCurDate] = useState('')
+  useEffect (()=> {
+    getEventsDuration()
+  }, [events, curDate, dateStore.fcDate])
+  
   
     
   const calendarRerender = () => {
@@ -221,7 +233,8 @@ const Calendar = observer(() => {
                 const calendarApi = calendarRef.current.getApi();
                 calendarApi.next()
                 dateStore.setFcDate(calendarApi.currentData.currentDate)
-                getEventsDuration()
+                setCurDate(calendarApi.currentData.currentDate)
+                //dateStore.setDuration(getEventsDuration())
               }
             },
             customPrev: {
@@ -230,7 +243,8 @@ const Calendar = observer(() => {
                 const calendarApi = calendarRef.current.getApi();
                 calendarApi.prev()
                 dateStore.setFcDate(calendarApi.currentData.currentDate)
-                getEventsDuration()
+                setCurDate(calendarApi.currentData.currentDate)
+                //dateStore.setDuration(getEventsDuration())
               }
             }
           }}
@@ -278,7 +292,7 @@ const Calendar = observer(() => {
         />
       </div>
 
-      <Modal isOpen={isModalOpen} onClose={closeModal}>
+      <Modal isOpen={isModalOpen} onClose={handleModal}>
         {!isEventUpdated ? (
           <EventForm
             handleNotify={handleNotify}
@@ -306,10 +320,18 @@ const Calendar = observer(() => {
 })
 
 function renderEventContent(eventInfo) {
+  const duration = (eventInfo.event.end - eventInfo.event.start) / MILLISEC_IN_HOUR
+  
   return (
     <div>
-      <b>{eventInfo.timeText}</b><br/>
-      <div>{eventInfo.event.title}</div>
+      <b>{eventInfo.timeText}</b>
+      {duration !== 0.5 && (<br />)}
+      <label>{'  '}{eventInfo.event.title}</label>
+      {duration > 1 && (
+        <div>
+          <label><i>{eventInfo.event.extendedProps.subtitle}</i></label>
+        </div>
+      )}
     </div>
   )
 }

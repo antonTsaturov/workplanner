@@ -5,40 +5,38 @@ import Link from 'next/link'
 import '../globals.css';
 
 import { useRouter } from 'next/navigation';
-//import { getSessionInfo } from '../lib/fetch';
 import { logout } from '../lib/fetch';
 import { storage } from '../utils/localStorage';
 import { useSession } from './Providers';
-import { useLocation } from 'react-router-dom';
+
+
+import { usePathname } from 'next/navigation'
+
 
 const NaviBar = ({resetSession}) => {
   const { session, isLoading, refreshSession } = useSession();
-  const [pathname, setPathname] = useState(location?.pathname || window.location.pathname)
+
+  const initialPath = usePathname()
+
+  const [pathname, setPathname] = useState(usePathname())
   
   const router = useRouter();
-  
-  //console.log('Navibar: ', location)
-  
+    
   const hadleLogout = async () => {
     resetSession()
     await logout();
     await router.push('/auth');
     storage.remove('user')
-    setPathname('')
+    setPathname('auth')
   }
 
-  //useEffect(() => {
-    //handleClick()
-  //},[])
-
-  const handleClick = (page?) => {
-    !page ? setPathname(location?.pathname || window.location.pathname) : setPathname(page)
-    console.log('Navibar: ', page)
+  const handleClick = (e) => {
+    setPathname(e)
   }
   
 
-  //userData &&
-  return (
+  //!pathname.includes('auth') &&
+  return  !pathname.includes('auth') && (
     <nav className="navigation">
       <div className="nav-container">
         <div className="nav-content">
@@ -48,15 +46,15 @@ const NaviBar = ({resetSession}) => {
             <div className="nav-links">
               <Link
                 href="/pages/calendar"
-                className={`nav-link ${pathname.includes('calendar') ? 'active' : ''}`}
-                onClick={()=>handleClick('calendar')}
+                className={`nav-link ${pathname?.includes('calendar') ? 'active' : ''}`}
+                onClick={(e:string)=>handleClick('calendar')}
               >
                 Calendar
               </Link>
               <Link
                 href="/pages/staff"
-                className={`nav-link ${pathname.includes('staff') ? 'active' : ''}`}
-                onClick={()=>handleClick('staff')}
+                className={`nav-link ${pathname?.includes('staff') ? 'active' : ''}`}
+                onClick={(e:string)=>handleClick('staff')}
               >
                 Staff
               </Link>

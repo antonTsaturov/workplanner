@@ -40,9 +40,10 @@ export function getDatabase() {
         dept TEXT NOT NULL,
         phone TEXT NOT NULL,
         location TEXT NOT NULL,
-        project TEXT NOT NULL,
+        projects TEXT NOT NULL,
         position TEXT NOT NULL,
         status TEXT NOT NULL,
+        hireDate TEXT NOT NULL,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )
     `);

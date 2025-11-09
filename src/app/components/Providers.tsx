@@ -4,10 +4,7 @@ import { storage } from '../utils/localStorage';
 import { createContext, useContext, useEffect, useState } from 'react';
 import NaviBar from './NaviBar';
 import { getSessionInfo } from '../lib/fetch';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
-
-// Типы
 interface UserSession {
   id: string;
   email: string;
@@ -40,17 +37,19 @@ export function SessionProvider({
       storage.set('user', sessionData.user)
       //console.log('sessionData.user: ', sessionData.user)
       setSession(sessionData);
+      
     } catch (error) {
       console.error('Failed to load session:', error);
       setSession(null);
+      
     } finally {
       setIsLoading(false);
+      
     }
   }
 
   const resetSession = () => {
     setSession(null);
-    // Дополнительно можно очистить localStorage/cookies
   }
 
   const refreshSession = async () => {
@@ -58,15 +57,9 @@ export function SessionProvider({
   }
 
   useEffect(() => {
-    // Проверяем есть ли сохраненная сессия в localStorage
-    //const savedSession = storage.get('user');
-    //if (savedSession) {
-      //setSession(savedSession);
-      //setIsLoading(false);
-    //} else {
-      loadSession();
-    //}
+    loadSession();
   }, []);
+  
   // Значение контекста
   const contextValue: SessionContextType = {
     session,
@@ -78,12 +71,10 @@ export function SessionProvider({
   //console.log(session)
   return (
     <SessionContext.Provider value={contextValue}>
-      <Router>
       <NaviBar
         //session={session}
         resetSession={resetSession}
       />
-      </Router>
       {children}
     </SessionContext.Provider>
   );

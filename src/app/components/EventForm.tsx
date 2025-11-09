@@ -1,8 +1,9 @@
-//import '../globals.css';
+'use client'
+
 import '../styles/EventForm.css';
 import { subtasks} from '../lib/tasks'
 import { useState, useEffect } from 'react';
-import { handleSubmitEvent, handleDeleteEvent } from '../lib/fetch'
+import { handleFetch } from '../lib/fetch'
 import { formatDate, formatTime } from '../utils/format'
 
 export interface EventFormProps {
@@ -29,8 +30,6 @@ const MILLISEC_IN_HOUR = 3600000;
 
 const EventForm = ({eventInfo, tasks, subtasks, userData, handleModal, handleNotify}: EventFormProps) => {
   
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
   const projects = [
     {id: 0, code: 'Please, select a project'},
     {id: 1, code: 3456},
@@ -73,16 +72,14 @@ const EventForm = ({eventInfo, tasks, subtasks, userData, handleModal, handleNot
   const submitEvent = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      setError('');
-      setSuccess('');
-      
       // Validation
       if (formData.project == 0) {
-        //setError('Please select a project code');
         handleNotify('warning')
         return;
       }
-      const response = await handleSubmitEvent(formData);
+      //const response = await handleSubmitEvent(formData);
+      const response = await handleFetch('event', 'POST', formData);
+      
       if (!response.error) {
         handleModal()
         setTimeout(()=> {handleNotify('success')}, 400 )
@@ -100,12 +97,10 @@ const EventForm = ({eventInfo, tasks, subtasks, userData, handleModal, handleNot
   const deleteEvent = async (e: React.FormEvent) => {
       e.preventDefault();
       try {
-        setError('');
-        setSuccess('');
-        
-        const response = await handleDeleteEvent(eventInfo.id);
+        const response = await handleFetch('event', 'DELETE', eventInfo.id);
         handleModal('eventDelete')
         setTimeout(()=> {handleNotify('info')}, 500 )
+        
       } catch (err) {
         console.log(err)
         setTimeout(()=> {handleNotify('error')}, 500 )

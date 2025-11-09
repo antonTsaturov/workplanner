@@ -1,18 +1,18 @@
 import { makeAutoObservable } from 'mobx';
 
 class DateStore {
-  date = '';
-  fcDate = '';
+  //date = '';
+  fcDate = ''; //Current date of FullCalendar
   fcApi = null;
-  duration = null;
+  duration = null; //Duration of all events of current view (during a week)
 
   constructor() {
     makeAutoObservable(this);
   }
 
-  setDate(dat) {
-    this.date = dat;
-  }
+  //setDate(dat) {
+    //this.date = dat;
+  //}
   
   setFcDate(dat) {
     this.fcDate = dat;
@@ -26,9 +26,9 @@ class DateStore {
     this.duration = int;
   }
 
-  reset() {
-    this.date = '';
-  }
+  //reset() {
+    //this.date = '';
+  //}
 }
 
 export const dateStore = new DateStore();

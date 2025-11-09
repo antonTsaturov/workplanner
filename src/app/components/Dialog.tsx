@@ -1,14 +1,15 @@
+'use client'
+
 import EventFormProps from './EventForm';
-import { handleUpdateEvent } from '../lib/fetch';
+import { handleFetch } from '../lib/fetch';
 import { useState } from 'react';
 
 
 
 const Dialog = ({eventInfo, handleModal, handleNotify}: EventFormProps) => {
-  //console.log('dialog: ', eventInfo)
   
   const updateEvent = async () => {
-    const response = await handleUpdateEvent(eventInfo)
+    const response = await handleFetch('event', 'PUT', eventInfo)
     if (response.success) {
       handleModal()
       setTimeout(()=> {handleNotify('success')}, 500 )

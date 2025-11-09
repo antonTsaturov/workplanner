@@ -50,7 +50,7 @@ export async function getCurrentSession() {
     const cookieStore = await cookies(); // Ждем cookies
     const sessionCookie = await cookieStore.get('session'); // Ждем куку
     
-    console.log('Raw session cookie:', sessionCookie); // Для отладки
+    //console.log('Raw session cookie:', sessionCookie); // Для отладки
     
     if (!sessionCookie?.value) {
       console.log('No session cookie found');
@@ -58,7 +58,7 @@ export async function getCurrentSession() {
     }
 
     const session = decrypt(sessionCookie.value);
-    console.log('sessionCookie.value:', sessionCookie.value); // Для отладки
+    //console.log('sessionCookie.value:', sessionCookie.value); // Для отладки
     
     return session;
   } catch (error) {

@@ -1,23 +1,56 @@
 'use client';
 
 import { useState } from 'react';
-import { handleRegistration } from '../lib/fetch'
+import { handleRegistration, handleFetch } from '../lib/fetch'
+import { weakPasswordPatterns } from '../utils/passcheck'
 
 
 interface RegisterFormProps {
   onToggleToLogin: () => void;
 }
 
+const EMAIL_RGX = /^(?:(?!\.)[a-zA-Z0-9._%+-]+(?<!\.))@(?:(?!-)[a-zA-Z0-9-]+(?<!-)\.)+(?:[a-zA-Z]{2,}|com|org|net|edu|gov|mil|biz|info|mobi|name|aero|asia|jobs|museum)$/
+
 export default function RegisterForm({ onToggleToLogin }: RegisterFormProps) {
+  
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
     dept: 'CLN',
-    //confirmPassword: '',
   });
+  
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+  
+  const validateField = (name: string, value: string): string => {
+    const restrictedRegex = /[0-9!@#$%^&*()_+{}[]]/g;
+    switch (name) {
+      case 'name':
+        if (!value.trim()) return ' is required.';
+        if (value.trim().length < 4) return ' must be at least 4 characters length.';
+        if (!/^[a-zA-Zа-яА-Яё\s\-']+$/.test(value.trim())) return ' must contain only letters.';
+        return '';
+      
+      case 'email':
+        if (!value.trim()) return ' is required.';
+        if (!EMAIL_RGX.test(value)) return ' not valid.';
+        return '';
+        
+      case 'password':
+        if (!value.trim()) return ' is required.';
+        if (value.trim().length < 6) return ' must be at least 6 characters long.';
+        if (weakPasswordPatterns.keyboardPatterns.test(value.trim())) return ' not must be a common pattern.';
+        return '';
+              
+      default:
+        return '';
+    }
+  };
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -26,7 +59,33 @@ export default function RegisterForm({ onToggleToLogin }: RegisterFormProps) {
       [name]: value
     }));
     //console.log(formData)
+
+    // Validate field immediately after change if it's been touched
+    if (touched[name]) {
+      const error = validateField(name, value);
+      setErrors(prev => ({
+        ...prev,
+        [name]: error
+      }));
+    }
+    
   };
+  
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setTouched(prev => ({
+      ...prev,
+      [name]: true
+    }));
+
+    // Validate field on blur
+    const error = validateField(name, value);
+    setErrors(prev => ({
+      ...prev,
+      [name]: error
+    }));
+  };
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,27 +93,25 @@ export default function RegisterForm({ onToggleToLogin }: RegisterFormProps) {
     setSuccess('');
 
     // Validation
-    if (!formData.name || !formData.email || !formData.password ) { //|| !formData.confirmPassword
-      setError('Please fill in all fields');
-      return;
-    }
-
-    //if (formData.password !== formData.confirmPassword) {
-      //setError('Passwords do not match');
+    //if (!formData.name || !formData.email || !formData.password ) {
+      //setError('Please fill in all fields');
       //return;
     //}
 
-    if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters long');
-      return;
-    }
+
+    //if (formData.password.length < 6) {
+      //setError('Password must be at least 6 characters long');
+      //return;
+    //}
     
     // API call
     try {
-      let result = await handleRegistration(formData)
+      //let result = await handleRegistration(formData)
+      const result = await handleFetch('register', 'POST', formData)
       if (result.error) {
         setError(result.error)
-        console.log('handleRegistration result on client: ', result.error)
+        console.log('RegisterForm error: ', result.error)
+        
       } else {
         setSuccess(result.success)
         setTimeout(() => {
@@ -77,6 +134,9 @@ export default function RegisterForm({ onToggleToLogin }: RegisterFormProps) {
         <div className="form-group">
           <label htmlFor="name" className="form-label">
             Full Name
+            <span className="error-message">
+              {errors.name && touched.name ? errors.name : null}
+            </span>
           </label>
           <input
             type="text"
@@ -86,12 +146,16 @@ export default function RegisterForm({ onToggleToLogin }: RegisterFormProps) {
             onChange={handleChange}
             className="form-input"
             placeholder="Enter your full name"
+            onBlur={handleBlur}
           />
         </div>
 
         <div className="form-group">
           <label htmlFor="email" className="form-label">
             Email
+            <span className="error-message">
+              {errors.email && touched.email ? errors.email : null}
+            </span>
           </label>
           <input
             type="email"
@@ -101,12 +165,16 @@ export default function RegisterForm({ onToggleToLogin }: RegisterFormProps) {
             onChange={handleChange}
             className="form-input"
             placeholder="Enter your email"
+            onBlur={handleBlur}
           />
         </div>
 
         <div className="form-group">
           <label htmlFor="password" className="form-label">
             Password
+            <span className="error-message">
+              {errors.password && touched.password ? errors.password : null}
+            </span>            
           </label>
           <input
             type="password"
@@ -116,6 +184,7 @@ export default function RegisterForm({ onToggleToLogin }: RegisterFormProps) {
             onChange={handleChange}
             className="form-input"
             placeholder="Enter your password"
+            onBlur={handleBlur}
           />
         </div>
 
@@ -124,14 +193,11 @@ export default function RegisterForm({ onToggleToLogin }: RegisterFormProps) {
             Select your department
           </label>
           <select
-            //type="password"
             id="dept"
             name="dept"
             value={formData.dept}
             onChange={handleChange}
             className="form-input"
-            //placeholder="Confirm your password"
-            
           >
             <option value="CLN">Clinical</option>
             <option value="DM">Data managment</option>

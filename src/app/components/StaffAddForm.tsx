@@ -1,237 +1,29 @@
-// import '../styles/StaffForm.css';
-// import { useState, useEffect } from 'react';
-// //import { handleSubmitEvent, handleDeleteEvent } from '../lib/fetch'
+'use client'
 
-// export interface StaffFormProps {
-//   emplData: {
-//     id: number,
-//     emplName: string,
-//     phone: string,
-//     email: string,
-//     location: string,
-//   };
-//   mode: string;
-//   // handleModal: () => void;
-//   // handleNotify: () => void;
-// }
-
-// interface EmployeInfo {
-//     id: number;
-//     name: string;
-//     email: string;
-//     phone: string;
-//     department: string;
-//     project: string;
-//     position: string;
-//     status: string;
-// }
-
-
-
-// const StaffAddForm = ({emplData}:EmployeInfo) => {
-
-
-//   const [formData, setFormData] = useState({
-//     emplName:'',
-//     email: '',
-//     department: '',
-//     phone: '',
-//     location: '',
-//     projects: '',
-//     position: '',
-//     status: '',
-//   });
-
-//   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-//     const { name, value } = e.target;
-//     setFormData(prev => ({
-//       ...prev,
-//       [name]: value
-//     }));
-//     console.log('formData: ', formData)
-//   };
-  
-//   const submit = async (e: React.FormEvent) => {
-//     e.preventDefault();
-//     // try {
-      
-//     //   // Validation
-//     //   if (formData) {
-      
-//     //     //handleNotify('warning')
-//     //     return;
-//     //   }
-
-//     //   const response = await handleSubmitEvent(formData);
-//     //   if (!response.error) {
-//     //     handleModal()
-//     //     setTimeout(()=> {handleNotify('success')}, 400 )
-//     //   } else {
-//     //     console.log('response: ', response.message)
-//     //     setTimeout(()=> {handleNotify('error')}, 500 )
-//     //   }
-      
-//     // } catch (err) {
-//     //   setTimeout(()=> {handleNotify('error')}, 500 )
-//     //   console.log('response: ', err)
-//     // }
-//   }
-  
-//   // const delete = async (e: React.FormEvent) => {
-//   //     e.preventDefault();
-//       //try {
-//         //setError('');
-//         //setSuccess('');
-        
-//         //const response = await handleDeleteEvent(eventInfo.id);
-//         //handleModal('eventDelete')
-//         //setTimeout(()=> {handleNotify('info')}, 500 )
-//       //} catch (err) {
-//         //console.log(err)
-//         //setTimeout(()=> {handleNotify('error')}, 500 )
-//       //}
-//   // }
-
-//     return (
-//       <div className="staff-form-container">
-
-//         <form className="staff-form-content">
-//           <div className="staff-form-title">
-//             <h3>Add new employee</h3>
-//           </div>
-//           <div className="staff-form-content-columns">
-//             <div>
-//               <label class="staff-form-label">Name</label>
-//               <input
-//                 className="staff-form-input"   
-//                 type="text"
-//                 //readOnly
-//                 name="emplName"
-//                 onChange={handleFormChange}
-//               />
-//               <label class="staff-form-label">Email</label>
-//               <input
-//                 className="staff-form-input"
-//                 type='text'
-//                 //readOnly
-//                 name="email"
-//                 onChange={handleFormChange}
-//               />
-//               <label class="staff-form-label">Department</label>
-//               <input
-//                 className="staff-form-input"
-//                 type='text'
-//                 //readOnly
-//                 name="department"
-//                 onChange={handleFormChange}
-//               />
-//             </div>
-//             <div>
-//               <label class="staff-form-label">Phone</label>
-//               <input
-//                 className="staff-form-input"   
-//                 type="text"
-//                 //readOnly
-//                 name='phone'
-//                 onChange={handleFormChange}
-//               />
-//               <label class="staff-form-label">Location</label>
-//               <input
-//                 className="staff-form-input"
-//                 type='text'
-//                 //readOnly
-//                 name="location"
-//                 onChange={handleFormChange}
-//               />
-//               <label class="staff-form-label">Projects</label>
-//               <input
-//                 className="staff-form-input"
-//                 type='text'
-//                 //readOnly
-//                 name="projects"
-//                 onChange={handleFormChange}
-//               />
-//             </div>
-//             <div>
-//               <label class="staff-form-label">Position</label>
-//               <input
-//                 className="staff-form-input"   
-//                 type="text"
-//                 //readOnly
-//                 name="position"
-//                 onChange={handleFormChange}
-//               />
-//               <label class="staff-form-label">Status</label>
-//               <select
-//                 className="staff-form-select"
-//                 type='text'
-//                 //readOnly
-//                 name="status"
-//                 onChange={handleFormChange}
-//               >
-//                 <option>Active</option>
-//                 <option>Inactive</option>
-//               </select>
-//               <label class="staff-form-label">Hire date</label>
-//               <input
-//                 className="staff-form-input"   
-//                 type="text"
-//                 //readOnly
-//                 name="position"
-//                 onChange={handleFormChange}
-//               />
-
-//             </div>
-//           </div>  
-          
-//           <div className="event-button-container">
-//             {/* <button onClick={deleteEvent} className="event-button-delete">
-//                 <h4 className="button-text">Delete</h4>
-//             </button> */}
-
-//             <button onClick={submit} className="event-button-save">
-//                 <h4 className="button-text">Save</h4>
-//             </button>
-//           </div>
-//         </form>
-//       </div>
-
-//     );
-//   };
-  
-//   export default StaffAddForm;
 import '../styles/StaffForm.css';
 import { useState, useEffect } from 'react';
-//import { handleSubmitEvent, handleDeleteEvent } from '../lib/fetch'
+import { handleSaveNewEmpl } from '../lib/fetch'
 
-export interface StaffFormProps {
+interface StaffAddFormProps {
   emplData: {
     id: number,
-    emplName: string,
-    phone: string,
+    name: string,
     email: string,
-    location: string,
+    phone: string,
+    dept: string,
+    project: string,
+    position: string,
+    status: string,
+    hireDate: string,
   };
-  mode: string;
-  // handleModal: () => void;
-  // handleNotify: () => void;
-}
-
-interface EmployeInfo {
-    id: number;
-    name: string;
-    email: string;
-    phone: string;
-    department: string;
-    project: string;
-    position: string;
-    status: string;
+  handleModal: () => void;
+  handleNotify: () => void;
 }
 
 interface FormErrors {
-    emplName?: string;
+    name?: string;
     email?: string;
-    department?: string;
+    dept?: string;
     phone?: string;
     location?: string;
     projects?: string;
@@ -240,11 +32,12 @@ interface FormErrors {
     hireDate?: string;
 }
 
-const StaffAddForm = ({emplData}:EmployeInfo) => {
+const StaffAddForm = ({emplData, handleModal, handleNotify}:StaffAddFormProps) => {
+    
   const [formData, setFormData] = useState({
-    emplName:'',
+    name:'',
     email: '',
-    department: '',
+    dept: '',
     phone: '',
     location: '',
     projects: '',
@@ -260,18 +53,18 @@ const StaffAddForm = ({emplData}:EmployeInfo) => {
   const validateField = (name: string, value: string): string => {
     const containNumberRegex = /[0-9]/g;
     switch (name) {
-      case 'emplName':
+      case 'name':
         if (!value.trim()) return 'Name is required';
         if (value.trim().length < 2) return 'Must be at least 2 characters';
-        if (!/^[a-zA-Z\s\-']+$/.test(value.trim())) return 'Name not valid';
+        if (!/^[a-zA-Zа-яА-Яё\s\-']+$/.test(value.trim())) return 'Name not valid';
         return '';
       
       case 'email':
         if (!value.trim()) return 'Email is required';
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return 'Please enter a valid email';
+        if (!/^[a-zA-Z._0-9^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return 'Please enter a valid email';
         return '';
       
-      case 'department':
+      case 'dept':
         if (!value.trim()) return 'Department is required';
         if (value.trim().length < 2) return 'Must be at least 2 characters';
         if (value.trim().match(containNumberRegex)) return 'Department not valid';
@@ -349,12 +142,11 @@ const StaffAddForm = ({emplData}:EmployeInfo) => {
       }));
     }
 
-    // Chech how much fields are filled
+    // Check how much fields are filled
     const filled = Object.values(formData).filter(item => 
       item.length > 0 
     )
     setFillCount(filled.length)
-    console.log(fillCount)
   };
 
   const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -398,26 +190,22 @@ const StaffAddForm = ({emplData}:EmployeInfo) => {
 
     console.log('Form data is valid:', formData);
     
-    // try {
-    //   // Validation
-    //   if (formData) {
-    //     //handleNotify('warning')
-    //     return;
-    //   }
+     try {
 
-    //   const response = await handleSubmitEvent(formData);
-    //   if (!response.error) {
-    //     handleModal()
-    //     setTimeout(()=> {handleNotify('success')}, 400 )
-    //   } else {
-    //     console.log('response: ', response.message)
-    //     setTimeout(()=> {handleNotify('error')}, 500 )
-    //   }
+       const response = await handleSaveNewEmpl(formData);
+       if (!response.error) {
+         console.log(response)
+         setTimeout(()=> {handleModal()}, 800 )
+         setTimeout(()=> {handleNotify('success')}, 700 )
+       } else {
+         console.log('response error: ', response.message)
+         setTimeout(()=> {handleNotify('error')}, 500 )
+       }
       
-    // } catch (err) {
-    //   setTimeout(()=> {handleNotify('error')}, 500 )
-    //   console.log('response: ', err)
-    // }
+     } catch (err) {
+       setTimeout(()=> {handleNotify('error')}, 500 )
+       console.log('response error: ', err)
+     }
   };
 
   // Add CSS for error states (add this to your StaffForm.css)
@@ -457,15 +245,15 @@ const StaffAddForm = ({emplData}:EmployeInfo) => {
           <div>
             <label className="staff-form-label">Name *</label>
             <input
-              className={getInputClassName('emplName')}
+              className={getInputClassName('name')}
               type="text"
-              name="emplName"
-              value={formData.emplName}
+              name="name"
+              value={formData.name}
               onChange={handleFormChange}
               onBlur={handleBlur}
               placeholder="Enter full name"
             />
-            <span className="error-message">{errors.emplName && touched.emplName ? errors.emplName : null}</span>
+            <span className="error-message">{errors.name && touched.name ? errors.name : null}</span>
 
             <label className="staff-form-label">Email *</label>
             <input
@@ -479,17 +267,17 @@ const StaffAddForm = ({emplData}:EmployeInfo) => {
             />
             <span className="error-message">{errors.email && touched.email ? errors.email : null}</span>
 
-            <label className="staff-form-label">Department *</label>
+            <label className="staff-form-label">dept *</label>
             <input
-              className={getInputClassName('department')}
+              className={getInputClassName('dept')}
               type='text'
-              name="department"
-              value={formData.department}
+              name="dept"
+              value={formData.dept}
               onChange={handleFormChange}
               onBlur={handleBlur}
               placeholder="e.g., Engineering, Marketing"
             />
-            <span className="error-message">{errors.department && touched.department ? errors.department : null}</span>
+            <span className="error-message">{errors.dept && touched.dept ? errors.dept : null}</span>
           </div>
 
           {/* Second Column */}

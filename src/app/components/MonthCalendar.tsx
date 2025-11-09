@@ -1,3 +1,5 @@
+'use client'
+
 import React, { useState } from 'react';
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/style.css";
@@ -22,6 +24,7 @@ const MonthCalendar = observer(() => {
         if (typeof date !== 'undefined') { //Prevent error if the same date was clicked twice
           setSelected(date)
           fcApi.gotoDate(date)
+          dateStore.setFcDate(date) // set this date for rerender workload after click here
         }
       }}
       numberOfMonths={1}

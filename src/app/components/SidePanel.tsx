@@ -1,3 +1,4 @@
+'use client'
 import '../styles/SidePanel.css'
 import MonthCalendar from './MonthCalendar'
 import { observer } from 'mobx-react';
@@ -26,15 +27,13 @@ const AnimatedProgressBar = observer(({
     }
   }, [dateStore.duration]);
   
-  //console.log('dfdfdfg: ', dateStore.duration)    
+  
   return (
     <div className="progress-bar-container" style={{ height: `${height}px` }}>
       <div 
         className={`progress-bar-fill ${progress !== 100 ? 'in-progress' : 'completed'}`}
         style={{ 
           width: `${progress}%`,
-          //backgroundColor: `${progress === 100 ? completed : inProgress}`
-          //backgroundColor: completed
         }}
       />
     </div>

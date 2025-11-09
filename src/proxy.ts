@@ -1,20 +1,23 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { storage } from '@/app/utils/localStorage';
-
-
 
 export async function proxy(request: NextRequest) {
   
-  const protectedRoutes = ['/pages/calendar'];
+  const protectedRoutes = [
+  '/pages/calendar',
+  '/pages/staff',
+  '/calendar', // For not see 404 page
+  '/staff',    // For not see 404 page
+  ];
+  
   const isProtectedRoute = protectedRoutes.some(route => 
     request.nextUrl.pathname.startsWith(route)
   );
   const session = request.cookies.get('session')?.value
   
-  console.log(session)
+  console.log('proxy: ', request.nextUrl.pathname)
     
-  if (request.nextUrl.pathname === '/' || request.nextUrl.pathname == protectedRoutes && !session) {
+  if (request.nextUrl.pathname === '/' || protectedRoutes.includes(request.nextUrl.pathname) && !session) {
     return NextResponse.redirect(new URL('/auth', request.url));
   }
   

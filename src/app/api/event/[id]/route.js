@@ -2,14 +2,42 @@
 import { getDatabase } from '../../../lib/database';
 import { NextResponse } from 'next/server';
 
-// GET - Fetch all events
-export async function GET() {
+
+// GET - Fetch all events by authow (email)
+export async function GET(request) {
+  
   try {
+    
+    const { searchParams } = new URL(request.url);
+    const email = searchParams.get('email');
+        
+    
+    if (!email) {
+      return NextResponse.json(
+        { success: false, error: 'Author (email) is required' },
+        { status: 400 }
+      );
+    }
+    
     const db = await getDatabase();
-    const events = db.prepare('SELECT * FROM events').all();    
-    return NextResponse.json({ success: true, data: events });
-  } catch (error) {
-    console.log(error)
+    const stmt = db.prepare('SELECT * FROM events WHERE author = ?')
+    const events = stmt.all(email); //').all();
+    
+    if (!events) {
+      return NextResponse.json(
+        { error: 'Events not found' },
+        { status: 404 }
+      );
+    }
+      
+    return NextResponse.json(
+      { success: true, data: events },
+      { status: 200 }
+    );
+    
+  }
+  catch (error) {
+    //console.log(error)
     return NextResponse.json(
       { success: false, error: error.message },
       { status: 500 }
@@ -17,9 +45,10 @@ export async function GET() {
   }
 }
 
-// POST - Create a new event
+// POST - Save new event 
 export async function POST(request) {
-  try {
+  
+  try {    
     const { start, end, duration, title, subtitle, project, dept, author, comments } = await request.json();
     
     //Validate input
@@ -42,8 +71,8 @@ export async function POST(request) {
       },
       { status: 201 }
     );
-  } catch (error) {
     
+  } catch (error) {
     if (error.message.includes('UNIQUE constraint failed')) {
       return NextResponse.json(
         { error: true, message: 'Event already exists' },

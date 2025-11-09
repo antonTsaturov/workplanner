@@ -7,12 +7,28 @@ import  Modal  from './Modal';
 import StaffAddForm from './StaffAddForm';
 import StaffViewForm from './StaffViewForm';
 import { useModal } from '../hooks/useModal';
+import useNotification from '../hooks/useNotification';
+import NotificationContainer from './NotificationContainer';
 
 
 
 import React, { useState, useEffect } from 'react';
 
 const Staff = () => {
+
+  const { notifications, addNotification, removeNotification, clearAll } = useNotification();
+  
+  const showNotification = (type, style = 'default') => {
+    const messages = {
+      success: 'Employee record was created.',
+      error: 'Something went wrong. Please try again.',
+      warning: 'Select a project code.',
+      info: 'Employee record was deleted.'
+    };
+
+    addNotification(messages[type], { type, style});
+  }; 
+  
   // Sample employee data
   const [employees, setEmployees] = useState([
     {
@@ -20,7 +36,7 @@ const Staff = () => {
       name: 'John Smith',
       email: 'john.smith@company.com',
       phone: '+1 (555) 123-4567',
-      department: 'Engineering',
+      dept: 'Engineering',
       projects: 'Website Redesign',
       position: 'Senior Developer',
       status: 'Active',
@@ -32,7 +48,7 @@ const Staff = () => {
       name: 'Sarah Johnson',
       email: 'sarah.j@company.com',
       phone: '+1 (555) 987-6543',
-      department: 'Marketing',
+      dept: 'Marketing',
       projects: 'Q4 Campaign',
       position: 'Marketing Manager',
       status: 'Inactive',
@@ -44,7 +60,7 @@ const Staff = () => {
       name: 'Michael Chen',
       email: 'michael.chen@company.com',
       phone: '+1 (555) 456-7890',
-      department: 'Engineering',
+      dept: 'Engineering',
       projects: 'Mobile App',
       position: 'Frontend Developer',
       status: 'Active',
@@ -56,7 +72,7 @@ const Staff = () => {
       name: 'Emily Davis',
       email: 'emily.davis@company.com',
       phone: '+1 (555) 234-5678',
-      department: 'HR',
+      dept: 'HR',
       projects: 'Recruitment Drive',
       position: 'HR Specialist',
       status: 'On Leave',
@@ -68,7 +84,7 @@ const Staff = () => {
       name: 'Robert Wilson',
       email: 'r.wilson@company.com',
       phone: '+1 (555) 876-5432',
-      department: 'Sales',
+      dept: 'Sales',
       projects: 'Enterprise Clients',
       position: 'Sales Director',
       status: 'Active',
@@ -80,7 +96,7 @@ const Staff = () => {
       name: 'Martin Luter',
       email: 'm.luter@company.com',
       phone: '+1 (555) 236-5431',
-      department: 'Sales',
+      dept: 'Sales',
       projects: 'Enterprise Clients',
       position: 'Sales Director',
       status: 'Active',
@@ -103,7 +119,7 @@ const Staff = () => {
   // State for filters and search
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState({
-    department: '',
+    dept: '',
     projects: '',
     status: ''
   });
@@ -111,16 +127,16 @@ const Staff = () => {
   const [sortBy, setSortBy] = useState('name');
   const [filteredEmployees, setFilteredEmployees] = useState([]);
 
-  // Departments and projectss for filter options
-  const departments = ['Engineering', 'Marketing', 'HR', 'Sales', 'Finance', 'Operations'];
+  // depts and projectss for filter options
+  const depts = ['Engineering', 'Marketing', 'HR', 'Sales', 'Finance', 'Operations'];
   const projectss = ['Website Redesign', 'Mobile App', 'Q4 Campaign', 'Recruitment Drive', 'Enterprise Clients'];
   const statusOptions = ['Active', 'On Leave', 'Inactive'];
 
   // Quick filter options
   const quickFilters = [
-    { label: 'Engineering', value: 'Engineering', type: 'department' },
+    { label: 'Engineering', value: 'Engineering', type: 'dept' },
     { label: 'Active', value: 'Active', type: 'status' },
-    { label: 'Marketing', value: 'Marketing', type: 'department' },
+    { label: 'Marketing', value: 'Marketing', type: 'dept' },
     { label: 'Website projects', value: 'Website Redesign', type: 'projects' }
   ];
 
@@ -135,14 +151,14 @@ const Staff = () => {
         employee.name.toLowerCase().includes(term) ||
         employee.email.toLowerCase().includes(term) ||
         employee.phone.toLowerCase().includes(term) ||
-        employee.department.toLowerCase().includes(term) ||
+        employee.dept.toLowerCase().includes(term) ||
         employee.projects.toLowerCase().includes(term)
       );
     }
 
     // Apply individual filters
-    if (filters.department) {
-      results = results.filter(employee => employee.department === filters.department);
+    if (filters.dept) {
+      results = results.filter(employee => employee.dept === filters.dept);
     }
     if (filters.projects) {
       results = results.filter(employee => employee.projects === filters.projects);
@@ -160,8 +176,8 @@ const Staff = () => {
     results = [...results].sort((a, b) => {
       if (sortBy === 'name') {
         return a.name.localeCompare(b.name);
-      } else if (sortBy === 'department') {
-        return a.department.localeCompare(b.department);
+      } else if (sortBy === 'dept') {
+        return a.dept.localeCompare(b.dept);
       }
       return 0;
     });
@@ -203,7 +219,7 @@ const Staff = () => {
   // Clear all filters
   const clearAllFilters = () => {
     setSearchTerm('');
-    setFilters({ department: '', projects: '', status: '' });
+    setFilters({ dept: '', projects: '', status: '' });
     setActiveFilters([]);
   };
 
@@ -228,7 +244,7 @@ const Staff = () => {
     name: string;
     email: string;
     phone: string;
-    department: string;
+    dept: string;
     projects: string;
     position: string;
     status: string;
@@ -247,6 +263,13 @@ const Staff = () => {
     openModal()
   }
 
+  const handleModal = () => {
+    closeModal()
+  }
+
+  const handleNotify = (status) => {
+    showNotification(status)
+  }
 
   return (
     <div className="staff-container">
@@ -257,13 +280,20 @@ const Staff = () => {
             emplData={emplData}
           />
         ) : (
-          <StaffAddForm />
+          <StaffAddForm
+            handleModal={handleModal}
+            handleNotify={handleNotify}
+          />
           
         )
           }
       </Modal>
     
-    
+      <NotificationContainer 
+        notifications={notifications}
+        removeNotification={removeNotification}
+      />
+
       <div className="staff-content">
         {/* Search Section */}
         <div className="staff-search-section">
@@ -272,7 +302,7 @@ const Staff = () => {
               <input
                 type="text"
                 className="staff-search-input"
-                placeholder="Search by name, email, phone, department, or projects..."
+                placeholder="Search by name, email, phone, dept, or projects..."
                 value={searchTerm}
                 onChange={handleSearchChange}
               />
@@ -320,14 +350,14 @@ const Staff = () => {
         {/* Advanced Filters */}
         <div className="staff-content-filters">
           <div className="staff-filter-group">
-            <label className="staff-filter-label">Department</label>
+            <label className="staff-filter-label">dept</label>
             <select
               className="staff-content-select"
-              value={filters.department}
-              onChange={(e) => handleFilterChange('department', e.target.value)}
+              value={filters.dept}
+              onChange={(e) => handleFilterChange('dept', e.target.value)}
             >
-              <option value="">All Departments</option>
-              {departments.map(dept => (
+              <option value="">All depts</option>
+              {depts.map(dept => (
                 <option key={dept} value={dept}>{dept}</option>
               ))}
             </select>
@@ -378,7 +408,7 @@ const Staff = () => {
             onChange={(e) => setSortBy(e.target.value)}
           >
             <option value="name">Sort by Name</option>
-            <option value="department">Sort by Department</option>
+            <option value="dept">Sort by dept</option>
           </select>
         </div>
 
