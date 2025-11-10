@@ -53,12 +53,20 @@ const API_PATHS = {
 };
 
 export const handleFetch = async (pathKey, method, data = null) => {
-  // Get the API path template
   
+  // Get the API path template
   let apiPath = API_PATHS[pathKey]
-  if (method === 'GET' && data?.includes('@')) {
+  
+  //Read email and return events of current user
+  if (method === 'GET' && data?.includes('@') && pathKey == 'event') {
       apiPath += `?email=${data}`;
   }
+  
+  //Read email check is user already exist in staff db
+  if (method === 'GET' && data?.includes('@') && pathKey == 'staff') {
+      apiPath += `?email=${data}`;
+  }
+
   
   //console.log(apiPath)
   if (!apiPath) {
@@ -84,7 +92,8 @@ export const handleFetch = async (pathKey, method, data = null) => {
     
     // Check if the response is successful
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      console.log(response.json())
+      throw new Error(`HTTP error! status: ${response}`);
     }
     
     const result = await response.json();

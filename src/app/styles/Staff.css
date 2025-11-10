@@ -70,7 +70,7 @@
 .staff-search-input {
   flex: 1;
   min-width: 250px;
-  height: 2.75rem;
+  min-height: 2.75rem;
   border-radius: var(--radius-md);
   border: 1.5px solid var(--border-color);
   padding: 0 0.875rem;
@@ -272,6 +272,7 @@
   scroll-behavior: smooth;
   background: #f8f9fa;
   border-radius: var(--radius-md);
+  padding:5px;
 }
 
 .staff-item {
@@ -320,9 +321,8 @@
 }
 
 .staff-item-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
+  display: grid;
+  grid-template-columns: 0.4fr 0fr 0.3fr 1fr;  
   font-size: 0.75rem;
   color: var(--text-secondary);
 }

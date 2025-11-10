@@ -1,4 +1,3 @@
-/* Event Form - Modernized */
 :root {
   --primary-color: #6366f1;
   --primary-hover: #A9A5E8;
@@ -13,6 +12,7 @@
   --border-focus: #93c5fd;
   --background-primary: #ffffff;
   --background-secondary: #f9fafb;
+  --background-error: #FBE5E5;
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
@@ -85,9 +85,10 @@
   padding: 0 0.875rem;
   font-size: 0.875rem;
   color: var(--text-primary);
-  background: var(--background-primary);
+  background: var(--background-secondary);
   transition: var(--transition);
   box-shadow: var(--shadow-sm);
+  min-width: 10rem;
   /* margin-bottom: 1.5rem; */
 }
 
@@ -226,11 +227,11 @@
 */
 }
 
-/* Add these to your existing StaffForm.css */
 
 .input-error {
   border-color: var(--danger-color) !important;
   box-shadow: 0 0 0 3px rgb(239 68 68 / 0.1) !important;
+  background: var(--background-error);
 }
 
 .error-message {

@@ -1,0 +1,72 @@
+.projects-input-container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  background: white;
+  min-height: 1.8rem;
+  max-width: 41rem;
+}
+
+.projects-input-container:hover {
+  outline: none;
+/*
+  border-color: #4338ca;
+*/
+  box-shadow: 0 0 0 3px rgb(99 102 241 / 0.1);
+}
+
+
+.projects-input-container:focus-within {
+  border-color: #4338ca;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+
+.project-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #e5e7eb;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.project-text {
+  color: #374151;
+}
+
+.project-remove {
+  background: none;
+  border: none;
+  color: #6b7280;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  padding: 0;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.project-remove:hover {
+  color: #ef4444;
+}
+
+.projects-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 4px;
+  font-size: 14px;
+}
+
+.projects-input::placeholder {
+  color: #9ca3af;
+}

@@ -286,6 +286,7 @@ const Staff = () => {
           <StaffAddForm
             handleModal={handleModal}
             handleNotify={handleNotify}
+            reload={reloadEmplData}
           />
           
         )

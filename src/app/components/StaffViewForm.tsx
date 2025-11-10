@@ -45,7 +45,7 @@ const StaffViewForm = ({ emplData, employee, onEdit, onBack }) => {
           <div className="employee-info-group">
             <label className="employee-info-label">Department</label>
             <div className="employee-info-value">
-              {emplData?.department || <span className="employee-info-value-empty">Not specified</span>}
+              {emplData?.dept || <span className="employee-info-value-empty">Not specified</span>}
             </div>
           </div>
 
@@ -97,6 +97,22 @@ const StaffViewForm = ({ emplData, employee, onEdit, onBack }) => {
           <div className="employee-info-value" style={{ minHeight: 'auto', padding: '0.875rem' }}>
             {emplData?.location ? (
               <div style={{ whiteSpace: 'pre-line' }}>{emplData.location}</div>
+            ) : (
+              <span className="employee-info-value-empty">Not specified</span>
+            )}
+          </div>
+        </div>
+        <div className="employee-info-group">  
+          <label className="employee-info-label">Assigned projects</label>
+          <div className="employee-info-value" style={{ minHeight: 'auto', padding: '0.875rem' }}>
+            {emplData?.projects ? (
+              <div style={{ whiteSpace: 'pre-line' }}>
+                {
+                  emplData.projects.includes(',') 
+                  ? JSON.parse(emplData.projects).join(', ')
+                  : emplData.projects
+                }
+              </div>
             ) : (
               <span className="employee-info-value-empty">Not specified</span>
             )}

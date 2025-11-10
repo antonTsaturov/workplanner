@@ -1,6 +1,8 @@
 'use client'
 
 import '../styles/StaffForm.css';
+import '../styles/ProjectsInput.css';
+
 import { useState, useEffect } from 'react';
 import { handleFetch } from '../lib/fetch'
 
@@ -18,6 +20,7 @@ interface StaffAddFormProps {
   };
   handleModal: () => void;
   handleNotify: () => void;
+  reload: () => void;
 }
 
 interface FormErrors {
@@ -32,8 +35,10 @@ interface FormErrors {
     hireDate?: string;
 }
 
-const StaffAddForm = ({emplData, handleModal, handleNotify}:StaffAddFormProps) => {
-    
+const StaffAddForm = ({emplData, handleModal, handleNotify, reload}:StaffAddFormProps) => {
+
+  const [projects, setProjects] = useState([])
+
   const [formData, setFormData] = useState({
     name:'',
     email: '',
@@ -49,6 +54,35 @@ const StaffAddForm = ({emplData, handleModal, handleNotify}:StaffAddFormProps) =
   const [errors, setErrors] = useState<FormErrors>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
 
+  const checkEmail = async (email) => {
+    
+    if (!/^[a-zA-Z._0-9^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return;
+    }
+    
+    try {
+      const response = await handleFetch('staff', 'GET', email);
+      //return response.check
+      console.log('checkEmail: ', response.check)
+      if (response.check == false) {
+        setErrors(prev => ({
+          ...prev,
+          email: response.message
+        }));
+      } else {
+        setErrors(prev => ({
+          ...prev,
+          email: ''
+        }));
+        
+      }
+      
+    } catch (err) {
+      console.log('checkEmail error: ', err)
+    }
+    
+  }
+  
   // Validation rules
   const validateField = (name: string, value: string): string => {
     const containNumberRegex = /[0-9]/g;
@@ -62,6 +96,7 @@ const StaffAddForm = ({emplData, handleModal, handleNotify}:StaffAddFormProps) =
       case 'email':
         if (!value.trim()) return 'Email is required';
         if (!/^[a-zA-Z._0-9^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return 'Please enter a valid email';
+        if ( value == false) return 'Employee with same email exist'
         return '';
       
       case 'dept':
@@ -147,6 +182,7 @@ const StaffAddForm = ({emplData, handleModal, handleNotify}:StaffAddFormProps) =
       item.length > 0 
     )
     setFillCount(filled.length)
+    
   };
 
   const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -162,7 +198,13 @@ const StaffAddForm = ({emplData, handleModal, handleNotify}:StaffAddFormProps) =
       ...prev,
       [name]: error
     }));
+    
+    if (name == 'email') {
+      checkEmail(value)
+    }
+    console.log(formData)
   };
+
 
   const getInputClassName = (fieldName: string): string => {
     const baseClass = fieldName === 'status' ? 'staff-form-select' : 'staff-form-input';
@@ -191,14 +233,13 @@ const StaffAddForm = ({emplData, handleModal, handleNotify}:StaffAddFormProps) =
     console.log('Form data is valid:', formData);
     
     try {
-      //const response = await handleSaveNewEmpl(formData);
       const response = await handleFetch('staff', 'POST', formData);
       
     if (!response.error) {
       console.log(response)
       setTimeout(()=> {handleModal()}, 800 )
       setTimeout(()=> {handleNotify('success')}, 700 )
-      
+      reload()
     } else {
       console.log('response error: ', response.message)
       setTimeout(()=> {handleNotify('error')}, 500 )
@@ -232,6 +273,44 @@ const StaffAddForm = ({emplData, handleModal, handleNotify}:StaffAddFormProps) =
       margin-bottom: 0.5rem;
     }
   `;
+
+  const [projectInputValue, setProjectInputValue] = useState('')
+  
+  const handleProjectInputChange = (e) => {
+    setProjectInputValue(e.target.value);
+  };
+
+  
+  const addProject = (prj) => {
+    if (prj && !projects.includes(prj)) {
+      setProjects([...projects, prj]);
+      setProjectInputValue('');
+      setFormData(prev => ({
+        ...prev,
+        projects: [...prev.projects, prj]
+      }));
+
+    }
+  };
+
+  const removeProject = (indexToRemove) => {
+    setProjects(projects.filter((_, index) => index !== indexToRemove));
+    setFormData(prev => ({
+      ...prev,
+      projects: [...prev.projects.filter((_, index) => index !== indexToRemove)]
+    }));
+  };
+  
+  const handleInputKeyDown = (e) => {
+    const keycodes = ['Enter', 'Space', 'Comma', 'Period']
+    if (keycodes.includes(e.code)) {
+      e.preventDefault();
+      addProject(projectInputValue.trim());
+    } else if (e.key === 'Backspace' && projectInputValue === '' && projects.length > 0) {
+      removeProject(projects.length - 1);
+    }
+  };
+
 
   return (
     <div className="staff-form-container">
@@ -308,21 +387,6 @@ const StaffAddForm = ({emplData, handleModal, handleNotify}:StaffAddFormProps) =
             />
             <span className="error-message">{errors.location && touched.location ? errors.location : null}</span>
 
-            <label className="staff-form-label">Projects</label>
-            <input
-              className={getInputClassName('projects')}
-              type='text'
-              name="projects"
-              value={formData.projects}
-              onChange={handleFormChange}
-              onBlur={handleBlur}
-              placeholder="Project names (optional)"
-            />
-            <span className="error-message">{errors.projects && touched.projects  ? errors.projects : null}</span>
-          </div>
-
-          {/* Third Column */}
-          <div>
             <label className="staff-form-label">Position *</label>
             <input
               className={getInputClassName('position')}
@@ -334,6 +398,11 @@ const StaffAddForm = ({emplData, handleModal, handleNotify}:StaffAddFormProps) =
               placeholder="e.g., Senior Developer"
             />
             <span className="error-message">{errors.position && touched.position ? errors.position : null}</span>
+
+          </div>
+
+          {/* Third Column */}
+          <div>
 
             <label className="staff-form-label">Status *</label>
             <select
@@ -361,6 +430,36 @@ const StaffAddForm = ({emplData, handleModal, handleNotify}:StaffAddFormProps) =
             <span className="error-message">{errors.hireDate && touched.hireDate ? errors.hireDate : null}</span>
           </div>
         </div>  
+        
+        <label className="staff-form-label">Projects</label>
+        <div className="projects-input-container"> 
+          {projects.map((item, index) => (
+            <div key={item} className="project-item">
+              <span className="project-text">{item}</span>
+              <button
+                type="button"
+                className="project-remove"
+                onClick={() => removeProject(index)}
+              >
+                ×
+              </button>
+            </div>
+          ))}            
+          <input
+            //className={getInputClassName('projects')}
+            className="projects-input"
+            type='text'
+            name="projects"
+            //value={formData.projects}
+            value={projectInputValue}
+            //onChange={handleFormChange}
+            onChange={handleProjectInputChange}
+            onBlur={handleBlur}
+            placeholder="Projects (optional)"
+            onKeyDown={handleInputKeyDown}
+          />
+        </div>
+        <span className="error-message">{errors.projects && touched.projects  ? errors.projects : null}</span>
         
         <div className="event-button-container">
           <button 
