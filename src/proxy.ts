@@ -15,7 +15,7 @@ export async function proxy(request: NextRequest) {
   );
   const session = request.cookies.get('session')?.value
   
-  console.log('proxy: ', request.nextUrl.pathname)
+  //console.log('proxy: ', request.nextUrl.pathname)
     
   if (request.nextUrl.pathname === '/' || protectedRoutes.includes(request.nextUrl.pathname) && !session) {
     return NextResponse.redirect(new URL('/auth', request.url));
@@ -23,6 +23,10 @@ export async function proxy(request: NextRequest) {
   
   if (request.nextUrl.pathname === '/' || request.nextUrl.pathname === '/auth' && session) {
     return NextResponse.redirect(new URL('/pages/calendar', request.url));
+  }
+  
+  if (request.nextUrl.pathname === '/public') {
+    //return NextResponse.redirect(new URL('/pages/calendar', request.url));
   }
 }
 

@@ -139,6 +139,8 @@ a {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
   width: 20rem;
+  display: flex;
+  flex-direction: column;
 }
 
 /*
@@ -178,6 +180,11 @@ a {
   font-size: 16px;
   transition: all 0.2s ease;
   outline: none;
+  background: #eef3f647;;
+}
+
+.form-input:hover {
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
 .form-input:focus {
@@ -185,9 +192,15 @@ a {
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
+.input-error {
+  border-color: #ef4444;
+}
+
+/*
 .form-input.error {
   border-color: #ef4444;
 }
+*/
 
 /* Button Styles */
 .auth-button {

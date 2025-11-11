@@ -43,6 +43,8 @@ const NaviBar = ({resetSession}) => {
 
           {/* Left block */}
           <div className="nav-section">
+            <img src="/assets/workplanner_icon.png" alt="Workplanner" style={{ height: '2rem', marginLeft: '1rem'}} />
+
             <div className="nav-links">
               <Link
                 href="/pages/calendar"
