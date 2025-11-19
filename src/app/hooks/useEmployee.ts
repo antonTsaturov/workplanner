@@ -23,7 +23,7 @@ export function useEmployee() {
   const fetchEmplData = async () => {
     handleFetch('staff', 'GET')
       .then(result => {
-        setEmployes(result.data);
+        setEmployes(result.data.rows);
       });
   };
 

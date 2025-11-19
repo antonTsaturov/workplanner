@@ -30,7 +30,6 @@ const Staff = () => {
     addNotification(messages[type], { type, style});
   }; 
   
-  // Sample employee data
     const { employees, reloadEmplData } = useEmployee();
 
   //const [employees, setEmployees] = useState([
@@ -131,16 +130,22 @@ const Staff = () => {
   const [filteredEmployees, setFilteredEmployees] = useState([]);
 
   // depts and projectss for filter options
-  const depts = ['Engineering', 'Marketing', 'HR', 'Sales', 'Finance', 'Operations'];
-  const projectss = ['Website Redesign', 'Mobile App', 'Q4 Campaign', 'Recruitment Drive', 'Enterprise Clients'];
+  //const depts = ['Engineering', 'Marketing', 'HR', 'Sales', 'Finance', 'Operations'];
+  //const projectss = ['Website Redesign', 'Mobile App', 'Q4 Campaign', 'Recruitment Drive', 'Enterprise Clients'];
+  //const statusOptions = ['Active', 'On Leave', 'Inactive'];
+  const depts = [
+    {title: 'Clinical',         code: 'CLN'},
+    {title: 'Data managment',   code: 'DM'},
+    {title: 'Medical writing',  code: 'MW'},
+  ];
+  const projectss = ['3456', '9872', '2900'];
   const statusOptions = ['Active', 'On Leave', 'Inactive'];
 
   // Quick filter options
   const quickFilters = [
-    { label: 'Engineering', value: 'Engineering', type: 'dept' },
+    { label: 'Clinical', value: 'CLN', type: 'dept' },
     { label: 'Active', value: 'Active', type: 'status' },
-    { label: 'Marketing', value: 'Marketing', type: 'dept' },
-    { label: 'Website projects', value: 'Website Redesign', type: 'projects' }
+    { label: '9872', value: '9872', type: 'projects' }
   ];
 
   // Filter employees based on search and filters
@@ -153,9 +158,9 @@ const Staff = () => {
       results = results.filter(employee =>
         employee.name.toLowerCase().includes(term) ||
         employee.email.toLowerCase().includes(term) ||
-        employee.phone.toLowerCase().includes(term) ||
-        employee.dept.toLowerCase().includes(term) ||
-        employee.projects.toLowerCase().includes(term)
+        employee.phone?.toLowerCase().includes(term) ||
+        employee.dept?.toLowerCase().includes(term) ||
+        employee.projects?.toLowerCase().includes(term)
       );
     }
 
@@ -354,27 +359,27 @@ const Staff = () => {
         {/* Advanced Filters */}
         <div className="staff-content-filters">
           <div className="staff-filter-group">
-            <label className="staff-filter-label">dept</label>
+            <label className="staff-filter-label">department</label>
             <select
               className="staff-content-select"
               value={filters.dept}
               onChange={(e) => handleFilterChange('dept', e.target.value)}
             >
-              <option value="">All depts</option>
+              <option value="">All</option>
               {depts.map(dept => (
-                <option key={dept} value={dept}>{dept}</option>
+                <option key={dept.code} value={dept.code}>{dept.title}</option>
               ))}
             </select>
           </div>
 
           <div className="staff-filter-group">
-            <label className="staff-filter-label">projects</label>
+            <label className="staff-filter-label">project</label>
             <select
               className="staff-content-select"
               value={filters.projects}
               onChange={(e) => handleFilterChange('projects', e.target.value)}
             >
-              <option value="">All projectss</option>
+              <option value="">All</option>
               {projectss.map(projects => (
                 <option key={projects} value={projects}>{projects}</option>
               ))}
@@ -388,7 +393,7 @@ const Staff = () => {
               value={filters.status}
               onChange={(e) => handleFilterChange('status', e.target.value)}
             >
-              <option value="">All Status</option>
+              <option value="">All</option>
               {statusOptions.map(status => (
                 <option key={status} value={status}>{status}</option>
               ))}
@@ -449,9 +454,11 @@ const Staff = () => {
               <div className="staff-empty-text">
                 No employees found matching your criteria.
               </div>
-              <button className="staff-button-clear" onClick={clearAllFilters}>
+            {!filters &&
+              (<button className="staff-button-clear" onClick={clearAllFilters}>
                 Clear All Filters
-              </button>
+              </button>)
+            }            
             </div>
           )}
         </div>

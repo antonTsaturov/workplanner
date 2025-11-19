@@ -17,7 +17,12 @@ interface CalendarEvent {
   title: string;
 }
 
-export function useEvents() {
+interface useEventsProps {
+  props?: string; //'all' || null
+}
+
+export function useEvents({props}:useEventsProps = {}) {
+
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   
   const { session, isLoading, refreshSession } = useSession();
@@ -25,11 +30,16 @@ export function useEvents() {
   const fetchEvents = async () => {
     
     if (!isLoading) {
-      const userEmail = session.user.email
-      handleFetch('event', 'GET', userEmail)
+      try {
+        const userEmail = props != 'all' ? session.user.email : null;
+        handleFetch('event', 'GET', userEmail)
         .then(result => {
-          setEvents(result.data);
+          console.log(`${result.data.rows.length} events loaded.`)
+          setEvents(result.data.rows);
         });
+      } catch (error) {
+        console.log(error)
+      }
     }
   };
 
@@ -38,9 +48,8 @@ export function useEvents() {
   }, [isLoading]);
   
   const reloadEvents = useCallback(() => {
-    console.log('reload events')
     fetchEvents();
-  }, [])
-  
-  return { events, reloadEvents};
+  })
+    
+  return { events, reloadEvents };
 }

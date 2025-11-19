@@ -37,7 +37,7 @@ const Calendar = observer(() => {
     const messages = {
       success: 'Completed.',
       error: 'Something went wrong. Please try again.',
-      warning: 'Select a project code.',
+      warning: 'Fill the required fields *',
       info: 'Event deleted.'
     };
 
@@ -46,53 +46,28 @@ const Calendar = observer(() => {
   };  
   
   const { session } = useSession();
-  
   const { events, reloadEvents } = useEvents();
-  const user = session?.user;
-  const [count, setCount] = useState(0)
-
-  const [userTasks, setUserTasks] = useState();
-  const [userSubtasks, setUserSubtasks] = useState();
-  const [isEventUpdated, setIsEventUpdated] = useState(false);
-  const [eventResized, setEventResized] = useState(false);
-  
-
-  const defineTasks = useMemo(() => {
-    if (user?.dept === 'CLN') {
-      setUserTasks(tasks.CLN);
-      setUserSubtasks(subtasks.CLN);
-    } else {
-      setUserTasks(tasks.DM);
-      setUserSubtasks(subtasks.DM);
-    } 
-  }, [tasks, subtasks, session]);
-
-    
   const { isModalOpen, open, close} = useModal();
   
+  const user = session?.user;
+
+  const [isEventUpdated, setIsEventUpdated] = useState(false);
+  
   const [selectedPeriodInfo, setSelectedPeriodInfo] = useState({});
-  const [selected, setSelected] = useState();
-  const [currentEvents, setCurrentEvents] = useState([])
+  const [selected, setSelected] = useState<boolean>(false);
   const [clickInfo, setClickInfo] = useState();
 
-  
-  const closeModal = () => {
-    //close()
-    //selected ? selected.view.calendar.unselect() : null; //unselect current slots after close modal
-    //setSelected(false)
-    
-    //reloadEvents()
-  }
-  
   function handleEventClick(info) {
+    console.log(info.event)
     setClickInfo(info.event);
     setIsEventUpdated(false);
-    open()
+    open();
+    
     setSelectedPeriodInfo({
       id: info.event.id,
       start: info.event.start,
       end: info.event.end,
-      duration: ((info.event.end - info.event.start) / MILLISEC_IN_HOUR),
+      length: ((info.event.end - info.event.start) / MILLISEC_IN_HOUR),
       title: info.event.title,
       subtitle: info.event.extendedProps.subtitle,
       project: info.event.extendedProps.project,
@@ -103,7 +78,7 @@ const Calendar = observer(() => {
   const handleNewEvent = (e) => {
     setSelected(true)
     setIsEventUpdated(false);
-    open()
+    open() //open modal
     setSelectedPeriodInfo({
       start: e.startStr.slice(0,-6).toString(),
       end: e.endStr.slice(0,-6).toString()
@@ -111,14 +86,15 @@ const Calendar = observer(() => {
   };
   
   const handleModal = (subaction) => {
-    //closeModal()
-    
     close() // close modal
     selected ? selected.view.calendar.unselect() : null; //unselect current slots after close modal
     setSelected(false) 
     subaction === 'eventDelete' && clickInfo.remove()
     setClickInfo(null) //Remove info about clicked event
-    !subaction && reloadEvents() //Reload all events after new event added only
+    !subaction && setTimeout(()=> { 
+      reloadEvents()
+      console.log('handleModal: events reloaded')
+    }, 900) //Reload all events after new event added only
   }
   
   const handleNotify = (status) => {
@@ -126,14 +102,14 @@ const Calendar = observer(() => {
   }
   
   const handleEventUpdate = (eventDropInfo) => {
-    setIsEventUpdated(true)
-    open()
+    setIsEventUpdated(true);
+    open();
     
     setSelectedPeriodInfo({
       id: eventDropInfo.event.id,
       start: eventDropInfo.event.start,
       end: eventDropInfo.event.end,
-      duration: ((eventDropInfo.event.end - eventDropInfo.event.start) / MILLISEC_IN_HOUR),
+      length: ((eventDropInfo.event.end - eventDropInfo.event.start) / MILLISEC_IN_HOUR),
       title: eventDropInfo.event.title,
       subtitle: eventDropInfo.event.extendedProps.subtitle,
       project: eventDropInfo.event.extendedProps.project,
@@ -166,24 +142,15 @@ const Calendar = observer(() => {
       const currentViewStart = calendarApi.view.activeStart
       const currentViewEnd = calendarApi.view.activeEnd
       
-      // Получаем все события
-      const allEvents = calendarApi.getEvents()
-      
-      // Фильтруем события по видимой области
-      const visibleEvents = allEvents.filter(event => {
-        const eventStart = event.start
-        const eventEnd = event.end || eventStart
-        return (eventStart > currentViewStart && eventEnd < currentViewEnd)
-      })
-      
-      const eventsDuration = visibleEvents.map(event => ({
-        duration: ((event.end - event.start) / MILLISEC_IN_HOUR),
-      }))
-       
-      
-      const result = eventsDuration.reduce((sum, item) => sum + item.duration, 0); //sum durations of visible events
-      //return result;
-      dateStore.setDuration(result)
+      const eventsVisibleDuration = events.map(item => {
+        if (currentViewStart < new Date(item.start) && new Date(item.end) < currentViewEnd) {
+          return parseInt(item.length);
+        } else {
+          return null;
+        }
+      }).reduce((acc, num) => {return acc + num}, 0);
+
+      dateStore.setDuration(eventsVisibleDuration)
       
     } else {
       console.log('Calendar API not available')
@@ -191,12 +158,12 @@ const Calendar = observer(() => {
   }
   
   const [curDate, setCurDate] = useState('')
+  
   useEffect (()=> {
     getEventsDuration()
   }, [events, curDate, dateStore.fcDate])
   
   
-    
   const calendarRerender = () => {
     if (calendarRef.current) {
       const calendarApi = calendarRef.current.getApi();
@@ -297,8 +264,6 @@ const Calendar = observer(() => {
           <EventForm
             handleNotify={handleNotify}
             eventInfo={selectedPeriodInfo}
-            tasks={userTasks}
-            subtasks={userSubtasks}
             userData={user}
             handleModal={handleModal}
           />

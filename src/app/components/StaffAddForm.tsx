@@ -1,10 +1,11 @@
 'use client'
 
-import '../styles/StaffForm.css';
+import '../styles/StaffAddForm.css';
 import '../styles/ProjectsInput.css';
 
 import { useState, useEffect } from 'react';
-import { handleFetch } from '../lib/fetch'
+import { handleFetch } from '../lib/fetch';
+import { formatPhone, unformatPhone } from '../utils/format';
 
 interface StaffAddFormProps {
   emplData: {
@@ -17,6 +18,7 @@ interface StaffAddFormProps {
     position: string,
     status: string,
     hireDate: string,
+    password: string,
   };
   handleModal: () => void;
   handleNotify: () => void;
@@ -33,6 +35,7 @@ interface FormErrors {
     position?: string;
     status?: string;
     hireDate?: string;
+    password: string;
 }
 
 const StaffAddForm = ({emplData, handleModal, handleNotify, reload}:StaffAddFormProps) => {
@@ -49,6 +52,7 @@ const StaffAddForm = ({emplData, handleModal, handleNotify, reload}:StaffAddForm
     position: '',
     status: '',
     hireDate: '',
+    password: 'null',
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
@@ -89,13 +93,13 @@ const StaffAddForm = ({emplData, handleModal, handleNotify, reload}:StaffAddForm
     switch (name) {
       case 'name':
         if (!value.trim()) return 'Name is required';
-        if (value.trim().length < 2) return 'Must be at least 2 characters';
         if (!/^[a-zA-Zа-яА-Яё\s\-']+$/.test(value.trim())) return 'Name not valid';
+        if (value.trim().length < 2) return 'Must be at least 2 characters';
         return '';
       
       case 'email':
         if (!value.trim()) return 'Email is required';
-        if (!/^[a-zA-Z._0-9^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return 'Please enter a valid email';
+        if (!/^(?!.*\.\.)(?!.*\.$)(?!^\.)[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]{1,64}@(?!.*\.\.)(?!.*\.$)(?!^\.)[a-zA-Z0-9.-]{1,253}\.[a-zA-Z]{2,}$/i.test(value)) return 'Please enter a valid email';
         if ( value == false) return 'Employee with same email exist'
         return '';
       
@@ -107,14 +111,15 @@ const StaffAddForm = ({emplData, handleModal, handleNotify, reload}:StaffAddForm
       
       case 'phone':
         if (!value.trim()) return 'Phone number is required';
-        const phoneRegex = /^[\+]?[1-9][\d]{0,15}$|^[\+]?[(]?[\d\s\-\(\)]{10,}$/;
-        if (!phoneRegex.test(value.replace(/[\s\-\(\)]/g, ''))) return 'Please enter a valid number';
+        if (unformatPhone(value.trim()).length < 11) return 'Phone number too short';
+        const phoneRegex = /\+\d\s\(\d{3}\)\s\d{3}-\d{2}-\d{2}/;
+        if (!value.trim().match(phoneRegex)) return 'Format mistakes';
         return '';
       
       case 'location':
         if (!value.trim()) return 'Location is required';
-        if (value.trim().length < 2) return 'Must be at least 2 characters';
         if (value.trim().match(containNumberRegex)) return 'Location not valid';
+        if (value.trim().length < 3) return 'Location name too short';
         return '';
       
       case 'projects':
@@ -310,7 +315,8 @@ const StaffAddForm = ({emplData, handleModal, handleNotify, reload}:StaffAddForm
       removeProject(projects.length - 1);
     }
   };
-
+  
+  const [e, setE] = useState(false)
 
   return (
     <div className="staff-form-container">
@@ -348,7 +354,7 @@ const StaffAddForm = ({emplData, handleModal, handleNotify, reload}:StaffAddForm
             />
             <span className="error-message">{errors.email && touched.email ? errors.email : null}</span>
 
-            <label className="staff-form-label">dept *</label>
+            <label className="staff-form-label">Department *</label>
             <input
               className={getInputClassName('dept')}
               type='text'
@@ -368,10 +374,12 @@ const StaffAddForm = ({emplData, handleModal, handleNotify, reload}:StaffAddForm
               className={getInputClassName('phone')}
               type='tel'
               name='phone'
-              value={formData.phone}
+              value={formatPhone(formData.phone, e)}
+              maxLength={18}
               onChange={handleFormChange}
               onBlur={handleBlur}
-              placeholder="+1 (555) 123-4567"
+              onKeyDown={setE}
+              placeholder="+ 7 (***) ***-**-**"
             />
             <span className="error-message">{errors.phone && touched.phone ? errors.phone : null}</span>
 

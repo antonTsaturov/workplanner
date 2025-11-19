@@ -92,12 +92,10 @@ export default function RegisterForm({ onToggleToLogin }: RegisterFormProps) {
     setError('');
     setSuccess('');
 
-     Validation
     if (!formData.name || !formData.email || !formData.password ) {
       setError('Please fill in all fields');
       return;
     }
-
 
     if (formData.password.length < 6) {
       setError('Password must be at least 6 characters long');

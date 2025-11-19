@@ -262,7 +262,9 @@
 /* Employee List Items */
 .staff-content-items {
   min-height: 350px;
+/*
   display: flex;
+*/
   flex-direction: column;
   margin-top: 1rem;
   padding-top: 1rem;
@@ -273,6 +275,7 @@
   background: #f8f9fa;
   border-radius: var(--radius-md);
   padding:5px;
+  justify-content: center;
 }
 
 .staff-item {

@@ -1,4 +1,94 @@
-import { getDatabase } from '../../../lib/database';
+//import { getDatabase } from '../../../lib/database';
+//import { NextResponse } from 'next/server';
+
+
+//export async function GET(request) {
+  
+  //try {
+    
+    //const db = await getDatabase();
+    //const { searchParams } = new URL(request.url);
+    //const email = searchParams.get('email');
+    
+    //if (email) {
+      //const stmt = db.prepare('SELECT * FROM staff WHERE email = ?')
+      //const isEmplExist = stmt.all(email);
+      //console.log(isEmplExist)
+      //if (isEmplExist.length == 0 ) {
+        //return NextResponse.json(
+          //{ check: true, message: 'OK' },
+        //);
+        
+      //} else {
+        //return NextResponse.json(
+          //{ check: false, message: 'Email is exist' },
+        //);
+      //}
+      
+    //} else {
+      
+      //const stmt = db.prepare('SELECT * FROM staff')
+      //const events = stmt.all(); //').all();
+      
+      //if (!events) {
+        //return NextResponse.json(
+          //{ error: 'Events not found' },
+          //{ status: 404 }
+        //);
+      //}
+        
+      //return NextResponse.json(
+        //{ success: true, data: events },
+        //{ status: 200 }
+      //);
+    //}
+  //}
+  //catch (error) {
+    ////console.log(error)
+    //return NextResponse.json(
+      //{ success: false, error: error.message },
+      //{ status: 500 }
+    //);
+  //}
+//}
+
+
+//export async function POST(request) {
+  //try {
+    //const { dept, email, name, hireDate, location, phone, position, projects, status } = await request.json();
+    
+    //console.log(projects)
+    
+    //const db = getDatabase();
+    //const stmt = db.prepare('INSERT INTO staff (dept, email, name, hireDate, location, phone, position, projects, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
+    //const result = stmt.run( dept, email, name, hireDate, location, phone, position, JSON.stringify(projects), status );
+
+    //return NextResponse.json(
+      //{ 
+        //success: true, 
+        //message: 'Employee record created successfully',
+        //id: result.lastInsertRowid 
+      //},
+      //{ status: 201 }
+    //);
+  //} catch (error) {
+    
+    //if (error.message.includes('UNIQUE constraint failed')) {
+      //return NextResponse.json(
+        //{ error: true, message: 'Employe with the same email is exists' },
+        //{ status: 400 }
+      //);
+    //}
+    
+    //return NextResponse.json(
+      //{ error: true, message: error.message },
+      //{ status: 500 }
+    //);
+  //}
+//}
+
+
+import { query, insert, remove, update } from '../../../lib/database';
 import { NextResponse } from 'next/server';
 
 
@@ -6,15 +96,18 @@ export async function GET(request) {
   
   try {
     
-    const db = await getDatabase();
     const { searchParams } = new URL(request.url);
     const email = searchParams.get('email');
     
     if (email) {
-      const stmt = db.prepare('SELECT * FROM staff WHERE email = ?')
-      const isEmplExist = stmt.all(email);
+      //Here we check is email unique when adding new employee
+      const isEmplExist = await query(
+        'SELECT * FROM users WHERE email = $1',
+        [email]
+      );
+      
       console.log(isEmplExist)
-      if (isEmplExist.length == 0 ) {
+      if (isEmplExist.rowCount == 0 ) {
         return NextResponse.json(
           { check: true, message: 'OK' },
         );
@@ -27,10 +120,10 @@ export async function GET(request) {
       
     } else {
       
-      const stmt = db.prepare('SELECT * FROM staff')
-      const events = stmt.all(); //').all();
-      
-      if (!events) {
+      const columns = 'id, name, email, dept, phone, location, projects, position, status, hireDate'
+      const staff = await query(`SELECT ${columns} FROM users`);
+
+      if (!staff) {
         return NextResponse.json(
           { error: 'Events not found' },
           { status: 404 }
@@ -38,7 +131,7 @@ export async function GET(request) {
       }
         
       return NextResponse.json(
-        { success: true, data: events },
+        { success: true, data: staff },
         { status: 200 }
       );
     }
@@ -55,19 +148,22 @@ export async function GET(request) {
 
 export async function POST(request) {
   try {
-    const { dept, email, name, hireDate, location, phone, position, projects, status } = await request.json();
+    //const { dept, email, name, hireDate, location, phone, position, projects, status } = await request.json();
     
-    console.log(projects)
+    //console.log(projects)
     
-    const db = getDatabase();
-    const stmt = db.prepare('INSERT INTO staff (dept, email, name, hireDate, location, phone, position, projects, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
-    const result = stmt.run( dept, email, name, hireDate, location, phone, position, JSON.stringify(projects), status );
-
+    //const db = getDatabase();
+    //const stmt = db.prepare('INSERT INTO staff (dept, email, name, hireDate, location, phone, position, projects, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
+    //const result = stmt.run( dept, email, name, hireDate, location, phone, position, JSON.stringify(projects), status );
+    
+    const data = await request.json();
+    const result = insert('users', data)
+    
     return NextResponse.json(
       { 
         success: true, 
         message: 'Employee record created successfully',
-        id: result.lastInsertRowid 
+        data: result.rows 
       },
       { status: 201 }
     );

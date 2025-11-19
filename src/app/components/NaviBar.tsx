@@ -23,11 +23,12 @@ const NaviBar = ({resetSession}) => {
   const router = useRouter();
     
   const hadleLogout = async () => {
+    
     resetSession()
     await handleFetch('logout', 'GET');
     await router.push('/auth');
     storage.remove('user')
-    setPathname('auth')
+    setPathname('auth');
   }
 
   const handleClick = (e) => {
@@ -60,7 +61,11 @@ const NaviBar = ({resetSession}) => {
               >
                 Staff
               </Link>
-              <Link href="" className="nav-link">
+              <Link
+                href="/pages/dashboard"
+                className={`nav-link ${pathname?.includes('dashboard') ? 'active' : ''}`}
+                onClick={(e:string)=>handleClick('dashboard')}
+              >
                 Dashboard
               </Link>
             </div>

@@ -100,9 +100,9 @@ export default function LoginForm({ onToggleToRegister }: LoginFormProps) {
         <div className="form-group">
           <label htmlFor="email" className="form-label">
             Email
-            <span className="error-message">
+            <label className="error-message">
               {errors.email && touched.email ? errors.email : null}
-            </span>
+            </label>
           </label>
           <input
             type="email"
@@ -120,9 +120,9 @@ export default function LoginForm({ onToggleToRegister }: LoginFormProps) {
         <div className="form-group">
           <label htmlFor="password" className="form-label">
             Password
-            <span className="error-message">
+            <label className="error-message">
               {errors.password && touched.password ? errors.password : null}
-            </span>
+            </label >
           </label>
           <input
             type="password"

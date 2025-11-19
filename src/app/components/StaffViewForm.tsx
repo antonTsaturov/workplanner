@@ -50,7 +50,7 @@ const StaffViewForm = ({ emplData, employee, onEdit, onBack }) => {
           </div>
 
           <div className="employee-info-group">
-            <label className="employee-info-label">Employee ID</label>
+            <label className="employee-info-label">ID number</label>
             <div className="employee-info-value">
               {emplData?.id || <span className="employee-info-value-empty">Not assigned</span>}
             </div>
@@ -73,7 +73,7 @@ const StaffViewForm = ({ emplData, employee, onEdit, onBack }) => {
           <div className="employee-info-group">
             <label className="employee-info-label">Hire Date</label>
             <div className="employee-info-value">
-              {emplData?.hireDate ? formatDate(emplData.hireDate) : <span className="employee-info-value-empty">Not specified</span>}
+              {emplData?.hiredate ? formatDate(emplData.hiredate) : <span className="employee-info-value-empty">Not specified</span>}
             </div>
           </div>
 
@@ -93,7 +93,7 @@ const StaffViewForm = ({ emplData, employee, onEdit, onBack }) => {
 
         {/* Additional Information */}
         <div className="employee-info-group">
-          <label className="employee-info-label">Address</label>
+          <label className="employee-info-label">Location</label>
           <div className="employee-info-value" style={{ minHeight: 'auto', padding: '0.875rem' }}>
             {emplData?.location ? (
               <div style={{ whiteSpace: 'pre-line' }}>{emplData.location}</div>
@@ -110,7 +110,7 @@ const StaffViewForm = ({ emplData, employee, onEdit, onBack }) => {
                 {
                   emplData.projects.includes(',') 
                   ? JSON.parse(emplData.projects).join(', ')
-                  : emplData.projects
+                  : <span className="employee-status-active">{emplData.projects.replace(/[^a-zA-Z0-9]/g, "")}</span>
                 }
               </div>
             ) : (
