@@ -6,8 +6,10 @@ export async function proxy(request: NextRequest) {
   const protectedRoutes = [
   '/pages/calendar',
   '/pages/staff',
+  '/pages/dashboard',
   '/calendar', // For not see 404 page
   '/staff',    // For not see 404 page
+  '/dashboard',    // For not see 404 page
   ];
   
   const isProtectedRoute = protectedRoutes.some(route => 
@@ -23,10 +25,6 @@ export async function proxy(request: NextRequest) {
   
   if (request.nextUrl.pathname === '/' || request.nextUrl.pathname === '/auth' && session) {
     return NextResponse.redirect(new URL('/pages/calendar', request.url));
-  }
-  
-  if (request.nextUrl.pathname === '/public') {
-    //return NextResponse.redirect(new URL('/pages/calendar', request.url));
   }
 }
 

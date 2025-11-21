@@ -216,7 +216,6 @@ export async function getUserByEmail(email: string): Promise<any | null> {
   }
 }
 
-// Additional utility functions for common operations
 export async function insert(table: string, data: Record<string, any>): Promise<QueryResult> {
   
   //Create columns list (string) and add "" for column with title end
@@ -230,16 +229,6 @@ export async function insert(table: string, data: Record<string, any>): Promise<
   const sql = `INSERT INTO ${table} (${columns}) VALUES (${placeholders}) RETURNING *`;
   return await query(sql, values);
 }
-
-//export async function update(table: string, id: number, data: Record<string, any>): Promise<QueryResult> {
-  //const setClause = Object.keys(data)
-    //.map((key, index) => `${key} = $${index + 1}`)
-    //.join(', ');
-  //const values = [...Object.values(data), id];
-  
-  //const sql = `UPDATE ${table} SET ${setClause} WHERE id = $${values.length} RETURNING *`;
-  //return await query(sql, values);
-//}
 
 export async function update(table: string, data: Record<string, any>): Promise<QueryResult> {
   const id = data.id

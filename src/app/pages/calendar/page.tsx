@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 export default function Calendar() {
 
   return (
-    <div >
+    <div style={{display:'flex', width: '100%'}}>
       <FullCalendar/>
     </div>
   );

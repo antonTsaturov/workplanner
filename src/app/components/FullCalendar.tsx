@@ -172,7 +172,10 @@ const Calendar = observer(() => {
   };
       
   return (
-    <div className='demo-app' style={{display: 'flex', flexDirection:'row', width: '-webkit-fill-available'}}>
+    <div
+      className='demo-app'
+      style={{display: 'flex', flexDirection:'row', width: '-webkit-fill-available'}}
+    >
     
       <SidePanel
         isVisible={isVisible}

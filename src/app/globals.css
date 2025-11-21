@@ -138,7 +138,8 @@ a {
   padding: 40px 30px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
-  width: 20rem;
+  min-width: 13rem;
+  max-width:20rem;
   display: flex;
   flex-direction: column;
 }
@@ -180,7 +181,16 @@ a {
   font-size: 16px;
   transition: all 0.2s ease;
   outline: none;
-  background: #eef3f647;;
+  background: #eef3f647;
+  
+}
+
+.select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1rem;
+  appearance: none;
 }
 
 .form-input:hover {
@@ -195,12 +205,6 @@ a {
 .input-error {
   border-color: #ef4444;
 }
-
-/*
-.form-input.error {
-  border-color: #ef4444;
-}
-*/
 
 /* Button Styles */
 .auth-button {

@@ -194,7 +194,7 @@ export default function RegisterForm({ onToggleToLogin }: RegisterFormProps) {
             name="dept"
             value={formData.dept}
             onChange={handleChange}
-            className="form-input"
+            className="form-input select"
           >
             <option value="CLN">Clinical</option>
             <option value="DM">Data managment</option>

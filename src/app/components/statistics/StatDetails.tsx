@@ -1,10 +1,26 @@
 
 import { COLORS } from '../Statistics';
 
+interface statDetailsProps {
+  [
+    {
+      "name": string,
+      "dept": string,
+      "data": [
+        {
+          "title": string,
+          "value": number,
+          "entries": number,
+        },
+      ]
+    }
+  ]
+}
+
 const StatDetails = ({statDetails, activeUser}) => {
   
-  //const department = statDetails ? statDetails[0].dept : null;
-  const department =  null;
+  const department = statDetails ? statDetails[0].dept : null;
+  //const department =  null;
   //console.log(statDetails)
   
   return (
@@ -14,8 +30,10 @@ const StatDetails = ({statDetails, activeUser}) => {
       borderRadius: 'var(--radius-md)',
       border: '1px solid var(--border-color)'
     }}>
+    {statDetails && statDetails?.map((item, index) => (
+      <div key={index} style={{marginBottom: '2rem'}}>
       <h4 style={{ margin: '0 0 1.5rem', color: 'var(--text-primary)' }}>
-        {activeUser ? `List of Tasks for ${activeUser} (${department} department)` : null}
+        {activeUser ? `List of Tasks for ${activeUser} (${department} department)` : item.name}
       </h4>
       <div style={{
         display: 'grid',
@@ -23,25 +41,25 @@ const StatDetails = ({statDetails, activeUser}) => {
         gap: '0.75rem',
         overflow: 'hidden'
       }}>
-        {statDetails && statDetails?.map((project, index) => (
-          <div
-            key={project.title}
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              padding: '0.75rem',
-              background: 'var(--background-primary)',
-              borderRadius: 'var(--radius-sm)',
-              border: '1px solid var(--border-color)',
-              height: 'auto',
-              opacity: 1,
-              transform: 'translateY(0)',
-              transition: 'all 0.3s ease-out',
-              animation: `slideInUp 0.4s ease-out ${index * 0.1}s both`
-            }}
-          >
+        {item.data.map(item => (
+        <div
+          key={item.title}
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: '0.75rem',
+            background: 'var(--background-primary)',
+            borderRadius: 'var(--radius-sm)',
+            border: '1px solid var(--border-color)',
+            height: 'auto',
+            opacity: 1,
+            transform: 'translateY(0)',
+            transition: 'all 0.3s ease-out',
+            animation: `slideInUp 0.4s ease-out ${index * 0.1}s both`
+          }}
+        >
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <div style={{
                 width: '12px',
@@ -50,18 +68,20 @@ const StatDetails = ({statDetails, activeUser}) => {
                 background: COLORS[4],
                 transition: 'transform 0.2s ease'
               }} />
-              <span style={{ fontWeight: '500', fontSize: '0.875rem' }}>{project.title}</span>
+              <span style={{ fontWeight: '500', fontSize: '0.875rem' }}>{item.title}</span>
             </div>
             <div style={{ textAlign: 'center' }}>
-              <div style={{ fontWeight: '600', fontSize: '0.875rem' }}>{project.duration} h</div>
+              <div style={{ fontWeight: '600', fontSize: '0.875rem' }}>{item.value} h</div>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                {project.entries} entries
+                {item.entries} entries
               </div>
+            
             </div>
           </div>
-        ))}
+        ))}  
+        </div>
       </div>
-
+    ))}
       <style>
       {`
         @keyframes slideInUp {

@@ -8,7 +8,7 @@ import  Staff from "../../components/Staff"
 export default function StaffPage() {
 
   return (
-    <div >
+    <div style={{display: 'flex' ,justifyContent: 'flex-start', width: '100%'}}>
       <Staff/>
     </div>
   );

@@ -19,6 +19,7 @@ import {
 import { useEvents } from '../hooks/useEvents';
 import { formatDuration } from '../utils/format';
 import '../styles/Staff.css';
+//import EmplDetails from './statistics/EmplDetails'
 import StatDetails from './statistics/StatDetails'
 
 const calendar = {
@@ -47,12 +48,13 @@ const Statistics = () => {
     monthlyData: [],
     dailyAverages: [],
     topProjects: [],
-    authorStats: []
+    emplStats: []
   });
   
   const [statDetails, setStatDetails] = useState(null)
+  //const [deptDetails, setDeptDetails] = useState(null)
   
-  const [activeChart, setActiveChart] = useState(''); // projects, departments, authors
+  const [activeChart, setActiveChart] = useState(''); // projects, departments, empls
   const [activeSubChart, setActiveSubChart] = useState(null) //names of projects OR names of departments
   const [activeSubChartItem, setActiveSubChartItem] = useState('All')
     
@@ -116,57 +118,69 @@ const Statistics = () => {
     const result = events
     .filter(item => item.project === project && item.name === user)
     .reduce((acc, item) => {
-      const existingTitle = acc.find(entry => entry.title === item.title);
+      const { name, title } = item;
       
-      if (existingTitle) {
-        existingTitle.duration += parseFloat(item.length);
-        existingTitle.entries += 1;
-      } else {
-        acc.push({
-          title: item.title,
-          duration: parseFloat(item.length),
-          entries: 1,
-          dept: item.dept,
-        });
+      let existingName = acc.find(i => i.name === name);
+      if (!existingName) {
+        existingName = { name: name, dept: item.dept, data: [] };
+        acc.push(existingName);
       }
       
+      const existingTitle = existingName.data.find(i => i.title === title)
+      if (existingTitle) {
+        existingTitle.value += parseFloat(item.length);
+        existingTitle.entries += 1;
+        
+      } else {
+        existingName.data.push({
+          title: item.title,
+          value: parseFloat(item.length),
+          entries: 1,
+          
+        });
+      }
       return acc;
     }, []);
       
     setStatDetails(result)
-    //console.log(result)
   }
   
-  const getDeptDetails = (dept: string) => {
-    console.log(dept)
+  const getDeptDetails = (e) => {
+    
+    const project = e.payload.project
+    const dept = Object.entries(e.payload)
+    .map((item) => item[1] == e.value && item[0])
+    .filter(Boolean)[0]; // Get the first truthy value
+    //console.log(e)
+    
     const result = events
-    .filter(item => item.dept === dept )
-    .reduce((acc, event) => {
+    .filter(item => item.dept == dept && item.project == project)
+    //.filter(item => item.project === targetProject)
+    .reduce((acc, item) => {
+      const { dept, name, title, length } = item;
+      const groupName = `${name}`;
+      const numLength = parseFloat(length);
       
-    if (new Date(event.start) > period.start && new Date(event.end) < period.end) {
-      if (!existingName) {
-        acc.push({
-          name: event.name,
-          title: event.title,
-          totalDuration: parseFloat(event.length)
-        });
-      } else {
-        existingName.totalDuration += parseFloat(event.length);
+      // Find or create department group
+      let deptGroup = acc.find(group => group.name === groupName);
+      if (!deptGroup) {
+        deptGroup = { name: groupName, data: [] };
+        acc.push(deptGroup);
       }
-    }
-    console.log(acc)
-    return acc;
-    }, [])
-    //.map(project => {
-      //return { 
-        //name: project.name, 
-        //value: project.totalDuration, 
-        //duration: formatDuration(project.totalDuration), 
-      //}
-    //})
       
-    //setStatDetails(result)
+      // Update title sum
+      const titleEntry = deptGroup.data.find(entry => entry.title === title);
+      if (titleEntry) {
+        titleEntry.value += numLength;
+        titleEntry.entries += 1;
+      } else {
+        deptGroup.data.push({ title, value: numLength, entries: 1 });
+      }
+      
+      return acc;
+    }, []);
     //console.log(result)
+    setStatDetails(result)
   }
 
   useEffect(() => {
@@ -231,30 +245,32 @@ const Statistics = () => {
             duration: formatDuration(project.totalDuration), 
           }
         }),
-        departments: [...new Set(events.map(item => item.project))].map(project => 
-          events.filter(item => item.project === project)
-            .reduce((acc, item) => {
-              acc.project = project;
-              const deptKey = `duration_${item.dept}`;
-              // Always parse both values to ensure we're working with numbers
-              if (new Date(item.start) > period.start && new Date(item.end) < period.end) {
-                acc[deptKey] = parseFloat(acc[deptKey] || 0) + parseFloat(item.length);
-                acc.title = item.dept;
-                
-              }              
-              return acc;
-            }, {})
-        ).map(item => {
-          // Convert to fixed decimal in a separate map step
-          const formattedItem = { project: item.project };
-          Object.keys(item).forEach(key => {
-            if (key !== 'project') {
-              formattedItem[key] = parseFloat(item[key]).toFixed(1);
+        departments: events.reduce((acc, item) => {
+          const { project, dept, length } = item;
+          const lengthNum = parseFloat(length);
+          
+          // Find if project already exists in accumulator
+          const existingProject = acc.find(p => p.project === project);
+          
+          if (new Date(item.start) > period.start && new Date(item.end) < period.end) {
+            if (existingProject) {
+              // If project exists, add to the department total
+              if (existingProject[dept]) {
+                existingProject[dept] += lengthNum;
+              } else {
+                existingProject[dept] = lengthNum;
+              }
+            } else {
+              // If project doesn't exist, create new project entry
+              const newProject = { project };
+              newProject[dept] = lengthNum;
+              acc.push(newProject);
             }
-          });
-          console.log(formattedItem)
-          return formattedItem;
-        }),
+          }
+          
+          return acc;
+        }, []),
+        
         monthlyData: [
           { month: 'Jan', entries: 12, duration: 35.5 },
           { month: 'Feb', entries: 18, duration: 52.8 },
@@ -279,13 +295,36 @@ const Statistics = () => {
           { project: 'Internal Tasks', hours: 67.42, entries: 22 },
           { project: 'Client Support', hours: 54.15, entries: 18 }
         ],
-        authorStats: [
-          { author: 'John Doe', entries: 45, duration: '132h 15m' },
-          { author: 'Jane Smith', entries: 38, duration: '118h 45m' },
-          { author: 'Mike Johnson', entries: 32, duration: '95h 20m' },
-          { author: 'Sarah Wilson', entries: 28, duration: '85h 30m' },
-          { author: 'Tom Brown', entries: 13, duration: '26h 40m' }
-        ]
+        emplStats: events.reduce((acc, item) => {
+          const { length, name } = item;
+          const lengthNum = parseFloat(length);
+          
+          // Find if user already exists in accumulator
+          const existingName = acc.find(item => item.name === name);
+          
+          if (new Date(item.start) > period.start && new Date(item.end) < period.end) {
+            if (existingName) {
+              existingName.hours += lengthNum;
+
+            } else {
+              // If user doesn't exist, create new user entry
+              const newUser = { name };
+              newUser.hours = lengthNum;
+              acc.push(newUser);
+            }
+          }
+          
+          //console.log(acc)
+          return acc;
+        }, []),
+        
+        //[
+          //{ empl: 'John Doe', entries: 45, duration: '132h 15m' },
+          //{ empl: 'Jane Smith', entries: 38, duration: '118h 45m' },
+          //{ empl: 'Mike Johnson', entries: 32, duration: '95h 20m' },
+          //{ empl: 'Sarah Wilson', entries: 28, duration: '85h 30m' },
+          //{ empl: 'Tom Brown', entries: 13, duration: '26h 40m' }
+        //]
       };
 
       setStatistics(mockData);
@@ -325,7 +364,8 @@ const Statistics = () => {
       padding: '1.5rem',
       borderRadius: 'var(--radius-lg)',
       boxShadow: 'var(--shadow-md)',
-      margin: '2rem 0'
+      minWidth: '80%'
+      //margin: '2rem 0'
     }}>
       {/* Header */}
       <div style={{ marginBottom: '2rem' }}>
@@ -402,7 +442,7 @@ const Statistics = () => {
         gap: '1rem'
       }}>
         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-          {['projects', 'departments', 'authors'].map((chart) => (
+          {['projects', 'departments', 'employees'].map((chart) => (
             <button
               key={chart}
               onClick={() => {
@@ -410,6 +450,7 @@ const Statistics = () => {
                 getSubChart(chart)
                 setActiveUser('')
                 setStatDetails('')
+                chart === 'employees' && setActiveSubChart('')
               }}
               style={{
                 padding: '0.5rem 1rem',
@@ -420,6 +461,7 @@ const Statistics = () => {
                 fontSize: '0.875rem',
                 fontWeight: '500',
                 cursor: 'pointer',
+                outline: 'none',
                 transition: 'var(--transition)'
               }}
             >
@@ -427,8 +469,9 @@ const Statistics = () => {
             </button>
           ))}
         </div>
-
+        {/*FILTERS*/}
         <div>
+          <span style={{color: 'var(--text-secondary)', fontSize: '.875rem', fontWeight: 500}}>Filter:  </span>
           <select
             //value={period}
             onChange={changePeriod}
@@ -478,8 +521,8 @@ const Statistics = () => {
         </div>
       </div>
       
-      {/* PROJECT LIST BUTTONS*/}
-      {activeChart && ( //activeChart === 'projects' && activeSubChart !== null &&
+      {/* Chart Controls Buttons  second row */}
+      {activeChart && (
           <div style={{
             display: 'flex',
             justifyContent: 'space-between',
@@ -489,7 +532,7 @@ const Statistics = () => {
             gap: '1rem'
           }}>
             <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-              {activeSubChart.map((prj) => (
+              {activeSubChart && activeSubChart.map((prj) => (
                 <button
                   key={prj}
                   onClick={() => {
@@ -506,6 +549,7 @@ const Statistics = () => {
                     fontSize: '0.875rem',
                     fontWeight: '500',
                     cursor: 'pointer',
+                    outline: 'none',
                     transition: 'var(--transition)'
                   }}
                 >
@@ -538,7 +582,10 @@ const Statistics = () => {
                         <Cell
                           key={`cell-${index}`}
                           fill={COLORS[index % COLORS.length]}
-                          style={{ cursor: 'pointer' }}
+                          style={{
+                            cursor: 'pointer',
+                            outline: 'none',
+                          }}
                         />
                       ))
                       :
@@ -580,7 +627,7 @@ const Statistics = () => {
                         <Cell
                           key={`cell-${index}`}
                           fill={COLORS[index % COLORS.length]}
-                          style={{ cursor: 'pointer' }}
+                          style={{ cursor: 'pointer', outline: 'none', }}
                         />
                       ))
                       :
@@ -604,19 +651,19 @@ const Statistics = () => {
         {activeChart === 'departments' && (
           <div>
             <h3 style={{ marginBottom: '1rem', color: 'var(--text-primary)' }}>Departments Workload</h3>
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={300} style={{ outline: 'none'}}>
               <BarChart
                 data={statistics.departments}
-                
+                style={{ outline: 'none'}}
               >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="project" />
+                <CartesianGrid strokeDasharray="3 3" style={{ outline: 'none'}}/>
+                <XAxis dataKey="project" style={{ outline: 'none'}}/>
                 <YAxis />
                 <Tooltip content={<CustomTooltip />} />
                 <Legend />
-                {
+                {statistics.departments && statistics.departments.length > 0 ? 
                   // Get all department keys (excluding 'project')
-                  Object.keys(statistics.departments[0] || {})
+                  (Object.keys(statistics.departments[0] || {})
                     .filter(key => key !== 'project')
                     .map((deptKey, index) => (
                       <Bar
@@ -624,9 +671,21 @@ const Statistics = () => {
                         key={deptKey}
                         dataKey={deptKey}
                         fill={COLORS[index % COLORS.length]}
-                        name={deptKey.replace('duration_', ' ')} // Convert "duration_CLN" to "duration CLN"
+                        style={{cursor: 'pointer', outline: 'none'}}
+                        name={deptKey} 
                       />
                     ))
+                  )
+                  : (
+                    [{ name: 'No data', value: 0 }].map((entry, index) => (
+                      <Bar 
+                        key={`no-data-${index}`} 
+                        fill={COLORS[index % COLORS.length]} 
+                        name={entry.name}
+                        dataKey={entry.name}
+                      />
+                    ))
+                  )
                 }
               </BarChart>
             </ResponsiveContainer>
@@ -650,17 +709,32 @@ const Statistics = () => {
           </div>
         )}
 
-        {activeChart === 'authors' && (
+        {activeChart === 'employees' && (
           <div>
-            <h3 style={{ marginBottom: '1rem', color: 'var(--text-primary)' }}>Author Performance</h3>
+            <h3 style={{ marginBottom: '1rem', color: 'var(--text-primary)' }}>Employees Workload</h3>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={statistics.authorStats}>
+              <BarChart data={statistics.emplStats}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="author" />
-                <YAxis />
+                <XAxis dataKey="name" />
+                <YAxis dataKey="hours"/>
                 <Tooltip />
                 <Legend />
-                <Bar dataKey="entries" fill="#6366f1" name="Entries" />
+                {statistics.emplStats.length > 0 ?
+                  <Bar
+                    key="name"
+                    dataKey="hours"
+                    fill="#6366f1" 
+                    name="Hours"
+                  />
+                  :
+                  <Bar 
+                    key="no-data" 
+                    dataKey="value"
+                    //fill="#ccc"
+                    name="No data available"
+                  />
+                }
+                
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -674,29 +748,33 @@ const Statistics = () => {
         gap: '1.5rem'
       }}>
         
-        {/* 
-          Daily Averages 
-        <div style={{
-          background: 'var(--background-secondary)',
-          padding: '1.5rem',
-          borderRadius: 'var(--radius-md)',
-          border: '1px solid var(--border-color)'
-        }}>
-          <h4 style={{ marginBottom: '1rem', color: 'var(--text-primary)' }}>Daily Averages</h4>
-          <ResponsiveContainer width="100%" height={200}>
-            <LineChart data={statistics.dailyAverages}>
-              <XAxis dataKey="day" />
-              <YAxis />
-              <Tooltip />
-              <Line type="monotone" dataKey="averageHours" stroke="#f59e0b" strokeWidth={2} />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-        */}
-        <StatDetails
-          statDetails={statDetails}
-          activeUser={activeUser}
-        />
+        {
+          period.current !== 'month' ?
+            //Daily Averages 
+          (<div style={{
+            background: 'var(--background-secondary)',
+            padding: '1.5rem',
+            borderRadius: 'var(--radius-md)',
+            border: '1px solid var(--border-color)'
+          }}>
+            <h4 style={{ marginBottom: '1rem', color: 'var(--text-primary)' }}>Daily Averages</h4>
+            <ResponsiveContainer width="100%" height={200}>
+              <LineChart data={statistics.dailyAverages}>
+                <XAxis dataKey="day" />
+                <YAxis />
+                <Tooltip />
+                <Line type="monotone" dataKey="averageHours" stroke="#f59e0b" strokeWidth={2} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>)
+          :
+          ( <StatDetails
+              statDetails={statDetails}
+              activeUser={activeUser}
+            />
+          )
+          
+        }
       </div>
     </div>
   );
