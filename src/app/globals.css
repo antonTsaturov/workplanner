@@ -138,18 +138,41 @@ a {
   padding: 40px 30px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
-  min-width: 13rem;
+  min-width: 20rem;
   max-width:20rem;
   display: flex;
   flex-direction: column;
 }
 
-/*
-.auth-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+.auth-transition.register-active {
+  animation: slideInReg 0.3s ease-in-out;
 }
-*/
+
+.auth-transition.login-active {
+  animation: slideInLog 0.3s ease-in-out;
+}
+
+@keyframes slideInReg {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLog {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
 /* Form Styles */
 .auth-form {
@@ -285,6 +308,7 @@ a {
   margin-top: 10px;
   min-height: 20px;
 }
+
 
  /*Navigation bar*/
 

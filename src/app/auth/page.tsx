@@ -12,11 +12,13 @@ export default function AuthPage() {
 
   return (
     <div className="auth-container">
-      {isLogin ? (
-        <LoginForm onToggleToRegister={toggleToRegister} />
-      ) : (
-        <RegisterForm onToggleToLogin={toggleToLogin} />
-      )}
+      <div className={`auth-transition ${isLogin ? 'login-active' : 'register-active'}`}>
+        {isLogin ? (
+          <LoginForm onToggleToRegister={toggleToRegister} />
+        ) : (
+          <RegisterForm onToggleToLogin={toggleToLogin} />
+        )}
+      </div>
     </div>
   );
 }

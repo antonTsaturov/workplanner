@@ -125,7 +125,7 @@ export default function RegisterForm({ onToggleToLogin }: RegisterFormProps) {
 
   return (
     <div className="auth-card">
-      <h1 className="auth-title">Create Account</h1>
+      <h1 className="auth-title">Create Workplanner Account</h1>
       
       <form onSubmit={handleSubmit} className="auth-form">
         <div className="form-group">

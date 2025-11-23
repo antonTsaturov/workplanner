@@ -30,7 +30,6 @@ const calendar = {
   })),
 }
 
-//const MONTH_NOW = new Date().toLocaleString('default', { month: 'long' });
 const MONTH_NOW = new Date().getMonth() + 1;
 const YEAR_NOW = new Date().getFullYear();
 export const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
@@ -52,8 +51,7 @@ const Statistics = () => {
   });
   
   const [statDetails, setStatDetails] = useState(null)
-  //const [deptDetails, setDeptDetails] = useState(null)
-  
+  const [activeUser, setActiveUser] = useState('')
   const [activeChart, setActiveChart] = useState(''); // projects, departments, empls
   const [activeSubChart, setActiveSubChart] = useState(null) //names of projects OR names of departments
   const [activeSubChartItem, setActiveSubChartItem] = useState('All')
@@ -110,7 +108,6 @@ const Statistics = () => {
     setActiveSubChartItem('All')
   }
   
-  const [activeUser, setActiveUser] = useState('')
   const getUserDetails = (user: string) => {
     setActiveUser(user)
     const project = activeSubChartItem;
@@ -145,7 +142,7 @@ const Statistics = () => {
     setStatDetails(result)
   }
   
-  const getDeptDetails = (e) => {
+  const getDeptDetails = (e: {}) => {
     
     const project = e.payload.project
     const dept = Object.entries(e.payload)
@@ -279,15 +276,43 @@ const Statistics = () => {
           { month: 'May', entries: 19, duration: 55.9 },
           { month: 'Jun', entries: 25, duration: 73.4 }
         ],
-        dailyAverages: [
-          { day: 'Mon', averageHours: 7.2 },
-          { day: 'Tue', averageHours: 7.8 },
-          { day: 'Wed', averageHours: 7.5 },
-          { day: 'Thu', averageHours: 7.9 },
-          { day: 'Fri', averageHours: 6.8 },
-          { day: 'Sat', averageHours: 3.2 },
-          { day: 'Sun', averageHours: 1.5 }
-        ],
+        dailyAverages: events
+        .reduce((acc, item) => {
+          
+          const month = new Date(item.start).toLocaleString('default', { month: 'long' })
+
+          const existMonth = acc.find((i, index) => i.month === month)
+          const existProject = existMonth?.data.find(i => i.project === item.project)
+          
+          if (!existMonth) {
+            acc.push({
+              month: month,
+              data: [{
+                project: item.project,
+                length: parseFloat(item.length)
+              }]
+            })
+          }
+         
+          if (!existProject) {
+            existMonth?.data.push({
+                project: item.project,
+                length: parseFloat(item.length)
+            })
+          } else {
+            existProject.length += parseFloat(item.length);
+          }
+
+          return acc;
+        }, []),
+          //{ day: 'Mon', averageHours: 7.2 },
+          //{ day: 'Tue', averageHours: 7.8 },
+          //{ day: 'Wed', averageHours: 7.5 },
+          //{ day: 'Thu', averageHours: 7.9 },
+          //{ day: 'Fri', averageHours: 6.8 },
+          //{ day: 'Sat', averageHours: 3.2 },
+          //{ day: 'Sun', averageHours: 1.5 }
+        
         topProjects: [
           { project: 'Project Alpha', hours: 132.25, entries: 45 },
           { project: 'Project Beta', hours: 118.75, entries: 38 },
@@ -317,14 +342,6 @@ const Statistics = () => {
           //console.log(acc)
           return acc;
         }, []),
-        
-        //[
-          //{ empl: 'John Doe', entries: 45, duration: '132h 15m' },
-          //{ empl: 'Jane Smith', entries: 38, duration: '118h 45m' },
-          //{ empl: 'Mike Johnson', entries: 32, duration: '95h 20m' },
-          //{ empl: 'Sarah Wilson', entries: 28, duration: '85h 30m' },
-          //{ empl: 'Tom Brown', entries: 13, duration: '26h 40m' }
-        //]
       };
 
       setStatistics(mockData);
@@ -760,10 +777,10 @@ const Statistics = () => {
             <h4 style={{ marginBottom: '1rem', color: 'var(--text-primary)' }}>Daily Averages</h4>
             <ResponsiveContainer width="100%" height={200}>
               <LineChart data={statistics.dailyAverages}>
-                <XAxis dataKey="day" />
+                <XAxis dataKey="month" />
                 <YAxis />
                 <Tooltip />
-                <Line type="monotone" dataKey="averageHours" stroke="#f59e0b" strokeWidth={2} />
+                <Line type="monotone" dataKey="length" stroke="#f59e0b" strokeWidth={2} />
               </LineChart>
             </ResponsiveContainer>
           </div>)
