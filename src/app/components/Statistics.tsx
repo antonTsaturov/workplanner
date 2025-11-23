@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   BarChart,
   Bar,
@@ -36,7 +36,8 @@ export const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#
 
 
 const Statistics = () => {
-  
+
+
   const { events, reloadEvents } = useEvents({props: 'all'});
   
   const [statistics, setStatistics] = useState({
@@ -45,7 +46,7 @@ const Statistics = () => {
     projects: [],
     departments: [],
     monthlyData: [],
-    dailyAverages: [],
+    annualActivity: [],
     topProjects: [],
     emplStats: []
   });
@@ -180,6 +181,11 @@ const Statistics = () => {
     setStatDetails(result)
   }
 
+
+  const initialAccumulator = calendar.month.map(m => ({
+    month: m.name.slice(0, 3),
+  }));
+
   useEffect(() => {
     const fetchStatistics = async () => {
       // This would be your actual API call
@@ -276,42 +282,23 @@ const Statistics = () => {
           { month: 'May', entries: 19, duration: 55.9 },
           { month: 'Jun', entries: 25, duration: 73.4 }
         ],
-        dailyAverages: events
-        .reduce((acc, item) => {
+        annualActivity: events.reduce((acc, item) => {
+          if (new Date(item.start) > period.start && new Date(item.end) < period.end) {
           
-          const month = new Date(item.start).toLocaleString('default', { month: 'long' })
-
-          const existMonth = acc.find((i, index) => i.month === month)
-          const existProject = existMonth?.data.find(i => i.project === item.project)
+            const month = new Date(item.start).toLocaleString('default', { month: 'short' });
+            const existMonth = acc.find(i => i.month === month);
+            console.log(existMonth)
+            //if (existMonth) {
+              if (!existMonth[item.project]) {
+                existMonth[item.project] = parseFloat(item.length);
+              } else {
+                existMonth[item.project] += parseFloat(item.length);
+              }
+            //}
+          }
           
-          if (!existMonth) {
-            acc.push({
-              month: month,
-              data: [{
-                project: item.project,
-                length: parseFloat(item.length)
-              }]
-            })
-          }
-         
-          if (!existProject) {
-            existMonth?.data.push({
-                project: item.project,
-                length: parseFloat(item.length)
-            })
-          } else {
-            existProject.length += parseFloat(item.length);
-          }
-
           return acc;
-        }, []),
-          //{ day: 'Mon', averageHours: 7.2 },
-          //{ day: 'Tue', averageHours: 7.8 },
-          //{ day: 'Wed', averageHours: 7.5 },
-          //{ day: 'Thu', averageHours: 7.9 },
-          //{ day: 'Fri', averageHours: 6.8 },
-          //{ day: 'Sat', averageHours: 3.2 },
-          //{ day: 'Sun', averageHours: 1.5 }
+        }, initialAccumulator),
         
         topProjects: [
           { project: 'Project Alpha', hours: 132.25, entries: 45 },
@@ -349,6 +336,10 @@ const Statistics = () => {
 
     fetchStatistics();
   }, [events, period, activeSubChartItem]);
+  
+  const projects = [...new Set(events.map(item => item.project))];
+  const colors = ['#8884d8', '#82ca9d', '#ffc658', '#ff8042', '#00C49F'];
+  
 
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
@@ -579,7 +570,7 @@ const Statistics = () => {
 
       {/* Charts */}
       <div style={{ marginBottom: '2rem' }}>
-        {activeChart === 'projects' && activeSubChartItem === 'All' && (
+        {activeChart === 'projects' && activeSubChartItem === 'All' && period.current === 'month' && (
           <div>
             <h3 style={{ marginBottom: '1rem', color: 'var(--text-primary)' }}>All projects</h3>
             <ResponsiveContainer width="100%" height={300}>
@@ -622,7 +613,7 @@ const Statistics = () => {
         )}
         
         {/* STATISTIC BY EMPLOYEES*/}
-        {activeChart === 'projects' && activeSubChartItem !== 'All' && (
+        {activeChart === 'projects' && activeSubChartItem !== 'All' && period.current === 'month' && (
           <div >
             <h3 style={{ marginBottom: '1rem', color: 'var(--text-primary)' }}>Project {activeSubChartItem}
 </h3>
@@ -767,21 +758,31 @@ const Statistics = () => {
         
         {
           period.current !== 'month' ?
-            //Daily Averages 
+            // Projects annual activity
           (<div style={{
             background: 'var(--background-secondary)',
             padding: '1.5rem',
             borderRadius: 'var(--radius-md)',
             border: '1px solid var(--border-color)'
           }}>
-            <h4 style={{ marginBottom: '1rem', color: 'var(--text-primary)' }}>Daily Averages</h4>
+            <h4 style={{ marginBottom: '1rem', color: 'var(--text-primary)' }}>Projects annual activity</h4>
             <ResponsiveContainer width="100%" height={200}>
-              <LineChart data={statistics.dailyAverages}>
+              <BarChart data={statistics.annualActivity}>
+                <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" />
                 <YAxis />
                 <Tooltip />
-                <Line type="monotone" dataKey="length" stroke="#f59e0b" strokeWidth={2} />
-              </LineChart>
+                {projects.map((project, index) => {
+                  //console.log(statistics.annualActivity)
+                  return <Bar 
+                    key={project} 
+                    dataKey={project} 
+                    stackId="a" 
+                    fill={colors[index % colors.length]}
+                    name={`Project ${project}`}
+                  />
+                })}
+              </BarChart>
             </ResponsiveContainer>
           </div>)
           :
