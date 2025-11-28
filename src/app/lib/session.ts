@@ -30,7 +30,7 @@ export async function encrypt(payload: SessionPayload): string {
 
 // Decrypt (verify) JWT token
 export async function decrypt(token: string): SessionPayload | null {
-  console.log('decrypt', token.value)
+  //console.log('decrypt', token.value)
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as DecodedSession
     return {
@@ -75,11 +75,29 @@ export const destroySession = async () => {
   return session;
 }
 
+export const setSessionLang = async (lang) => {
+  const cookieStore = await cookies();
+  
+  cookieStore.set('locale', lang, {
+    path: '/',           // Important: accessible from all paths
+    maxAge: 60 * 60 * 24 * 30, // 30 days 
+    sameSite: 'lax',
+    //secure: process.env.NODE_ENV === 'production', // Secure in production
+    // domain: '.yourdomain.com' // If using subdomains
+  });
+}
+
+export const getSessionLang = async (lang) => {
+  const cookieStore = await cookies();
+  const locale = cookieStore.get('locale')?.value;
+  return locale;
+}
+
 // Validate session and get user data
 export async function validateSession(): Promise<{
   user: SessionPayload | null
   isValid: boolean
-}> {
+  }> {
   const session = await getCurrentSession()
   return {
     user: session,

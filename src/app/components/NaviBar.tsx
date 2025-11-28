@@ -1,21 +1,53 @@
 'use client'
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Link from 'next/link'
 import '../globals.css';
-
+import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { handleFetch} from '../lib/fetch';
+import { setSessionLang } from '../lib/session';
 import { storage } from '../utils/localStorage';
 import { useSession } from './Providers';
-
-
 import { usePathname } from 'next/navigation'
+
+import Modal  from './Modal';
+import { useModal } from '../hooks/useModal';
+import UserSettings from './UserSettings'
+
+
+const LanguageSwitcher = () => {
+  
+  const currentLocale = useLocale();
+  const t = useTranslations('naviBar');
+  
+  const switchLanguage = () => {
+    if (currentLocale === 'en') {
+      setSessionLang('ru');
+    } else {
+      setSessionLang('en');
+    }
+  };
+  
+  return (
+    <div>
+      <button
+        className="dropdown-item-button"
+        onClick={switchLanguage}
+      >
+        {t('language')}
+      </button>
+    </div>
+  );
+}
 
 
 const NaviBar = ({resetSession}) => {
   const { session, isLoading, refreshSession } = useSession();
+  const { isModalOpen, open, close} = useModal();
 
+  
+  const t = useTranslations('naviBar');
+  
   const initialPath = usePathname()
 
   const [pathname, setPathname] = useState(usePathname())
@@ -39,6 +71,12 @@ const NaviBar = ({resetSession}) => {
   //!pathname.includes('auth') &&
   return  !pathname.includes('auth') && (
     <nav className="navigation">
+    
+    
+      <Modal isOpen={isModalOpen} onClose={close}>
+        <UserSettings />
+      </Modal>
+    
       <div className="nav-container">
         <div className="nav-content">
 
@@ -52,21 +90,21 @@ const NaviBar = ({resetSession}) => {
                 className={`nav-link ${pathname?.includes('calendar') ? 'active' : ''}`}
                 onClick={(e:string)=>handleClick('calendar')}
               >
-                Calendar
+                {t('calendar')}
               </Link>
               <Link
                 href="/pages/staff"
                 className={`nav-link ${pathname?.includes('staff') ? 'active' : ''}`}
                 onClick={(e:string)=>handleClick('staff')}
               >
-                Staff
+                {t('staff')}
               </Link>
               <Link
                 href="/pages/dashboard"
                 className={`nav-link ${pathname?.includes('dashboard') ? 'active' : ''}`}
                 onClick={(e:string)=>handleClick('dashboard')}
               >
-                Dashboard
+                {t('dashboard')}
               </Link>
             </div>
           </div>
@@ -81,29 +119,30 @@ const NaviBar = ({resetSession}) => {
 
                 <div className="dropdown-container">
                   <button className="dropdown-toggle">
-                    <span>Account</span>
+                    <span>{t('account')}</span>
                     <span className="dropdown-arrow">▼</span>
                   </button>
 
                   <div className="dropdown-menu">
                   {session ? (
                     <div>
+                    
                       <button
                         className="dropdown-item-button"
+                        onClick={open}
                       >
-                        Profile
+                        {t('settings')}
                       </button>
-                      <button
-                        className="dropdown-item-button"
-                      >
-                        Settings
-                      </button>
+                      
+                      <LanguageSwitcher />
+                      
                       <button
                         onClick={hadleLogout}
                         className="dropdown-item-button logout-button"
                       >
-                        Logout
+                        {t('logout')}
                       </button>
+                      
                     </div>
                     ) : null
                   }

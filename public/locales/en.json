@@ -1,0 +1,20 @@
+{
+  "naviBar": {
+    "profile": "Profile",
+    "settings": "Settings",
+    "language": "Language (EN)",
+    "logout": "Logout",
+    "calendar": "Calendar",
+    "staff": "Staff",
+    "dashboard": "Dashboard",
+    "account": "Account"
+  },
+  "userSettings": {
+    "title": "Settings",
+    "subtitle": "Change password",
+    "current": "Current password",
+    "new": "New password",
+    "confirm": "New password (Repeat)",
+    "save":"Save"
+  }
+}

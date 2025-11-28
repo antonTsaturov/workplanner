@@ -2,21 +2,6 @@
 import { decrypt, getCurrentSession, destroySession, validateSession } from '../../../lib/session';
 import { NextResponse } from 'next/server';
 
-//export async function GET() {
-  //try {
-    //const session = await getCurrentSession();
-    //return NextResponse.json({
-      //session: session,
-    //});
-    
-  //} catch (error) {
-    //return NextResponse.json(
-      //{ error: 'Session not found' },
-      //{ status: 401},
-    //);
-  //}
-//}
-
 export async function GET() {
   try {
     const session = await getCurrentSession();

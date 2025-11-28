@@ -1,21 +1,24 @@
-
+import React, { useState, useEffect } from 'react';
 import '../styles/Staff.css';
 import '../globals.css';
 
-
-import  Modal  from './Modal';
+import Modal from './Modal';
 import StaffAddForm from './StaffAddForm';
 import StaffViewForm from './StaffViewForm';
 import { useModal } from '../hooks/useModal';
 import { useEmployee } from '../hooks/useEmployee';
 import useNotification from '../hooks/useNotification';
 import NotificationContainer from './NotificationContainer';
+import { formatPhone, unformatPhone } from '../utils/format';
 
-
-
-import React, { useState, useEffect } from 'react';
 
 const Staff = () => {
+  
+  type Mode = "view" | "add" | "edit";
+  
+  const [mode, setMode] = useState<Mode>("view");
+  
+  const [loader, setLoader] = useState(false)
 
   const { notifications, addNotification, removeNotification, clearAll } = useNotification();
   
@@ -29,93 +32,29 @@ const Staff = () => {
 
     addNotification(messages[type], { type, style});
   }; 
-  
-    const { employees, reloadEmplData } = useEmployee();
 
-  //const [employees, setEmployees] = useState([
-    //{
-      //id: 1,
-      //name: 'John Smith',
-      //email: 'john.smith@company.com',
-      //phone: '+1 (555) 123-4567',
-      //dept: 'Engineering',
-      //projects: 'Website Redesign',
-      //position: 'Senior Developer',
-      //status: 'Active',
-      //location: 'Los Angeles',
-      //hireDate: '02 Feb 2024',
-    //},
-    //{
-      //id: 2,
-      //name: 'Sarah Johnson',
-      //email: 'sarah.j@company.com',
-      //phone: '+1 (555) 987-6543',
-      //dept: 'Marketing',
-      //projects: 'Q4 Campaign',
-      //position: 'Marketing Manager',
-      //status: 'Inactive',
-      //location: 'Los Angeles',
-      //hireDate: '02 Feb 2024',
-    //},
-    //{
-      //id: 3,
-      //name: 'Michael Chen',
-      //email: 'michael.chen@company.com',
-      //phone: '+1 (555) 456-7890',
-      //dept: 'Engineering',
-      //projects: 'Mobile App',
-      //position: 'Frontend Developer',
-      //status: 'Active',
-      //location: 'Los Angeles',
-      //hireDate: '02 Feb 2024',
-    //},
-    //{
-      //id: 4,
-      //name: 'Emily Davis',
-      //email: 'emily.davis@company.com',
-      //phone: '+1 (555) 234-5678',
-      //dept: 'HR',
-      //projects: 'Recruitment Drive',
-      //position: 'HR Specialist',
-      //status: 'On Leave',
-      //location: 'Los Angeles',
-      //hireDate: '02 Feb 2024',
-    //},
-    //{
-      //id: 5,
-      //name: 'Robert Wilson',
-      //email: 'r.wilson@company.com',
-      //phone: '+1 (555) 876-5432',
-      //dept: 'Sales',
-      //projects: 'Enterprise Clients',
-      //position: 'Sales Director',
-      //status: 'Active',
-      //location: 'Los Angeles',
-      //hireDate: '02 Feb 2024',
-    //},
-    //{
-      //id: 6,
-      //name: 'Martin Luter',
-      //email: 'm.luter@company.com',
-      //phone: '+1 (555) 236-5431',
-      //dept: 'Sales',
-      //projects: 'Enterprise Clients',
-      //position: 'Sales Director',
-      //status: 'Active',
-      //location: 'Los Angeles',
-      //hireDate: '02 Feb 2024',
-    //},
-  //]);
+  interface employeesData {
+    id: number;
+    name: string;
+    email: string;
+    phone: string;
+    dept: string;
+    projects: string;
+    position: string;
+    status: string;
+    location: string;
+    hireDate: string;
+  }
+
+  const { employees, reloadEmplData } = useEmployee<employeesData>();
 
   const { isModalOpen, open, close} = useModal();
   const openModal = () => {
     open();
-    
   }
-  
   const closeModal = () => {
     close();
-    
+    setTimeout (()=> {setMode('view')}, 500)
   }
 
   // State for filters and search
@@ -129,16 +68,12 @@ const Staff = () => {
   const [sortBy, setSortBy] = useState('name');
   const [filteredEmployees, setFilteredEmployees] = useState([]);
 
-  // depts and projectss for filter options
-  //const depts = ['Engineering', 'Marketing', 'HR', 'Sales', 'Finance', 'Operations'];
-  //const projectss = ['Website Redesign', 'Mobile App', 'Q4 Campaign', 'Recruitment Drive', 'Enterprise Clients'];
-  //const statusOptions = ['Active', 'On Leave', 'Inactive'];
   const depts = [
     {title: 'Clinical',         code: 'CLN'},
     {title: 'Data managment',   code: 'DM'},
     {title: 'Medical writing',  code: 'MW'},
   ];
-  const projectss = ['3456', '9872', '2900'];
+  const projects = ['3456', '9872', '2900'];
   const statusOptions = ['Active', 'On Leave', 'Inactive'];
 
   // Quick filter options
@@ -241,12 +176,6 @@ const Staff = () => {
       .slice(0, 2);
   };
 
-  // Handle form submission (save changes)
-  const handleSave = () => {
-    // Here you would typically save changes to an API
-    //alert('Changes saved successfully!');
-  };
-
   interface TargetEmployeInfo {
     id: number;
     name: string;
@@ -259,16 +188,30 @@ const Staff = () => {
   }
   // Show detailed employe card
   const [emplData, setEmplData] = useState<TargetEmployeInfo>()
+  
   const showEmplCard = (id:number) => {
-    const [targetEmployeInfo] = employees.filter(item => item.id == id)
+    const [targetEmployeInfo] = employees
+    .filter(item => item.id == id)
     openModal();
-    setEmplData(targetEmployeInfo)
+    //console.log(targetEmployeInfo)
+    //setEmplData(targetEmployeInfo)
+    setEmplData({
+      ...targetEmployeInfo,
+      phone: unformatPhone(targetEmployeInfo?.phone)
+    })
   }
 
-  // Add new employe
+  // Add new employee
   const addNewEmpl = () => {
+    setMode('add')
     setEmplData('')
     openModal()
+  }
+  
+  // Edit info of current employee
+  const editEmpInfo = (id) => {
+    //console.log('editEmpInfo: ', id)
+    setMode('edit')
   }
 
   const handleModal = () => {
@@ -283,19 +226,29 @@ const Staff = () => {
     <div className="staff-container">
     
       <Modal isOpen={isModalOpen} onClose={closeModal}>
-        {emplData ? (
-          <StaffViewForm 
-            emplData={emplData}
-          />
-        ) : (
-          <StaffAddForm
-            handleModal={handleModal}
-            handleNotify={handleNotify}
-            reload={reloadEmplData}
-          />
-          
-        )
-          }
+        {
+          mode === 'view' ? (
+            <StaffViewForm 
+              emplData={emplData}
+              editEmpInfo={editEmpInfo}
+            />
+          ) : mode === 'add' ? (
+            <StaffAddForm
+              handleModal={handleModal}
+              handleNotify={handleNotify}
+              reload={reloadEmplData}
+              mode={mode}
+            />
+          ) : (
+            <StaffAddForm
+              emplData={emplData}
+              handleModal={handleModal}
+              handleNotify={handleNotify}
+              reload={reloadEmplData}
+              mode={mode}
+            />
+          )
+        }
       </Modal>
     
       <NotificationContainer 
@@ -380,7 +333,7 @@ const Staff = () => {
               onChange={(e) => handleFilterChange('projects', e.target.value)}
             >
               <option value="">All</option>
-              {projectss.map(projects => (
+              {projects.map(projects => (
                 <option key={projects} value={projects}>{projects}</option>
               ))}
             </select>
@@ -463,12 +416,12 @@ const Staff = () => {
           )}
         </div>
 
-        {/* Action Buttons */}
+        {/* Action Buttons 
         <div className="staff-button-container">
           <button className="staff-button-save" onClick={addNewEmpl}>
             <span className="button-text">Add new employee</span>
           </button>
-        </div>
+        </div>*/}
       </div>
     </div>
   );

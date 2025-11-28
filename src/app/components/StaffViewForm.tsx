@@ -1,7 +1,10 @@
 import React from 'react';
 import '../styles/StaffViewForm.css';
+import { formatPhone } from '../utils/format';
 
-const StaffViewForm = ({ emplData, employee, onEdit, onBack }) => {
+
+const StaffViewForm = ({ emplData, editEmpInfo }) => {
+  
   const formatDate = (dateString) => {
     if (!dateString) return 'Not specified';
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -11,16 +14,7 @@ const StaffViewForm = ({ emplData, employee, onEdit, onBack }) => {
     });
   };
 
-  const formatPhone = (phone) => {
-    if (!phone) return 'Not specified';
-    // Simple phone formatting
-    const cleaned = phone.replace(/\D/g, '');
-    if (cleaned.length === 10) {
-      return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6)}`;
-    }
-    return phone;
-  };
-
+  
   return (
     <div className="employee-view-container">
       <div className="employee-view-content">
@@ -132,19 +126,12 @@ const StaffViewForm = ({ emplData, employee, onEdit, onBack }) => {
 
         {/* Action Buttons */}
         <div className="employee-view-actions">
-          {/* <button 
-            className="employee-view-button-back" 
-            onClick={onBack}
-            type="button"
-          >
-            Back to List
-          </button> */}
           <button 
             className="employee-view-button-edit" 
-            onClick={onEdit}
+            onClick={()=> {editEmpInfo(emplData?.id)}}
             type="button"
           >
-            Edit Employee
+            Edit Info
           </button>
         </div>
       </div>

@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react';
+
 import '../globals.css';
 
 interface ModalProps {
@@ -9,15 +10,8 @@ interface ModalProps {
   children: React.ReactNode;
 }
 
-const Modal = ({ 
-  isOpen,
-  onClose,
-  children
-}: { 
-  isOpen: boolean,
-  onClose: () => void,
-  children: React.ReactNode
-}) => {
+const Modal = ({ isOpen, onClose, children }: { ModalProps }) => {
+  
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -45,7 +39,7 @@ const Modal = ({
   }, [isOpen, onClose]);
 
   if (!isOpen && !isVisible) return null;
-
+  
   return (
     <div className={`modal-overlay ${isVisible ? 'modal-open' : ''}`} onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -53,10 +47,11 @@ const Modal = ({
           ×
         </button>
         
-        {children}
+        {
+          children
+        }
         
       </div>
-      
     </div>
   );
 };

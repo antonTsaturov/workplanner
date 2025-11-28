@@ -3,6 +3,8 @@
 import '../styles/StaffAddForm.css';
 import '../styles/ProjectsInput.css';
 
+import Loader from './Loader';
+
 import { useState, useEffect } from 'react';
 import { handleFetch } from '../lib/fetch';
 import { formatPhone, unformatPhone } from '../utils/format';
@@ -17,12 +19,13 @@ interface StaffAddFormProps {
     project: string,
     position: string,
     status: string,
-    hireDate: string,
+    hiredate: string,
     password: string,
   };
   handleModal: () => void;
   handleNotify: () => void;
   reload: () => void;
+  mode: string;
 }
 
 interface FormErrors {
@@ -34,16 +37,31 @@ interface FormErrors {
     projects?: string;
     position?: string;
     status?: string;
-    hireDate?: string;
+    hiredate?: string;
     password: string;
 }
 
-const StaffAddForm = ({emplData, handleModal, handleNotify, reload}:StaffAddFormProps) => {
+function fastFormatPhone(phone) {
+  // Remove all non-digit characters
+  const cleaned = phone.toString().replace(/\D/g, '');
+  
+  // Check if it's a Russian number starting with 8 or 7
+  if (cleaned.length === 11 && (cleaned.startsWith('8') || cleaned.startsWith('7'))) {
+    return `+7 (${cleaned.slice(1, 4)}) ${cleaned.slice(4, 7)}-${cleaned.slice(7, 9)}-${cleaned.slice(9)}`;
+  }
+  
+  // Return original if doesn't match expected format
+  return phone;
+}
 
+
+const StaffAddForm = ({ emplData, handleModal, handleNotify, reload, mode }:StaffAddFormProps) => {
+  
+  //console.log('StaffAddForm: ', emplData)
   const [projects, setProjects] = useState([])
 
-  const [formData, setFormData] = useState({
-    name:'',
+  const [formData, setFormData] = useState(!emplData ? {
+    name: '',
     email: '',
     dept: '',
     phone: '',
@@ -51,8 +69,18 @@ const StaffAddForm = ({emplData, handleModal, handleNotify, reload}:StaffAddForm
     projects: '',
     position: '',
     status: '',
-    hireDate: '',
+    hiredate: '',
     password: 'null',
+  } : {
+    name: emplData?.name,
+    email: emplData?.email,
+    dept: emplData?.dept,
+    phone: emplData?.phone,
+    location: emplData?.location,
+    projects: emplData?.projects,
+    position: emplData?.position,
+    status: emplData?.status,
+    hiredate: emplData?.hiredate,
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
@@ -137,7 +165,7 @@ const StaffAddForm = ({emplData, handleModal, handleNotify, reload}:StaffAddForm
         if (!['Active', 'Inactive'].includes(value)) return 'Status must be selected';
         return '';
       
-      case 'hireDate':
+      case 'hiredate':
         if (!value.trim()) return 'Hire date is required';
         const date = new Date(value);
         if (isNaN(date.getTime())) return 'Please enter a valid date';
@@ -184,10 +212,10 @@ const StaffAddForm = ({emplData, handleModal, handleNotify, reload}:StaffAddForm
 
     // Check how much fields are filled
     const filled = Object.values(formData).filter(item => 
-      item.length > 0 
+      item?.length > 0 
     )
     setFillCount(filled.length)
-    
+    console.log(formData)
   };
 
   const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -317,14 +345,27 @@ const StaffAddForm = ({emplData, handleModal, handleNotify, reload}:StaffAddForm
   };
   
   const [e, setE] = useState(false)
-
+  const handleKeyDown = (e) => {
+    // Разрешаем: цифры, Backspace, Delete, Tab, Arrow keys
+    if (
+      !/[0-9]/.test(e.key) &&
+      e.key !== 'Backspace' &&
+      e.key !== 'Delete' &&
+      e.key !== 'Tab' &&
+      e.key !== 'ArrowLeft' &&
+      e.key !== 'ArrowRight'
+    ) {
+      e.preventDefault();
+    }
+  };
+  
   return (
     <div className="staff-form-container">
       <style>{errorStyles}</style>
       
       <form className="staff-form-content" noValidate>
         <div className="staff-form-title">
-          <h3>Add new employee</h3>
+          <h3>{`${mode === 'add' ?'Add new employee' : 'Edit employee info'}`}</h3>
         </div>
         
         <div className="staff-form-content-columns">
@@ -347,6 +388,7 @@ const StaffAddForm = ({emplData, handleModal, handleNotify, reload}:StaffAddForm
               className={getInputClassName('email')}
               type='email'
               name="email"
+              disabled
               value={formData.email}
               onChange={handleFormChange}
               onBlur={handleBlur}
@@ -374,11 +416,17 @@ const StaffAddForm = ({emplData, handleModal, handleNotify, reload}:StaffAddForm
               className={getInputClassName('phone')}
               type='tel'
               name='phone'
-              value={formatPhone(formData.phone, e)}
+              inputMode="numeric"
+              pattern="[0-9]*"
+              value={formatPhone(formData.phone, e) || ''}
+              //value={formData.phone}
               maxLength={18}
               onChange={handleFormChange}
               onBlur={handleBlur}
-              onKeyDown={setE}
+              onKeyDown={(e)=>{
+                setE(e)
+                handleKeyDown(e)
+              }}
               placeholder="+ 7 (***) ***-**-**"
             />
             <span className="error-message">{errors.phone && touched.phone ? errors.phone : null}</span>
@@ -388,7 +436,7 @@ const StaffAddForm = ({emplData, handleModal, handleNotify, reload}:StaffAddForm
               className={getInputClassName('location')}
               type='text'
               name="location"
-              value={formData.location}
+              value={formData.location || ''}
               onChange={handleFormChange}
               onBlur={handleBlur}
               placeholder="City, State or Office location"
@@ -400,7 +448,7 @@ const StaffAddForm = ({emplData, handleModal, handleNotify, reload}:StaffAddForm
               className={getInputClassName('position')}
               type='text'
               name="position"
-              value={formData.position}
+              value={formData.position || ''}
               onChange={handleFormChange}
               onBlur={handleBlur}
               placeholder="e.g., Senior Developer"
@@ -416,7 +464,7 @@ const StaffAddForm = ({emplData, handleModal, handleNotify, reload}:StaffAddForm
             <select
               className={getInputClassName('status')}
               name="status"
-              value={formData.status}
+              value={formData.status || ''}
               onChange={handleFormChange}
               onBlur={handleBlur}
             >
@@ -428,14 +476,14 @@ const StaffAddForm = ({emplData, handleModal, handleNotify, reload}:StaffAddForm
 
             <label className="staff-form-label">Hire date *</label>
             <input
-              className={getInputClassName('hireDate')}
+              className={getInputClassName('hiredate')}
               type='date'
-              name="hireDate"
-              value={formData.hireDate}
+              name="hiredate"
+              value={formData.hiredate || ''}
               onChange={handleFormChange}
               onBlur={handleBlur}
             />
-            <span className="error-message">{errors.hireDate && touched.hireDate ? errors.hireDate : null}</span>
+            <span className="error-message">{errors.hiredate && touched.hiredate ? errors.hiredate : null}</span>
           </div>
         </div>  
         

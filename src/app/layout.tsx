@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { SessionProvider } from './components/Providers';
+import {NextIntlClientProvider} from 'next-intl';
 
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -16,20 +17,18 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Workplanner",
-  description: "Plan your work fast and easy",
+  description: "Plan your work",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({children,}: Readonly<{children: React.ReactNode;}>) {
   return (
       <html lang="en">
         <body className={`${geistSans.variable} ${geistMono.variable}`}>
-          <SessionProvider>
-            {children}
-          </SessionProvider>
+          <NextIntlClientProvider>
+            <SessionProvider>
+              {children}
+            </SessionProvider>
+          </NextIntlClientProvider>
         </body>
       </html>
   );

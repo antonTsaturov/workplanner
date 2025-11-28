@@ -62,7 +62,7 @@ const SidePanel = ({ isVisible, children }) => {
     <div className={`side-panel ${isVisible ? 'visible' : 'hidden'}`}>
       <MonthCalendar />
       <div className="side-panel-stat-container">
-        <h5>Workload</h5>
+        <h5>Completness</h5>
       </div>
       <div className="side-panel-stat-content">
         Week

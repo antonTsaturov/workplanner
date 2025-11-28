@@ -19,7 +19,6 @@ import {
 import { useEvents } from '../hooks/useEvents';
 import { formatDuration } from '../utils/format';
 import '../styles/Staff.css';
-//import EmplDetails from './statistics/EmplDetails'
 import StatDetails from './statistics/StatDetails'
 
 const calendar = {
@@ -37,7 +36,6 @@ export const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#
 
 const Statistics = () => {
 
-
   const { events, reloadEvents } = useEvents({props: 'all'});
   
   const [statistics, setStatistics] = useState({
@@ -51,10 +49,17 @@ const Statistics = () => {
     emplStats: []
   });
   
+  // statDetails contain detailed data for month-view statistics
   const [statDetails, setStatDetails] = useState(null)
+  // annualStat contain data for year-view statistics
+  //const [annualStat, setAnnualStat] = useState(null);
+  
   const [activeUser, setActiveUser] = useState('')
-  const [activeChart, setActiveChart] = useState(''); // projects, departments, empls
-  const [activeSubChart, setActiveSubChart] = useState(null) //names of projects OR names of departments
+  const [activeChart, setActiveChart] = useState(''); // project, dept, empls
+  
+  // activeSubChart it is array of projects names OR  departments names + 'All'
+  const [activeSubChart, setActiveSubChart] = useState(null) 
+  // activeSubChartItem it is string of current selected item (project name od dept name), or 'All'
   const [activeSubChartItem, setActiveSubChartItem] = useState('All')
     
   const [period, setPeriod] = useState({
@@ -65,15 +70,16 @@ const Statistics = () => {
 
   const changePeriod = (e) => {
 
-    if (e.target.value === 'year' ) {
+    if (e.target.value === 'year' ) { // Show current  year
       setPeriod({
         current: e.target.value,
         start: new Date(new Date().getFullYear() - 1, 11, 31),
         end: new Date(new Date().getFullYear(), 11, 31),
       })
       console.log('current year period: ', period)
+      setActiveChart('project')
       
-    } else if (e.target.value === 'month' ) {
+    } else if (e.target.value === 'month' ) { // Show current month
       setPeriod({
         current: e.target.value,
         start: new Date(new Date().getFullYear(), new Date().getMonth(), 0),
@@ -81,7 +87,7 @@ const Statistics = () => {
       })
       console.log('current month period: ', period)
       
-    } else if (e.target.value.length < 4) { //Month
+    } else if (e.target.value.length < 4) { // Change month
       const monthIndex = e.target.value;
       const year = new Date().getFullYear()
       setPeriod({
@@ -91,7 +97,7 @@ const Statistics = () => {
       })
       console.log('month period: ', period, year)
       
-    } else {                                 //Year
+    } else {                                 //Change year
       const year = e.target.value;
       setPeriod({
         ...period,
@@ -103,7 +109,7 @@ const Statistics = () => {
   }
   
   const getSubChart = (chart) => {
-    const target = chart === 'departments' ? 'dept' : 'project';
+    const target = chart === 'dept' ? 'dept' : 'project';
     const subChart = new Set(events.map(item => item[target]))
     setActiveSubChart(['All', ...subChart]) //convert set to Array
     setActiveSubChartItem('All')
@@ -181,11 +187,37 @@ const Statistics = () => {
     setStatDetails(result)
   }
 
-
+  // Initial acc for annual project statistics
   const initialAccumulator = calendar.month.map(m => ({
-    month: m.name.slice(0, 3),
+    month: m.name.slice(0, 3), // Jan, Feb... Dec
   }));
 
+  //const getAnnualStat = (target: string) => {
+    
+    //const annualActivity = events
+    //.filter(item => {
+      //// Filter by selected project or show all projects
+      //return activeSubChartItem !== 'All' ? item.project === activeSubChartItem : item;
+    //})
+    //.reduce((acc, item) => {
+      //if (new Date(item.start) > period.start && new Date(item.end) < period.end) {
+      
+        //const month = new Date(item.start).toLocaleString('default', { month: 'short' });
+        //const existMonth = acc.find(i => i.month === month);
+        
+        //if (!existMonth[item.project]) {
+          //existMonth[item.project] = parseFloat(item.length);
+        //} else {
+          //existMonth[item.project] += parseFloat(item.length);
+        //}
+      //}
+      
+      //return acc;
+    //}, initialAccumulator),
+    
+    //setAnnualStat(annualActivity)
+  //}
+  
   useEffect(() => {
     const fetchStatistics = async () => {
       // This would be your actual API call
@@ -195,8 +227,10 @@ const Statistics = () => {
       // Mock data based on your database structure
       const mockData = {
         totalProjects: new Set(events.map(item => item.project)).size,
+        projectsList: [...new Set(events.map(item => item.project))],
         totalEmployees: new Set(events.map(item => item.author)).size,
         totalDepts: new Set(events.map(item => item.dept)).size,
+        deptList: [...new Set(events.map(item => item.dept))],
         
         projects: events
         .reduce((acc, item) => {
@@ -223,7 +257,7 @@ const Statistics = () => {
             duration: formatDuration(project.totalDuration), 
           }
         }),
-        //######################################################################################
+        
         currentProject: events
         .reduce((acc, event) => {
           const existingName = acc.find(i => i.name === event.name);
@@ -248,6 +282,7 @@ const Statistics = () => {
             duration: formatDuration(project.totalDuration), 
           }
         }),
+        
         departments: events.reduce((acc, item) => {
           const { project, dept, length } = item;
           const lengthNum = parseFloat(length);
@@ -282,19 +317,28 @@ const Statistics = () => {
           { month: 'May', entries: 19, duration: 55.9 },
           { month: 'Jun', entries: 25, duration: 73.4 }
         ],
-        annualActivity: events.reduce((acc, item) => {
+        
+        annualActivity: events
+        .filter(item => {
+          // Filter by selected project or show all projects
+          if (activeChart === 'project') {
+            return activeSubChartItem !== 'All' ? item.project === activeSubChartItem : item;
+          }
+          if (activeChart === 'dept') {
+            return activeSubChartItem !== 'All' ? item.dept === activeSubChartItem : item;
+          }
+        })
+        .reduce((acc, item) => {
           if (new Date(item.start) > period.start && new Date(item.end) < period.end) {
           
             const month = new Date(item.start).toLocaleString('default', { month: 'short' });
             const existMonth = acc.find(i => i.month === month);
-            console.log(existMonth)
-            //if (existMonth) {
-              if (!existMonth[item.project]) {
-                existMonth[item.project] = parseFloat(item.length);
-              } else {
-                existMonth[item.project] += parseFloat(item.length);
-              }
-            //}
+            // reduce by project or by dept
+            if (!existMonth[item[activeChart]]) {
+              existMonth[item[activeChart]] = parseFloat(item.length);
+            } else {
+              existMonth[item[activeChart]] += parseFloat(item.length);
+            }
           }
           
           return acc;
@@ -335,13 +379,13 @@ const Statistics = () => {
     };
 
     fetchStatistics();
-  }, [events, period, activeSubChartItem]);
+  }, [events, period, activeSubChartItem, activeChart]);
   
-  const projects = [...new Set(events.map(item => item.project))];
-  const colors = ['#8884d8', '#82ca9d', '#ffc658', '#ff8042', '#00C49F'];
+  //const colors = ['#8884d8', '#82ca9d', '#ffc658', '#ff8042', '#00C49F'];
   
 
   const CustomTooltip = ({ active, payload, label }) => {
+        
     if (active && payload && payload.length) {
       return (
         <div className="custom-tooltip" style={{
@@ -351,13 +395,13 @@ const Statistics = () => {
           borderRadius: '0.5rem',
           boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
         }}>
-          <p className="label" style={{ fontWeight: '600', marginBottom: '5px' }}>{`Project ${label}`}</p>
+          <p className="label" style={{ fontWeight: '600', marginBottom: '5px' }}>{` ${label}`}</p>
           {payload.map((entry, index) => (
             <p
               key={index} 
               //style={{ color: entry.color, fontSize: '0.875rem' }}>
               style={{ color: COLORS[index % COLORS.length], fontSize: '0.875rem' }}>
-              {`${entry.name}: ${entry.value}${entry.dataKey && entry.dataKey.includes('duration') ? ' h' : ''}`}
+              {`${entry.name}: ${entry.value}${entry.dataKey && entry.dataKey.includes('length') ? ' h' : ' h'}`}
             </p>
           ))}
         </div>
@@ -450,7 +494,7 @@ const Statistics = () => {
         gap: '1rem'
       }}>
         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-          {['projects', 'departments', 'employees'].map((chart) => (
+          {['project', 'dept', 'employees'].map((chart) => (
             <button
               key={chart}
               onClick={() => {
@@ -570,7 +614,7 @@ const Statistics = () => {
 
       {/* Charts */}
       <div style={{ marginBottom: '2rem' }}>
-        {activeChart === 'projects' && activeSubChartItem === 'All' && period.current === 'month' && (
+        {activeChart === 'project' && activeSubChartItem === 'All' && period.current === 'month' && (
           <div>
             <h3 style={{ marginBottom: '1rem', color: 'var(--text-primary)' }}>All projects</h3>
             <ResponsiveContainer width="100%" height={300}>
@@ -613,7 +657,7 @@ const Statistics = () => {
         )}
         
         {/* STATISTIC BY EMPLOYEES*/}
-        {activeChart === 'projects' && activeSubChartItem !== 'All' && period.current === 'month' && (
+        {activeChart === 'project' && activeSubChartItem !== 'All' && period.current === 'month' && (
           <div >
             <h3 style={{ marginBottom: '1rem', color: 'var(--text-primary)' }}>Project {activeSubChartItem}
 </h3>
@@ -653,10 +697,8 @@ const Statistics = () => {
             </ResponsiveContainer>
           </div>
         )}
-        
-        
 
-        {activeChart === 'departments' && (
+        {activeChart === 'dept' && period.current === 'month' && (
           <div>
             <h3 style={{ marginBottom: '1rem', color: 'var(--text-primary)' }}>Departments Workload</h3>
             <ResponsiveContainer width="100%" height={300} style={{ outline: 'none'}}>
@@ -696,23 +738,6 @@ const Statistics = () => {
                   )
                 }
               </BarChart>
-            </ResponsiveContainer>
-          </div>
-        )}
-
-        {activeChart === 'timeline' && (
-          <div>
-            <h3 style={{ marginBottom: '1rem', color: 'var(--text-primary)' }}>Monthly Timeline</h3>
-            <ResponsiveContainer width="100%" height={300}>
-              <AreaChart data={statistics.monthlyData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip content={<CustomTooltip />} />
-                <Legend />
-                <Area type="monotone" dataKey="entries" stroke="#6366f1" fill="#6366f1" fillOpacity={0.3} name="Entries" />
-                <Area type="monotone" dataKey="duration" stroke="#10b981" fill="#10b981" fillOpacity={0.3} name="Duration (hours)" />
-              </AreaChart>
             </ResponsiveContainer>
           </div>
         )}
@@ -765,33 +790,51 @@ const Statistics = () => {
             borderRadius: 'var(--radius-md)',
             border: '1px solid var(--border-color)'
           }}>
-            <h4 style={{ marginBottom: '1rem', color: 'var(--text-primary)' }}>Projects annual activity</h4>
+            <h4 style={{ marginBottom: '1rem', color: 'var(--text-primary)' }}>
+            {`${activeChart == 'dept' ? 'Departments': 'Projects'} annual activity`}
+            </h4>
             <ResponsiveContainer width="100%" height={200}>
               <BarChart data={statistics.annualActivity}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" />
                 <YAxis />
-                <Tooltip />
-                {projects.map((project, index) => {
-                  //console.log(statistics.annualActivity)
-                  return <Bar 
-                    key={project} 
-                    dataKey={project} 
-                    stackId="a" 
-                    fill={colors[index % colors.length]}
-                    name={`Project ${project}`}
-                  />
-                })}
+                <Tooltip content={<CustomTooltip />} />
+                {
+                  activeChart === 'project' ? (
+                   
+                  statistics.projectsList.map((project, index) => {
+                    console.log(project)
+                    return <Bar 
+                      key={project} 
+                      dataKey={project} 
+                      stackId="a" 
+                      fill={COLORS[index % COLORS.length]} 
+                      name={`Project ${project}`}
+                    />
+                  }))
+                  : (
+                    statistics.deptList.map((dept, index) => {
+                      console.log(dept)
+                      return <Bar 
+                        key={dept} 
+                        dataKey={dept} 
+                        stackId="a" 
+                        fill={COLORS[index % COLORS.length]} 
+                        name={`Project ${dept}`}
+                      />
+                    })
+                  )
+                }
               </BarChart>
             </ResponsiveContainer>
           </div>)
           :
-          ( <StatDetails
+          (
+            <StatDetails
               statDetails={statDetails}
               activeUser={activeUser}
             />
           )
-          
         }
       </div>
     </div>
