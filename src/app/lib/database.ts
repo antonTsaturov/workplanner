@@ -239,6 +239,7 @@ export async function update(table: string, data: Record<string, any>): Promise<
   const values = Object.values(data)
   
   const sql = `UPDATE ${table} SET ${setClause} WHERE id = ${id} RETURNING *`;
+  console.log(sql)
   return await query(sql, values);
 }
 

@@ -24,6 +24,7 @@
         if (value?.trim().length < 6) return ' must be at least 6 characters long.';
         if (weakPasswordPatterns.keyboardPatterns.test(value?.trim())) return ' not must be a common pattern.';
         if (weakPasswordPatterns.noNumbers.test(value?.trim())) return ' must contain a digits.';
+        if (weakPasswordPatterns.noLetters.test(value?.trim())) return ' must contain a letters.';
         return '';
               
       default:

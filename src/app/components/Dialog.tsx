@@ -7,7 +7,7 @@ import { useState } from 'react';
 
 
 const Dialog = ({eventInfo, handleModal, handleNotify}: EventFormProps) => {
-  
+  console.log(eventInfo)
   const updateEvent = async () => {
     const response = await handleFetch('event', 'PUT', eventInfo)
     if (response.success) {

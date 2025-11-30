@@ -56,9 +56,7 @@ export async function GET(request) {
 export async function POST(request) {
   try {
     const { dept, email, name, hireDate, location, phone, position, projects, status } = await request.json();
-    
-    console.log(projects)
-    
+        
     const db = getDatabase();
     const stmt = db.prepare('INSERT INTO staff (dept, email, name, hireDate, location, phone, position, projects, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
     const result = stmt.run( dept, email, name, hireDate, location, phone, position, JSON.stringify(projects), status );

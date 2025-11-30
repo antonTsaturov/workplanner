@@ -8,6 +8,9 @@ export const weakPasswordPatterns = {
     // No lowercase letters  
     noLowercase: /^[^a-z]+$/,
     
+    // No any letters  
+    noLetters: /^[^A-Za-z]+$/,
+    
     // No numbers
     noNumbers: /^\D+$/,
     

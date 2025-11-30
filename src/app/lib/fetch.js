@@ -50,6 +50,7 @@ const API_PATHS = {
   login: '/api/user/login',
   logout: '/api/user/logout',
   session: '/api/user/session',
+  password: '/api/user/password'
 };
 
 export const handleFetch = async (pathKey, method, data = null) => {
@@ -93,13 +94,7 @@ export const handleFetch = async (pathKey, method, data = null) => {
     
   try {
     const response = await fetch(apiPath, config);
-    
-    // Check if the response is successful
-    if (!response.ok) {
-      console.log(response.json())
-      throw new Error(`HTTP error! status: ${response}`);
-    }
-    
+    // All responses sended to client side 
     const result = await response.json();
     return result;
     
