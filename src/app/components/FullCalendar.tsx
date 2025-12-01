@@ -12,6 +12,7 @@ import Modal  from './Modal'
 import EventForm  from './EventForm';
 import Dialog from './Dialog';
 import SidePanel from './SidePanel';
+import Loader from './Loader';
 
 
 import NotificationContainer from './NotificationContainer';
@@ -20,6 +21,7 @@ import useNotification from '../hooks/useNotification';
 import { handleSubmitEventInfo, handleDeleteEvent, handleGetEventInfo } from '../lib/fetch'
 import { useEvents } from '../hooks/useEvents';
 import { useModal } from '../hooks/useModal';
+
 
 import { storage } from '../utils/localStorage';
 import { tasks, subtasks } from '../lib/tasks';
@@ -121,12 +123,7 @@ const Calendar = observer(() => {
       comments: eventDropInfo.event.extendedProps.comments,
     })
   }
-  
-  //console.log(session)
-  //if (!session) {
-    //return <div>Загрузка...</div>;
-  //}
-  
+    
   const calendarRef = useRef(null);
   const [isVisible, setIsVisible] = useState(false);
   
@@ -175,7 +172,7 @@ const Calendar = observer(() => {
       setTimeout(()=>{calendarApi.updateSize()},400)
     }
   };
-      
+        
   return (
     <div
       className='demo-app'

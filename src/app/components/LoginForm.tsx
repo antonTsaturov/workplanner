@@ -120,7 +120,7 @@ export default function LoginForm({ onToggleToRegister }: LoginFormProps) {
 
         <div className="form-group">
           <label htmlFor="password" className="form-label">
-            Password
+            {t('password')}
             <label className="error-message">
               {errors.password && touched.password ? errors.password : null}
             </label >
