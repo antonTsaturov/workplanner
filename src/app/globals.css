@@ -11,20 +11,28 @@ body {
   align-items: center;
   justify-content: center;
   padding: 1px 5px 20px;
-/*
-  display: flex;
-*/
   flex-direction: column;
   place-items: center; /* Centers both horizontally and vertically */
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+@viewport {
+  width: device-width;
+  zoom: 1.0;
+  max-zoom: 1.0;
+  min-zoom: 1.0;
+  user-zoom: fixed;
 }
 
 .demo-app {
   flex-grow: 1;
 }
-a {
-  color: inherit;
-  text-decoration: none;
-}
+
+
 
 .element {
   background-color: #6c47ff;
@@ -196,6 +204,17 @@ a {
   display: flex;
   flex-direction: column;
 }
+
+@media (max-width: 768px) {
+  .auth-card {
+    scale: 0.8;
+  }
+  
+  .language-container {
+    flex-direction:row;
+  }
+}
+
 
 .auth-transition.register-active {
   animation: slideInReg 0.3s ease-in-out;

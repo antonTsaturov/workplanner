@@ -20,6 +20,13 @@ export const metadata: Metadata = {
   description: "Plan your work",
 };
 
+export const viewport: Viewport = {
+  width: '1200',
+  initialScale: 0.5,
+  maximumScale: 1.0,
+  userScalable: false,
+}
+
 export default function RootLayout({children,}: Readonly<{children: React.ReactNode;}>) {
   return (
       <html lang="en">
