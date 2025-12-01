@@ -2,49 +2,23 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link'
 import '../globals.css';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { handleFetch} from '../lib/fetch';
-import { setSessionLang } from '../lib/session';
 import { storage } from '../utils/localStorage';
 import { useSession } from './Providers';
 import { usePathname } from 'next/navigation'
 
 import Modal  from './Modal';
 import { useModal } from '../hooks/useModal';
-import UserSettings from './UserSettings'
-
-
-const LanguageSwitcher = () => {
-  
-  const currentLocale = useLocale();
-  const t = useTranslations('naviBar');
-  
-  const switchLanguage = () => {
-    if (currentLocale === 'en') {
-      setSessionLang('ru');
-    } else {
-      setSessionLang('en');
-    }
-  };
-  
-  return (
-    <div>
-      <button
-        className="dropdown-item-button"
-        onClick={switchLanguage}
-      >
-        {t('language')}
-      </button>
-    </div>
-  );
-}
-
+import UserSettings from './UserSettings';
+import {useLangSwitcher} from '../hooks/useLangSwitcher';
 
 const NaviBar = ({resetSession}) => {
   const { session, isLoading, refreshSession } = useSession();
   const { isModalOpen, open, close} = useModal();
-
+  
+  const {switchLanguage} = useLangSwitcher();
   
   const t = useTranslations('naviBar');
   
@@ -134,7 +108,13 @@ const NaviBar = ({resetSession}) => {
                         {t('settings')}
                       </button>
                       
-                      <LanguageSwitcher />
+                      {/*<LangSwitcher />*/}
+                      <button
+                        className="dropdown-item-button"
+                        onClick={switchLanguage}
+                      >
+                        {t('language')}
+                      </button>
                       
                       <button
                         onClick={hadleLogout}

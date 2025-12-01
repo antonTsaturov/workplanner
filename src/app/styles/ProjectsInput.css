@@ -13,9 +13,6 @@
 
 .projects-input-container:hover {
   outline: none;
-/*
-  border-color: #4338ca;
-*/
   box-shadow: 0 0 0 3px rgb(99 102 241 / 0.1);
 }
 
@@ -24,7 +21,6 @@
   border-color: #4338ca;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
-
 
 .project-item {
   display: flex;

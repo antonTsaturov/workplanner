@@ -1,10 +1,11 @@
 'use client'
 import React, { useEffect, useState, useMemo, useRef } from 'react';
-//import { formatDate } from '@fullcalendar/core';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
+import { useLocale, useTranslations } from 'next-intl';
+
 import '../styles/Calendar.css'
 
 import Modal  from './Modal'
@@ -31,6 +32,10 @@ const MILLISEC_IN_HOUR = 3600000;
 
 //###############################################################################
 const Calendar = observer(() => {
+  
+  const t = useTranslations('fullCalendar');
+  const locale = useLocale();
+  
   const { notifications, addNotification, removeNotification, clearAll } = useNotification();
   
   const showNotification = (type, style = 'default') => {
@@ -183,6 +188,7 @@ const Calendar = observer(() => {
 
       <div className='demo-app-main'style={{width: '100%' }}>
         <FullCalendar
+          locale={locale}
           views={{
             timeGrid:{
               titleFormat:{ year: 'numeric', month: 'long', day: 'numeric' }
@@ -192,7 +198,7 @@ const Calendar = observer(() => {
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
           customButtons={{
             myCustomButton: {
-              text: `${isVisible ? 'Hide panel' : 'Show panel'}`,
+             text: isVisible ? t('sidePanelButtonText_open') : t('sidePanelButtonText_close'),
               click: function() {
                 panelVisibility()
               }
@@ -204,7 +210,6 @@ const Calendar = observer(() => {
                 calendarApi.next()
                 dateStore.setFcDate(calendarApi.currentData.currentDate)
                 setCurDate(calendarApi.currentData.currentDate)
-                //dateStore.setDuration(getEventsDuration())
               }
             },
             customPrev: {
@@ -214,7 +219,6 @@ const Calendar = observer(() => {
                 calendarApi.prev()
                 dateStore.setFcDate(calendarApi.currentData.currentDate)
                 setCurDate(calendarApi.currentData.currentDate)
-                //dateStore.setDuration(getEventsDuration())
               }
             }
           }}
@@ -222,6 +226,9 @@ const Calendar = observer(() => {
             left: 'myCustomButton',
             center: 'title',
             right: 'today customPrev customNext'//'dayGridMonth timeGridWeek'
+          }}
+          buttonText={{
+            today: t('todayButtonText'),
           }}
           initialView='timeGridWeek'
           slotEventOverlap={false}

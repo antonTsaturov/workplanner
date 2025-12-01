@@ -1,4 +1,5 @@
 /* Event Form - Modernized */
+/*
 :root {
   --primary-color: #6366f1;
   --primary-hover: #A9A5E8;
@@ -22,6 +23,7 @@
   --radius-lg: 0.75rem;
   --transition: all 0.2s ease-in-out;
 }
+*/
 
 .event-form-label {
   color: var(--text-secondary);

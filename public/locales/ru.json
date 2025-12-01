@@ -16,5 +16,36 @@
     "new": "Новый пароль",
     "confirm": "Новый пароль (повторно)",
     "save":"Сохранить"
+  },
+  "loginForm": {
+    "authTitle": "Войти",
+    "email": "Почта",
+    "emailPlaceholder": "Введите вашу почту",
+    "password": "Пароль",
+    "passwordPlaceholder": "Введите пароль",
+    "authButtonTitle": "Войти",
+    "toggleText": "Нет аккаунта?",
+    "toggleButtonText": "Зарегистрироваться"
+  },
+  "registerForm": {
+    "authTitle": "Создать аккаунт на Workplanner",
+    "name": "Имя и фамилия",
+    "namePlaceholder": "Укажите ваше имя и фамилию",
+    "email": "Почта",
+    "emailPlaceholder": "Укажите почту",    
+    "password": "Пароль",
+    "passwordPlaceholder": "Придумайте пароль",
+    "departmentSelect": "Выберите отдел",
+    "clinical": "Клинический",
+    "dataManagement": "Управление данными",
+    "authButtonTitle": "Зарегистрироваться",
+    "toggleText": "У вас уже есть аккаунт?",
+    "toggleButtonText": "Войти"
+  },
+  "fullCalendar": {
+    "sidePanelButtonText_close": "Открыть панель",
+    "sidePanelButtonText_open": "Скрыть панель",
+    "todayButtonText": "Сегодня"
   }
+
 }

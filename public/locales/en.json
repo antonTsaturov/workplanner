@@ -16,5 +16,36 @@
     "new": "New password",
     "confirm": "New password (Repeat)",
     "save":"Save"
+  },
+  "loginForm": {
+    "authTitle": "Sign in",
+    "email": "Email",
+    "emailPlaceholder": "Enter your email",
+    "password": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "authButtonTitle": "Sign in",
+    "toggleText": "Don't have an account?",
+    "toggleButtonText": "Create an account"
+  },
+  "registerForm": {
+    "authTitle": "Create Workplanner Account",
+    "name": "Full Name",
+    "namePlaceholder": "Enter your full name",
+    "email": "Email",
+    "emailPlaceholder": "Enter your email",    
+    "password": "Password",
+    "passwordPlaceholder": "Create your password",
+    "departmentSelect": "Select your department",
+    "clinical": "Clinical",
+    "dataManagement": "Data management",
+    "authButtonTitle": "Create Account",
+    "toggleText": "Already have an account?",
+    "toggleButtonText": "Sign in"
+  },
+  "fullCalendar": {
+    "sidePanelButtonText_close": "Show panel",
+    "sidePanelButtonText_open": "Hide panel",
+    "todayButtonText": "Today"
+    
   }
 }

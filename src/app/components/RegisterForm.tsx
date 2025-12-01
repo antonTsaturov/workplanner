@@ -1,8 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { handleFetch } from '../lib/fetch'
-import { weakPasswordPatterns } from '../utils/passcheck'
+import { handleFetch } from '../lib/fetch';
+import { weakPasswordPatterns } from '../utils/passcheck';
+import { useTranslations } from 'next-intl';
+
 
 
 interface RegisterFormProps {
@@ -12,6 +14,8 @@ interface RegisterFormProps {
 const EMAIL_RGX = /^(?:(?!\.)[a-zA-Z0-9._%+-]+(?<!\.))@(?:(?!-)[a-zA-Z0-9-]+(?<!-)\.)+(?:[a-zA-Z]{2,}|com|org|net|edu|gov|mil|biz|info|mobi|name|aero|asia|jobs|museum)$/
 
 export default function RegisterForm({ onToggleToLogin }: RegisterFormProps) {
+  
+  const t = useTranslations('registerForm');
   
   const [formData, setFormData] = useState({
     name: '',
@@ -125,12 +129,12 @@ export default function RegisterForm({ onToggleToLogin }: RegisterFormProps) {
 
   return (
     <div className="auth-card">
-      <h1 className="auth-title">Create Workplanner Account</h1>
+      <h1 className="auth-title">{t('authTitle')}</h1>
       
       <form onSubmit={handleSubmit} className="auth-form">
         <div className="form-group">
           <label htmlFor="name" className="form-label">
-            Full Name
+            {t('name')}
             <span className="error-message">
               {errors.name && touched.name ? errors.name : null}
             </span>
@@ -142,14 +146,14 @@ export default function RegisterForm({ onToggleToLogin }: RegisterFormProps) {
             value={formData.name}
             onChange={handleChange}
             className="form-input"
-            placeholder="Enter your full name"
+            placeholder={t('namePlaceholder')}
             onBlur={handleBlur}
           />
         </div>
 
         <div className="form-group">
           <label htmlFor="email" className="form-label">
-            Email
+            {t('email')}
             <span className="error-message">
               {errors.email && touched.email ? errors.email : null}
             </span>
@@ -161,14 +165,14 @@ export default function RegisterForm({ onToggleToLogin }: RegisterFormProps) {
             value={formData.email}
             onChange={handleChange}
             className="form-input"
-            placeholder="Enter your email"
+            placeholder={t('emailPlaceholder')}
             onBlur={handleBlur}
           />
         </div>
 
         <div className="form-group">
           <label htmlFor="password" className="form-label">
-            Password
+            {t('password')}
             <span className="error-message">
               {errors.password && touched.password ? errors.password : null}
             </span>            
@@ -180,14 +184,14 @@ export default function RegisterForm({ onToggleToLogin }: RegisterFormProps) {
             value={formData.password}
             onChange={handleChange}
             className="form-input"
-            placeholder="Enter your password"
+            placeholder={t('passwordPlaceholder')}
             onBlur={handleBlur}
           />
         </div>
 
         <div className="form-group">
           <label htmlFor="confirmPassword" className="form-label" unselectable="true">
-            Select your department
+            {t('departmentSelect')}
           </label>
           <select
             id="dept"
@@ -196,8 +200,8 @@ export default function RegisterForm({ onToggleToLogin }: RegisterFormProps) {
             onChange={handleChange}
             className="form-input select"
           >
-            <option value="CLN">Clinical</option>
-            <option value="DM">Data managment</option>
+            <option value="CLN">{t('clinical')}</option>
+            <option value="DM">{t('dataManagement')}</option>
           </select>
         </div>
 
@@ -205,18 +209,18 @@ export default function RegisterForm({ onToggleToLogin }: RegisterFormProps) {
         {success && <div className="success-message">{success}</div>}
 
         <button type="submit" className="auth-button">
-          Create Account
+          {t('authButtonTitle')}
         </button>
       </form>
 
       <div className="toggle-section">
-        <p className="toggle-text">Already have an account?</p>
+        <p className="toggle-text">{t('toggleText')}</p>
         <button 
           type="button" 
           className="toggle-button"
           onClick={onToggleToLogin}
         >
-          Sign in
+          {t('toggleButtonText')}
         </button>
       </div>
     </div>

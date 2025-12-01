@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { handleFetch } from '../lib/fetch';
-//import { useRouter, redirect, replace} from 'next/navigation';
+import { useTranslations } from 'next-intl';
 
 
 interface LoginFormProps {
@@ -11,8 +11,9 @@ interface LoginFormProps {
 
 export default function LoginForm({ onToggleToRegister }: LoginFormProps) {
   
-  //const router = useRouter();
-  
+  const t = useTranslations('loginForm');
+
+    
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -93,13 +94,14 @@ export default function LoginForm({ onToggleToRegister }: LoginFormProps) {
 
   return (
     <div className="auth-card">
-      <img src="/assets/workplanner_logo.png" alt="Logo" style={{scale: '0.8'}} />
-      <h1 className="auth-title">Sign in</h1>
+    
+      <img src="/assets/workplanner_logo.png" alt="Workplanner Logo" style={{scale: '0.8'}} />
+      <h1 className="auth-title">{t('authTitle')}</h1>
       
       <form onSubmit={handleSubmit} className="auth-form">
         <div className="form-group">
           <label htmlFor="email" className="form-label">
-            Email
+            {t('email')}
             <label className="error-message">
               {errors.email && touched.email ? errors.email : null}
             </label>
@@ -111,9 +113,8 @@ export default function LoginForm({ onToggleToRegister }: LoginFormProps) {
             value={formData.email}
             onChange={handleChange}
             onBlur={handleBlur}
-            //className="form-input"
             className={getInputClassName('email')}
-            placeholder="Enter your email"
+            placeholder={t('emailPlaceholder')}
           />
         </div>
 
@@ -131,27 +132,26 @@ export default function LoginForm({ onToggleToRegister }: LoginFormProps) {
             value={formData.password}
             onChange={handleChange}
             onBlur={handleBlur}
-            //className="form-input"
             className={getInputClassName('password')}
-            placeholder="Enter your password"
+            placeholder={t('passwordPlaceholder')}
           />
         </div>
 
         {error && <div className="error-message">{error}</div>}
 
         <button type="submit" className="auth-button">
-          Sign In
+          {t('authButtonTitle')}
         </button>
       </form>
 
       <div className="toggle-section">
-        <p className="toggle-text">Don't have an account?</p>
+        <p className="toggle-text">{t('toggleText')}</p>
         <button 
           type="button" 
           className="toggle-button"
           onClick={onToggleToRegister}
         >
-          Create an account
+          {t('toggleButtonText')}
         </button>
       </div>
     </div>
