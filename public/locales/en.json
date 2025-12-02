@@ -46,6 +46,9 @@
     "sidePanelButtonText_close": "Show panel",
     "sidePanelButtonText_open": "Hide panel",
     "todayButtonText": "Today"
-    
+  },
+  "sidePanel": {
+    "sidePanelProgressTitle": "Completness",
+    "sidePanelProgressSubTitle": "Week"
   }
 }

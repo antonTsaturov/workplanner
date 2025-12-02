@@ -31,8 +31,6 @@ import { dateStore } from '../store/dateStore';
 
 const MILLISEC_IN_HOUR = 3600000;
 
-
-//###############################################################################
 const Calendar = observer(() => {
   
   const t = useTranslations('fullCalendar');
@@ -65,7 +63,6 @@ const Calendar = observer(() => {
   const [clickInfo, setClickInfo] = useState();
 
   function handleEventClick(info) {
-    console.log(info.event)
     setClickInfo(info.event);
     setIsEventUpdated(false);
     open();
@@ -80,6 +77,45 @@ const Calendar = observer(() => {
       project: info.event.extendedProps.project,
       comments: info.event.extendedProps.comments,
     })
+  }
+  
+  const handleMonthClick = (info) => {
+    if (info.view.type === 'dayGridMonth') {
+      // Add custom click handler to the event element
+      info.el.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const calendar = info.view.calendar;
+        const eventDate = info.event.start;
+        
+        // Change to week view
+        calendar.changeView('timeGridWeek', eventDate);
+        
+        // Optional: Add visual feedback
+        calendar.updateSize(); // Ensure proper rendering
+        
+        // Optional: Scroll to the specific day in week view
+        setTimeout(() => {
+          const dayElement = document.querySelector(`.fc-timeGridWeek-view .fc-day[data-date="${eventDate.toISOString().split('T')[0]}"]`);
+          if (dayElement) {
+            dayElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            dayElement.style.backgroundColor = 'rgba(66, 153, 225, 0.1)';
+            setTimeout(() => {
+              dayElement.style.backgroundColor = '';
+            }, 2000);
+          }
+        }, 100);
+      });
+      
+      // Change cursor to pointer
+      info.el.style.cursor = 'pointer';
+      info.el.title = 'Click to view day details in week view';
+      
+      // Optional: Add custom styling
+      info.el.style.border = 'none';
+      info.el.style.background = 'transparent';
+    }
   }
   
   const handleNewEvent = (e) => {
@@ -222,7 +258,7 @@ const Calendar = observer(() => {
           headerToolbar={{
             left: 'myCustomButton',
             center: 'title',
-            right: 'today customPrev customNext'//'dayGridMonth timeGridWeek'
+            right: 'timeGridWeek dayGridMonth today customPrev customNext'//'dayGridMonth timeGridWeek'
           }}
           buttonText={{
             today: t('todayButtonText'),
@@ -254,15 +290,38 @@ const Calendar = observer(() => {
           }}
           events={events}
           select={(info) => {
-            handleNewEvent(info);
-            setSelected(info);
+            if (info.view.type !== 'dayGridMonth') {
+              handleNewEvent(info);
+              setSelected(info);
+            }
           }}
           eventContent={renderEventContent} // custom render function
           eventClick={(info)=>{
-            handleEventClick(info)
+            if (info.view.type === 'dayGridMonth') {
+              info.jsEvent.preventDefault();
+              info.jsEvent.stopPropagation();
+              
+              // Change to week view and go to the clicked date
+              info.view.calendar.changeView('timeGridWeek', info.event.start);
+              return false;
+            } else {
+              handleEventClick(info)
+            }
+          }}
+          dateClick={(info) => {
+            if (info.view.type === 'dayGridMonth') {
+              // Change to week view and go to the clicked date
+              info.view.calendar.changeView('timeGridWeek', info.dateStr);
+              
+              // Optional: Add visual feedback
+              //highlightDayInWeekView(info.view.calendar, info.dateStr);
+            }
           }}
           eventDrop={handleEventUpdate}
           eventResize={handleEventUpdate}
+          eventDidMount={(info) => {
+            handleMonthClick(info)
+          }}
         />
       </div>
 
@@ -291,8 +350,110 @@ const Calendar = observer(() => {
   )
 })
 
+//function renderEventContent(eventInfo) {
+  //const duration = (eventInfo.event.end - eventInfo.event.start) / MILLISEC_IN_HOUR
+  
+  //return (
+    //<div>
+      //<b>{eventInfo.timeText}</b>
+      //{duration !== 0.5 && (<br />)}
+      //<label>{'  '}{eventInfo.event.title}</label>
+      //{duration > 1 && (
+        //<div>
+          //<label><i>{eventInfo.event.extendedProps.subtitle}</i></label>
+        //</div>
+      //)}
+    //</div>
+  //)
+//}
+
 function renderEventContent(eventInfo) {
-  const duration = (eventInfo.event.end - eventInfo.event.start) / MILLISEC_IN_HOUR
+  
+  // For dayGridMonth view - show aggregated summary per day
+  if (eventInfo.view.type === 'dayGridMonth') {
+    const currentDateStr = eventInfo.event.start.toISOString().split('T')[0];
+    const allEvents = eventInfo.view.calendar.getEvents();
+    
+    // Filter events for this specific day
+    const dayEvents = allEvents.filter(event => {
+      return event.start.toISOString().split('T')[0] === currentDateStr;
+    });
+    
+    // Check if this is the first event for the day
+    const isFirstEvent = dayEvents[0]?.id === eventInfo.event.id;
+    
+    if (!isFirstEvent) {
+      return null; // Don't render for subsequent events
+    }
+    
+    const eventCount = dayEvents.length;
+    
+    // Calculate total duration in hours from all events
+    const totalDuration = dayEvents.reduce((total, event) => {
+      // Check if event has extendedProps.length or calculate from start/end times
+      if (event.extendedProps && event.extendedProps.length) {
+        // If length is stored in extendedProps (assuming in hours)
+        return total + parseFloat(event.extendedProps.length);
+      }
+      //else if (event.end && event.start) {
+        //// Calculate duration from start and end times
+        //const durationMs = event.end - event.start;
+        //const durationHours = durationMs / (1000 * 60 * 60);
+        //return total + durationHours;
+      //}
+      return total;
+    }, 0);
+    
+    // Format duration display
+    const formatDuration = (hours) => {
+      if (hours < 1) {
+        return `${Math.round(hours * 60)}min`;
+      } else if (hours % 1 === 0) {
+        return `${hours}h`;
+      } else {
+        const wholeHours = Math.floor(hours);
+        const minutes = Math.round((hours % 1) * 60);
+        return minutes > 0 ? `${wholeHours}h ${minutes}min` : `${wholeHours}h`;
+      }
+    };
+    
+    const color = totalDuration > 7 ? '#329901' : '#4299e1';
+  
+    
+    
+    return (
+      <div style={{
+        background: color,
+        color: 'white',
+        padding: '6px 8px',
+        borderRadius: '6px',
+        fontWeight: 'bold',
+        textAlign: 'center',
+        margin: '2px',
+        width: '100%',
+        height: '4rem',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        boxShadow: '0 4px 16px #0000004a'
+      }}>
+        <div>
+          {eventCount} event{eventCount !== 1 ? 's' : ''}
+        </div>
+        <div style={{
+          fontSize: '11px',
+          opacity: 0.9,
+          fontWeight: 'normal'
+        }}>
+          Total: {formatDuration(totalDuration)}
+        </div>
+      </div>
+    );
+  }
+  
+  // Original timeGridWeek view logic
+  const MILLISEC_IN_HOUR = 1000 * 60 * 60;
+  const duration = (eventInfo.event.end - eventInfo.event.start) / MILLISEC_IN_HOUR;
   
   return (
     <div>
@@ -305,7 +466,7 @@ function renderEventContent(eventInfo) {
         </div>
       )}
     </div>
-  )
+  );
 }
 
 export default Calendar;

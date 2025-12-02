@@ -46,6 +46,10 @@
     "sidePanelButtonText_close": "Открыть панель",
     "sidePanelButtonText_open": "Скрыть панель",
     "todayButtonText": "Сегодня"
+  },
+  "sidePanel": {
+    "sidePanelProgressTitle": "Заполненность",
+    "sidePanelProgressSubTitle": "Неделя"
   }
 
 }

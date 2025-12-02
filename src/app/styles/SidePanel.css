@@ -16,7 +16,7 @@
   animation: slideOutToLeft 0.3s ease-out forwards;
 }
 
-.side-panel-stat-container {
+.side-panel-progress-container {
   display: flex;
   justify-content: center;
   flex-direction: column;
@@ -24,7 +24,7 @@
   margin-top: 1rem;
 }
 
-.side-panel-stat-content {
+.side-panel-progress-content {
   display: flex;
   justify-content: left;
   font-size: smaller;
@@ -38,6 +38,8 @@
   border-radius: 9999px;
   overflow: hidden;
   position: relative;
+  margin: 0.5rem 0;
+  box-shadow: var(--shadow-sm);
 }
 
 .progress-bar-fill {
