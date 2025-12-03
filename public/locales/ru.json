@@ -45,7 +45,13 @@
   "fullCalendar": {
     "sidePanelButtonText_close": "Открыть панель",
     "sidePanelButtonText_open": "Скрыть панель",
-    "todayButtonText": "Сегодня"
+    "todayButtonText": "Сегодня",
+    "weekButtonText": "Неделя",
+    "monthButtonText": "Месяц",
+    "monthViewEvent": "Всего задач: ",
+    "total": "Общее время: ",
+    "hour": " ч. ",
+    "min": " мин. "
   },
   "sidePanel": {
     "sidePanelProgressTitle": "Заполненность",

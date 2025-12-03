@@ -49,8 +49,32 @@
   background: linear-gradient(135deg, #616161, #3e3e3e) !important;
 }
 
-.fc-button-active {
-  background-color: #2c5aa0 !important;
+:root {
+  --month-active-color: #4f46e5;
+  --week-active-color: #dc2626;
+  --today-color: #059669;
+  --button-radius: 8px;
+}
+
+.fc-dayGridMonth-button.fc-button-active {
+  background-color: var(--month-active-color) !important;
+  border-color: var(--month-active-color) !important;
+  color: white !important;
+  border-radius: var(--button-radius) !important;
+}
+
+.fc-timeGridWeek-button.fc-button-active {
+  background-color: var(--week-active-color) !important;
+  border-color: var(--week-active-color) !important;
+  color: white !important;
+  border-radius: var(--button-radius) !important;
+}
+
+.fc-today-button.fc-button-active {
+  background-color: var(--today-color) !important;
+  border-color: var(--today-color) !important;
+  color: white !important;
+  border-radius: var(--button-radius) !important;
 }
 
 
@@ -66,6 +90,22 @@
 
 .fc-day-today {
   background-color: #ebf8ff !important;
+}
+
+/*Some custom view*/
+.fc .fc-daygrid-event-harness {
+  position: relative;
+  margin: 0 5px;  
+}
+
+.fc .fc-scrollgrid {
+  border-bottom-width: 14px;
+}
+
+.fc .fc-scrollgrid-section > * {
+  border-left-width: 10px;
+  border-top-width: 8px;
+  border-right-width: 8px;
 }
 
 /* Custom day cells */

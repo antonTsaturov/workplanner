@@ -45,7 +45,13 @@
   "fullCalendar": {
     "sidePanelButtonText_close": "Show panel",
     "sidePanelButtonText_open": "Hide panel",
-    "todayButtonText": "Today"
+    "todayButtonText": "Today",
+    "weekButtonText": "Week",
+    "monthButtonText": "Month",
+    "monthViewEvent": "event",
+    "total": "Total: ",
+    "hour": "h",
+    "min": "min"
   },
   "sidePanel": {
     "sidePanelProgressTitle": "Completness",

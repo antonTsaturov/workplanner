@@ -1,0 +1,90 @@
+/* Buttons */
+.fc .fc-button-primary {
+  border-radius: 8px;
+}
+
+.fc .fc-button-primary:not(:disabled).fc-button-active {
+  background-color: #1d4ed8;
+  border-color: rgb(66, 153, 225);
+  color: var(--fc-button-text-color);
+
+}
+ /* Month cards */
+.fc .fc-daygrid-event-harness {
+  position: relative;
+  margin: 0 5px;  
+}
+
+/* Custom card*/
+.custom-month-card {
+  color: #DCDCDC;
+  padding: 6px 8px;
+  border-radius: 6px;
+  font-weight: bold;
+  text-align: center;
+  margin: 2px;
+  width: 100%;
+  height: 4rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.custom-month-card:hover {
+  color: white;
+  box-shadow:
+    0 4px 12px 0 #E2E2E2,
+    0 8px 16px 0 #E2E2E2;
+}
+
+/* Capitalize first letter of all view buttons */
+.fc-dayGridMonth-button,
+.fc-timeGridWeek-button,
+.fc-timeGridDay-button {
+  text-transform: capitalize !important;
+}
+
+.fc .fc-daygrid-day-number {
+  padding: 4px;
+  position: relative;
+  z-index: 4;
+  font-weight:600;
+  font-size: 1.5em;
+  color:#4E4E4E;
+}
+
+.fc .fc-toolbar-title {
+  margin: 0px;
+  color:#4E4E4E;
+  font-size: 1.3em;
+}
+
+.fc-theme-standard td, .fc-theme-standard th {
+  border: 2px solid #e1e1e1;
+}
+
+.fc-day .fc-daygrid-day {
+  height: 9rem;
+}
+
+.fc .fc-col-header-cell-cushion {
+  color: #4E4E4E;
+}
+
+.fc-customNext-button,
+.fc-customPrev-button {
+  min-width: 36px !important;
+  padding: 4px 15px !important;
+  font-size: 1.1em !important;
+  font-weight: bold !important;
+}
+
+.fc-icon .fc-icon-chevron-left .fc-icon-chevron-rigth {
+  margin-bottom: 1px;
+}
+
+.fc-customNext-button:hover,
+.fc-customPrev-button:hover {
+  background-color: #1e2b37 !important;
+}

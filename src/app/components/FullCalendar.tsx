@@ -6,7 +6,7 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { useLocale, useTranslations } from 'next-intl';
 
-import '../styles/Calendar.css'
+import '../styles/Calendar2.css'
 
 import Modal  from './Modal'
 import EventForm  from './EventForm';
@@ -103,18 +103,16 @@ const Calendar = observer(() => {
             dayElement.style.backgroundColor = 'rgba(66, 153, 225, 0.1)';
             setTimeout(() => {
               dayElement.style.backgroundColor = '';
-            }, 2000);
+            }, 1500);
           }
         }, 100);
       });
       
       // Change cursor to pointer
       info.el.style.cursor = 'pointer';
-      info.el.title = 'Click to view day details in week view';
+      // Hide other event cards
+      info.el.style.display = 'contents';
       
-      // Optional: Add custom styling
-      info.el.style.border = 'none';
-      info.el.style.background = 'transparent';
     }
   }
   
@@ -161,16 +159,26 @@ const Calendar = observer(() => {
   }
     
   const calendarRef = useRef(null);
-  const [isVisible, setIsVisible] = useState(false);
+  const [isPanelVisible, setIsPanelVisible] = useState(false);
   
-  const panelVisibility = () => {
-    if (!isVisible) {
-      setIsVisible(true)
+  const panelButton = document.querySelector('.fc-myCustomButton-button');
+  const panelVisibility = (close = null) => {
+    
+    if (close) {
+      setIsPanelVisible(false);
+      calendarRerender();
+      panelButton.classList.remove('fc-button-active');
+      return;
+    }
+    
+    if (!isPanelVisible) {
+      panelButton.classList.add('fc-button-active');
+      setIsPanelVisible(true)
       dateStore.setFcApi(calendarRef) //Month calendar will change view in FullCalendar
     } else {
-      setIsVisible(false)
+      panelButton.classList.remove('fc-button-active');
+      setIsPanelVisible(false)
       calendarRerender()
-      
     }
   }
   
@@ -208,7 +216,8 @@ const Calendar = observer(() => {
       setTimeout(()=>{calendarApi.updateSize()},400)
     }
   };
-        
+    
+  
   return (
     <div
       className='demo-app'
@@ -216,7 +225,7 @@ const Calendar = observer(() => {
     >
     
       <SidePanel
-        isVisible={isVisible}
+        isPanelVisible={isPanelVisible}
       />
 
       <div className='demo-app-main'style={{width: '100%' }}>
@@ -224,20 +233,72 @@ const Calendar = observer(() => {
           locale={locale}
           views={{
             timeGrid:{
-              titleFormat:{ year: 'numeric', month: 'long', day: 'numeric' }
+              titleFormat:{ year: 'numeric', month: 'long', day: 'numeric' },
+              dayHeaderFormat: (date) => {
+                const formatter = new Intl.DateTimeFormat(locale, {
+                  weekday: 'long',
+                  day: 'numeric',
+                });
+                // Get the weekday name in Russian
+                let weekdayName = formatter.format(date.date.marker);
+                // Capitalize first letter
+                weekdayName = weekdayName.charAt(0).toUpperCase() + weekdayName.slice(1);
+                return weekdayName;
+              }
+            },
+            dayGrid:{
+              titleFormat: (date) => {
+                const formatter = new Intl.DateTimeFormat(locale, {
+                  year: 'numeric',
+                  month: 'long'
+                });
+                let weekdayName = formatter.format(date.date.marker);
+                if (locale == 'ru') {
+                  weekdayName = weekdayName.charAt(0).toUpperCase() + weekdayName.slice(1, -2);
+                }
+                return weekdayName;
+              },
+              dayHeaderFormat: (date) => {
+                const length = locale == 'ru' ? 'long' : 'short'
+                const formatter = new Intl.DateTimeFormat(locale, {
+                  weekday: length // 'понедельник', 'вторник', etc.
+                });
+                // Get the weekday name in Russian
+                let weekdayName = formatter.format(date.date.marker);
+                if (locale == 'ru') {
+                  // Capitalize first letter
+                  weekdayName = weekdayName.charAt(0).toUpperCase() + weekdayName.slice(1);
+                } else {
+                  weekdayName = weekdayName.toUpperCase();
+                }
+                return weekdayName;
+              }
             }
           }}
           ref={calendarRef}
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
           customButtons={{
             myCustomButton: {
-             text: isVisible ? t('sidePanelButtonText_open') : t('sidePanelButtonText_close'),
-              click: function() {
-                panelVisibility()
+              text: isPanelVisible ? t('sidePanelButtonText_open') : t('sidePanelButtonText_close'),
+              hint: 'Show/Hide navigation panel',
+              click: function(e) {
+                panelVisibility();
+                
+                // Remove focus from the button after click
+                setTimeout(() => {
+                  if (this && this.blur) {
+                    this.blur();
+                  } else {
+                    // Fallback: find the button and blur it
+                    const button = document.querySelector('.fc-myCustomButton-button');
+                    if (button) button.blur();
+                  }
+                }, 10);
               }
             },
             customNext: {
-              text: '>',
+              icon: 'chevron-right',
+              hint: 'Next',
               click: function() {
                 const calendarApi = calendarRef.current.getApi();
                 calendarApi.next()
@@ -246,7 +307,8 @@ const Calendar = observer(() => {
               }
             },
             customPrev: {
-              text: '<',
+              icon: 'chevron-left',
+              hint: 'Previous',
               click: function() {
                 const calendarApi = calendarRef.current.getApi();
                 calendarApi.prev()
@@ -258,10 +320,12 @@ const Calendar = observer(() => {
           headerToolbar={{
             left: 'myCustomButton',
             center: 'title',
-            right: 'timeGridWeek dayGridMonth today customPrev customNext'//'dayGridMonth timeGridWeek'
+            right: 'dayGridMonth timeGridWeek today customPrev customNext'//'dayGridMonth timeGridWeek'
           }}
           buttonText={{
             today: t('todayButtonText'),
+            timeGridWeek: t('weekButtonText'),
+            dayGridMonth: t('monthButtonText'),
           }}
           initialView='timeGridWeek'
           slotEventOverlap={false}
@@ -272,7 +336,8 @@ const Calendar = observer(() => {
           selectMirror={true}
           unselectAuto={false}
           dayMaxEvents={false}
-          weekends={false}
+          weekends={true}
+          stickyFooterScrollbar={false}
           allDaySlot={false}
           firstDay={1}
           businessHours={{
@@ -295,7 +360,14 @@ const Calendar = observer(() => {
               setSelected(info);
             }
           }}
-          eventContent={renderEventContent} // custom render function
+          eventContent={(eventInfo) => (
+            <RenderEventContent
+              eventInfo={eventInfo}
+              t={t}
+              locale={locale}
+            />
+            )
+          } // custom render component
           eventClick={(info)=>{
             if (info.view.type === 'dayGridMonth') {
               info.jsEvent.preventDefault();
@@ -312,15 +384,51 @@ const Calendar = observer(() => {
             if (info.view.type === 'dayGridMonth') {
               // Change to week view and go to the clicked date
               info.view.calendar.changeView('timeGridWeek', info.dateStr);
-              
+              console.log(info)
               // Optional: Add visual feedback
-              //highlightDayInWeekView(info.view.calendar, info.dateStr);
+              setTimeout(() => {
+                const dayElement = document.querySelector(`.fc-timeGridWeek-view .fc-day[data-date="${info.dateStr}"]`);
+                if (dayElement) {
+                  dayElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  dayElement.style.backgroundColor = '#94BFE9';
+                  setTimeout(() => {
+                    dayElement.style.backgroundColor = '';
+                  }, 1500);
+                }
+              }, 100);
+
             }
           }}
           eventDrop={handleEventUpdate}
           eventResize={handleEventUpdate}
           eventDidMount={(info) => {
             handleMonthClick(info)
+          }}
+          viewDidMount={(info) => {
+            const myCustomButton = document.querySelector('.fc-myCustomButton-button');
+            
+            if (info.view.type === 'dayGridMonth') {
+              // Hide button in month view
+              if (myCustomButton) {
+                panelVisibility(true);
+                myCustomButton.style.display = 'none';
+              }
+            } else {
+              // Show button in other views
+              if (myCustomButton) {
+                myCustomButton.style.display = 'block';
+              }
+            }
+          }}
+          datesSet={(info) => {
+            // Remove focus from all buttons after view changes
+            setTimeout(() => {
+              const focusedButton = document.activeElement;
+              console.log(focusedButton)
+              if (focusedButton && focusedButton.classList.contains('fc-button')) {
+                focusedButton.blur();
+              }
+            }, 10);
           }}
         />
       </div>
@@ -350,25 +458,8 @@ const Calendar = observer(() => {
   )
 })
 
-//function renderEventContent(eventInfo) {
-  //const duration = (eventInfo.event.end - eventInfo.event.start) / MILLISEC_IN_HOUR
-  
-  //return (
-    //<div>
-      //<b>{eventInfo.timeText}</b>
-      //{duration !== 0.5 && (<br />)}
-      //<label>{'  '}{eventInfo.event.title}</label>
-      //{duration > 1 && (
-        //<div>
-          //<label><i>{eventInfo.event.extendedProps.subtitle}</i></label>
-        //</div>
-      //)}
-    //</div>
-  //)
-//}
-
-function renderEventContent(eventInfo) {
-  
+const  RenderEventContent = ({eventInfo, t, locale}) => {
+  //console.log(locale)
   // For dayGridMonth view - show aggregated summary per day
   if (eventInfo.view.type === 'dayGridMonth') {
     const currentDateStr = eventInfo.event.start.toISOString().split('T')[0];
@@ -407,45 +498,36 @@ function renderEventContent(eventInfo) {
     // Format duration display
     const formatDuration = (hours) => {
       if (hours < 1) {
-        return `${Math.round(hours * 60)}min`;
+        return `${Math.round(hours * 60)} ${t('min')}`;
       } else if (hours % 1 === 0) {
-        return `${hours}h`;
+        return `${hours} ${t('hour')}`;
       } else {
         const wholeHours = Math.floor(hours);
         const minutes = Math.round((hours % 1) * 60);
-        return minutes > 0 ? `${wholeHours}h ${minutes}min` : `${wholeHours}h`;
+        return minutes > 0 ? `${wholeHours} ${t('hour')} ${minutes} ${t('min')}` : `${wholeHours} ${t('hour')}`;
       }
     };
     
     const color = totalDuration > 7 ? '#329901' : '#4299e1';
-  
-    
     
     return (
-      <div style={{
-        background: color,
-        color: 'white',
-        padding: '6px 8px',
-        borderRadius: '6px',
-        fontWeight: 'bold',
-        textAlign: 'center',
-        margin: '2px',
-        width: '100%',
-        height: '4rem',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        boxShadow: '0 4px 16px #0000004a'
-      }}>
-        <div>
-          {eventCount} event{eventCount !== 1 ? 's' : ''}
-        </div>
+      <div className='custom-month-card' style={{background: color}}>
+        {
+          locale === 'en' ?
+            (<div>
+              {eventCount} {t('monthViewEvent')}{eventCount !== 1 ? 's' : ''}
+            </div>)
+          : 
+            (<div>
+              {t('monthViewEvent')}{eventCount}
+            </div>)
+        }
         <div style={{
-          fontSize: '11px',
+          fontSize: '13px',
           opacity: 0.9,
           fontWeight: 'normal'
         }}>
-          Total: {formatDuration(totalDuration)}
+          {t('total')}{formatDuration(totalDuration)}
         </div>
       </div>
     );

@@ -61,7 +61,7 @@ function getWeekNumberISO(date) {
 }
 
 
-const SidePanel = observer(({ isVisible, children }) => {
+const SidePanel = observer(({ isPanelVisible, children }) => {
   
   const t = useTranslations('sidePanel');
   
@@ -69,10 +69,10 @@ const SidePanel = observer(({ isVisible, children }) => {
   
   const weekNumber = getWeekNumberISO(selectedDate); // Current weekNumber
   
-  const [shouldRender, setShouldRender] = useState(isVisible);
+  const [shouldRender, setShouldRender] = useState(isPanelVisible);
 
   useEffect(() => {
-    if (isVisible) {
+    if (isPanelVisible) {
       setShouldRender(true);
       
     } else {
@@ -83,12 +83,12 @@ const SidePanel = observer(({ isVisible, children }) => {
       
       return () => clearTimeout(timer);
     }
-  }, [isVisible]);
+  }, [isPanelVisible]);
 
   if (!shouldRender) return null;
 
   return (
-    <div className={`side-panel ${isVisible ? 'visible' : 'hidden'}`}>
+    <div className={`side-panel ${isPanelVisible ? 'visible' : 'hidden'}`}>
       
       <MonthCalendar />
       
