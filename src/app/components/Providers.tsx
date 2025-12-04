@@ -6,10 +6,17 @@ import NaviBar from './NaviBar';
 import { handleFetch } from '../lib/fetch';
 
 interface UserSession {
-  id: string;
-  email: string;
-  name: string;
-  dept: string;
+  // id: string;
+  // email: string;
+  // name: string;
+  // dept: string;
+  authenticated: boolean;
+  user: {
+    userId: string;
+    email: string;
+    name: string;
+    dept: string;
+  }
 }
 
 interface SessionContextType {

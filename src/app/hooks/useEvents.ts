@@ -4,7 +4,8 @@ import { useSession } from '../components/Providers';
 
 
 interface CalendarEvent {
-  id: number;
+  length: string;
+  id: string;
   author: string;
   start: string;
   end: string;
@@ -31,7 +32,7 @@ export function useEvents({props}:useEventsProps = {}) {
     
     if (!isLoading) {
       try {
-        const userEmail = props != 'all' ? session.user.email : null;
+        const userEmail = props === 'all' ? null : session.user.email;
         handleFetch('event', 'GET', userEmail)
         .then(result => {
           console.log(`${result.data.rows.length} events loaded.`)

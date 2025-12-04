@@ -4,14 +4,14 @@ import { query, insert, remove, update } from '../../../lib/database';
 import { NextResponse } from 'next/server';
 
 
-// GET - Fetch all events by author (email)
+// GET - Fetch all events or by author (email)
 export async function GET(request: Request) {
 
   try {
 
     const { searchParams } = new URL(request.url);
     const email = searchParams.get('email');
-
+    //console.log(request)
 
     if (!email) {
 

@@ -1,21 +1,18 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
+import { useLocale } from 'next-intl';
 import LoginForm from '../components/LoginForm';
 import RegisterForm from '../components/RegisterForm';
 import {useLangSwitcher} from '../hooks/useLangSwitcher';
-import { useLocale } from 'next-intl';
-
-
 
 export default function AuthPage() {
   
   const {switchLanguage} = useLangSwitcher();
-  
+  const [isLogin, setIsLogin] = useState(true);
   const locle = useLocale();
   
-  const [isLogin, setIsLogin] = useState(true);
-
   const toggleToRegister = () => setIsLogin(false);
   const toggleToLogin = () => setIsLogin(true);
 
@@ -23,11 +20,12 @@ export default function AuthPage() {
     <div className="auth-container">
     
     <div className="language-container" >
-      <img
+      <Image
         className="language-switcher"
         src="/globe.svg"
         alt="Lang"
-        style={{heigth:24, width:24}}
+        width={24}  
+        height={24}
         onClick={switchLanguage}
       />
       <span className="language-tooltip">{locle.toUpperCase()}</span>

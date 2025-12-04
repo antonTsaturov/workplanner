@@ -6,7 +6,7 @@ import '../globals.css';
 
 interface ModalProps {
   isOpen: boolean;
-  onClose: () => void;
+  onClose?: (subaction?: string) => void;
   children: React.ReactNode;
 }
 

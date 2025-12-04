@@ -1,10 +1,14 @@
 'use client'
-import React, { useEffect, useState, useMemo, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
+import { EventImpl } from '@fullcalendar/core/internal';
+
 import { useLocale, useTranslations } from 'next-intl';
+import { observer } from 'mobx-react';
+import { dateStore } from '../store/dateStore';
 
 import '../styles/Calendar2.css'
 
@@ -12,22 +16,14 @@ import Modal  from './Modal'
 import EventForm  from './EventForm';
 import Dialog from './Dialog';
 import SidePanel from './SidePanel';
-import Loader from './Loader';
-
 
 import NotificationContainer from './NotificationContainer';
 import useNotification from '../hooks/useNotification';
 
-import { handleSubmitEventInfo, handleDeleteEvent, handleGetEventInfo } from '../lib/fetch'
 import { useEvents } from '../hooks/useEvents';
 import { useModal } from '../hooks/useModal';
-
-
-import { storage } from '../utils/localStorage';
-import { tasks, subtasks } from '../lib/tasks';
 import { useSession } from './Providers';
-import { observer } from 'mobx-react';
-import { dateStore } from '../store/dateStore';
+import { DateSelectArg, EventClickArg, EventMountArg } from '@fullcalendar/core/index.js';
 
 const MILLISEC_IN_HOUR = 3600000;
 
@@ -36,10 +32,11 @@ const Calendar = observer(() => {
   const t = useTranslations('fullCalendar');
   const locale = useLocale();
   
-  const { notifications, addNotification, removeNotification, clearAll } = useNotification();
+  const { notifications, addNotification, removeNotification } = useNotification();
   
-  const showNotification = (type, style = 'default') => {
-    const messages = {
+  type NotificationType = 'success' | 'error' | 'warning' | 'info';
+  const showNotification = (type: NotificationType, style = 'default') => {
+    const messages: Record<NotificationType, string> = {
       success: 'Completed.',
       error: 'Something went wrong. Please try again.',
       warning: 'Fill the required fields *',
@@ -60,18 +57,21 @@ const Calendar = observer(() => {
   
   const [selectedPeriodInfo, setSelectedPeriodInfo] = useState({});
   const [selected, setSelected] = useState<boolean>(false);
-  const [clickInfo, setClickInfo] = useState();
+  const [clickInfo, setClickInfo] = useState<EventImpl | undefined>();
 
-  function handleEventClick(info) {
+  function handleEventClick(info: EventClickArg) {
     setClickInfo(info.event);
     setIsEventUpdated(false);
     open();
-    
+
+    const startTime = info.event.start?.getTime() || 0;
+    const endTime = info.event.end?.getTime() || 0;
+
     setSelectedPeriodInfo({
       id: info.event.id,
       start: info.event.start,
       end: info.event.end,
-      length: ((info.event.end - info.event.start) / MILLISEC_IN_HOUR),
+      length: ((endTime - startTime) / MILLISEC_IN_HOUR),
       title: info.event.title,
       subtitle: info.event.extendedProps.subtitle,
       project: info.event.extendedProps.project,
@@ -79,16 +79,21 @@ const Calendar = observer(() => {
     })
   }
   
-  const handleMonthClick = (info) => {
+  const handleMonthClick = (info: EventMountArg) => {
     if (info.view.type === 'dayGridMonth') {
       // Add custom click handler to the event element
       info.el.addEventListener('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
         
-        const calendar = info.view.calendar;
         const eventDate = info.event.start;
         
+        if (!eventDate) {
+          console.warn('Event start date is null');
+          return;
+        }
+
+        const calendar = info.view.calendar;
         // Change to week view
         calendar.changeView('timeGridWeek', eventDate);
         
@@ -97,7 +102,7 @@ const Calendar = observer(() => {
         
         // Optional: Scroll to the specific day in week view
         setTimeout(() => {
-          const dayElement = document.querySelector(`.fc-timeGridWeek-view .fc-day[data-date="${eventDate.toISOString().split('T')[0]}"]`);
+          const dayElement = document.querySelector(`.fc-timeGridWeek-view .fc-day[data-date="${eventDate.toISOString().split('T')[0]}"]`) as HTMLElement;;
           if (dayElement) {
             dayElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
             dayElement.style.backgroundColor = 'rgba(66, 153, 225, 0.1)';
@@ -116,7 +121,7 @@ const Calendar = observer(() => {
     }
   }
   
-  const handleNewEvent = (e) => {
+  const handleNewEvent = (e: DateSelectArg) => {
     setSelected(true)
     setIsEventUpdated(false);
     open() //open modal
@@ -126,31 +131,46 @@ const Calendar = observer(() => {
     });
   };
   
-  const handleModal = (subaction) => {
-    close() // close modal
-    selected ? selected.view.calendar.unselect() : null; //unselect current slots after close modal
+  const handleModal = (subaction: string) => {
+    close(); // close modal
+
+    if (selected) {
+      selected.view.calendar.unselect();
+    }
+
     setSelected(false) 
-    subaction === 'eventDelete' && clickInfo.remove()
-    setClickInfo(null) //Remove info about clicked event
-    !subaction && setTimeout(()=> { 
-      reloadEvents()
-      console.log('handleModal: events reloaded')
-    }, 900) //Reload all events after new event added only
+
+    if (subaction === 'eventDelete' && clickInfo) {
+      clickInfo.remove();
+    }
+    //Remove info about clicked event
+    setClickInfo(undefined) 
+    //Reload all events after new event added only
+    if (!subaction) {
+      setTimeout(() => { 
+        reloadEvents();
+        console.log('handleModal: events reloaded');
+      }, 900);
+    }
+
   }
   
-  const handleNotify = (status) => {
-    showNotification(status)
+  const handleNotify = (status: string) => {
+    showNotification(status as NotificationType)
   }
   
-  const handleEventUpdate = (eventDropInfo) => {
+  const handleEventUpdate = (eventDropInfo: { event: { id: string; start: Date; end: Date; title: string; extendedProps: { subtitle: string; project: string; comments: string; }; }; }) => {
     setIsEventUpdated(true);
     open();
-    
+
+    const startTime = eventDropInfo.event.start?.getTime() || 0;
+    const endTime = eventDropInfo.event.end?.getTime() || 0;
+
     setSelectedPeriodInfo({
       id: eventDropInfo.event.id,
       start: eventDropInfo.event.start,
       end: eventDropInfo.event.end,
-      length: ((eventDropInfo.event.end - eventDropInfo.event.start) / MILLISEC_IN_HOUR),
+      length: ((endTime - startTime) / MILLISEC_IN_HOUR),
       title: eventDropInfo.event.title,
       subtitle: eventDropInfo.event.extendedProps.subtitle,
       project: eventDropInfo.event.extendedProps.project,
@@ -158,11 +178,11 @@ const Calendar = observer(() => {
     })
   }
     
-  const calendarRef = useRef(null);
+  const calendarRef = useRef<FullCalendar>(null);
   const [isPanelVisible, setIsPanelVisible] = useState(false);
   
-  const panelButton = document.querySelector('.fc-myCustomButton-button');
-  const panelVisibility = (close = null) => {
+  const panelButton = document.querySelector('.fc-myCustomButton-button') as HTMLElement;
+  const panelVisibility = (close: string | null) => {
     
     if (close) {
       setIsPanelVisible(false);
@@ -182,32 +202,34 @@ const Calendar = observer(() => {
     }
   }
   
-  const getEventsDuration = () => {
+  const getEventsDuration = useCallback(() => {
     if (calendarRef.current) {
       const calendarApi = calendarRef.current.getApi()
       const currentViewStart = calendarApi.view.activeStart
       const currentViewEnd = calendarApi.view.activeEnd
       
-      const eventsVisibleDuration = events.map(item => {
-        if (currentViewStart < new Date(item.start) && new Date(item.end) < currentViewEnd) {
-          return parseInt(item.length);
-        } else {
-          return null;
-        }
-      }).reduce((acc, num) => {return acc + num}, 0);
+      const eventsVisibleDuration = events
+        .map(item => {
+          if (currentViewStart < new Date(item.start) && new Date(item.end) < currentViewEnd) {
+            return parseInt(item.length) || 0;
+          } else {
+            return 0;
+          }
+        })
+        .reduce((acc, num) => {return acc + num}, 0);
 
       dateStore.setDuration(eventsVisibleDuration)
       
     } else {
       console.log('Calendar API not available')
     }
-  }
+  }, [events])
   
-  const [curDate, setCurDate] = useState('')
+  const [curDate, setCurDate] = useState<Date | null>(null);
   
   useEffect (()=> {
     getEventsDuration()
-  }, [events, curDate, dateStore.fcDate])
+  }, [events, curDate,  getEventsDuration]) //dateStore.fcDate,
   
   
   const calendarRerender = () => {
@@ -281,17 +303,14 @@ const Calendar = observer(() => {
             myCustomButton: {
               text: isPanelVisible ? t('sidePanelButtonText_open') : t('sidePanelButtonText_close'),
               hint: 'Show/Hide navigation panel',
-              click: function(e) {
-                panelVisibility();
+              click: function() {
+                panelVisibility(null);
                 
                 // Remove focus from the button after click
                 setTimeout(() => {
-                  if (this && this.blur) {
-                    this.blur();
-                  } else {
-                    // Fallback: find the button and blur it
-                    const button = document.querySelector('.fc-myCustomButton-button');
-                    if (button) button.blur();
+                  const button = document.querySelector('.fc-myCustomButton-button') as HTMLElement;
+                  if (button) {
+                    button.blur();
                   }
                 }, 10);
               }
@@ -300,20 +319,28 @@ const Calendar = observer(() => {
               icon: 'chevron-right',
               hint: 'Next',
               click: function() {
-                const calendarApi = calendarRef.current.getApi();
-                calendarApi.next()
-                dateStore.setFcDate(calendarApi.currentData.currentDate)
-                setCurDate(calendarApi.currentData.currentDate)
+                const calendarApi = calendarRef.current?.getApi();
+                if (calendarApi) {
+                  calendarApi.next();
+                  //dateStore.setFcDate(calendarApi.currentData.currentDate);
+                  const targetDate = calendarApi.getDate()
+                  dateStore.setFcDate(targetDate);
+                  //setCurDate(calendarApi.currentData.currentDate);
+                  setCurDate(targetDate);
+                }
               }
             },
             customPrev: {
               icon: 'chevron-left',
               hint: 'Previous',
               click: function() {
-                const calendarApi = calendarRef.current.getApi();
-                calendarApi.prev()
-                dateStore.setFcDate(calendarApi.currentData.currentDate)
-                setCurDate(calendarApi.currentData.currentDate)
+                const calendarApi = calendarRef.current?.getApi();
+                if (calendarApi) {
+                  calendarApi.prev();
+                  const targetDate = calendarApi.getDate();
+                  dateStore.setFcDate(targetDate);
+                  setCurDate(targetDate);
+                }
               }
             }
           }}
@@ -351,13 +378,13 @@ const Calendar = observer(() => {
             hour: '2-digit',
             minute: '2-digit',
             omitZeroMinute: false,
-            meridiem: 'long'          
+            meridiem: 'short'  // 'short', 'narrow', false
           }}
           events={events}
           select={(info) => {
             if (info.view.type !== 'dayGridMonth') {
               handleNewEvent(info);
-              setSelected(info);
+              setSelected(true);
             }
           }}
           eventContent={(eventInfo) => (
@@ -373,8 +400,13 @@ const Calendar = observer(() => {
               info.jsEvent.preventDefault();
               info.jsEvent.stopPropagation();
               
+            if (info.event.start) {
               // Change to week view and go to the clicked date
               info.view.calendar.changeView('timeGridWeek', info.event.start);
+            } else {
+              // Если start null, переходим без указания даты
+              info.view.calendar.changeView('timeGridWeek');
+            }
               return false;
             } else {
               handleEventClick(info)
@@ -384,10 +416,10 @@ const Calendar = observer(() => {
             if (info.view.type === 'dayGridMonth') {
               // Change to week view and go to the clicked date
               info.view.calendar.changeView('timeGridWeek', info.dateStr);
-              console.log(info)
+              //console.log(info)
               // Optional: Add visual feedback
               setTimeout(() => {
-                const dayElement = document.querySelector(`.fc-timeGridWeek-view .fc-day[data-date="${info.dateStr}"]`);
+                const dayElement = document.querySelector(`.fc-timeGridWeek-view .fc-day[data-date="${info.dateStr}"]`) as HTMLElement;
                 if (dayElement) {
                   dayElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
                   dayElement.style.backgroundColor = '#94BFE9';
@@ -405,12 +437,12 @@ const Calendar = observer(() => {
             handleMonthClick(info)
           }}
           viewDidMount={(info) => {
-            const myCustomButton = document.querySelector('.fc-myCustomButton-button');
+            const myCustomButton = document.querySelector('.fc-myCustomButton-button') as HTMLElement;
             
             if (info.view.type === 'dayGridMonth') {
               // Hide button in month view
               if (myCustomButton) {
-                panelVisibility(true);
+                panelVisibility('close');
                 myCustomButton.style.display = 'none';
               }
             } else {
@@ -420,11 +452,11 @@ const Calendar = observer(() => {
               }
             }
           }}
-          datesSet={(info) => {
+          datesSet={() => {
             // Remove focus from all buttons after view changes
             setTimeout(() => {
-              const focusedButton = document.activeElement;
-              console.log(focusedButton)
+              const focusedButton = document.activeElement as HTMLElement;
+              //console.log(focusedButton)
               if (focusedButton && focusedButton.classList.contains('fc-button')) {
                 focusedButton.blur();
               }
@@ -458,16 +490,46 @@ const Calendar = observer(() => {
   )
 })
 
-const  RenderEventContent = ({eventInfo, t, locale}) => {
+interface CalendarEventInfo {
+  view: {
+    type: string;
+    calendar: {
+      getEvents: () => unknown[];
+    };
+  };
+  event: {
+    start: Date;
+    end: Date;
+    title: string;
+    extendedProps?: Record<string, unknown>;
+    [key: string]: unknown;
+  };
+  [key: string]: unknown;
+}
+
+interface RenderEventContentProps {
+  eventInfo: CalendarEventInfo; 
+  t: (key: string) => string;
+  locale: string;
+}
+
+const  RenderEventContent = ({ eventInfo, t, locale }: RenderEventContentProps) => {
   //console.log(locale)
   // For dayGridMonth view - show aggregated summary per day
   if (eventInfo.view.type === 'dayGridMonth') {
     const currentDateStr = eventInfo.event.start.toISOString().split('T')[0];
-    const allEvents = eventInfo.view.calendar.getEvents();
+    const allEvents = eventInfo.view.calendar.getEvents() as CalendarEvent[];;
     
     // Filter events for this specific day
-    const dayEvents = allEvents.filter(event => {
-      return event.start.toISOString().split('T')[0] === currentDateStr;
+    interface CalendarEvent {
+      start: Date;
+      end: Date;
+      title: string;
+      length: string;
+      [key: string]: unknown; // для других свойств
+    }
+    const dayEvents = allEvents.filter((event: CalendarEvent) => {
+      return event.start && event.start.toISOString().split('T')[0] === currentDateStr;
     });
     
     // Check if this is the first event for the day
@@ -480,23 +542,26 @@ const  RenderEventContent = ({eventInfo, t, locale}) => {
     const eventCount = dayEvents.length;
     
     // Calculate total duration in hours from all events
-    const totalDuration = dayEvents.reduce((total, event) => {
-      // Check if event has extendedProps.length or calculate from start/end times
-      if (event.extendedProps && event.extendedProps.length) {
-        // If length is stored in extendedProps (assuming in hours)
-        return total + parseFloat(event.extendedProps.length);
-      }
-      //else if (event.end && event.start) {
-        //// Calculate duration from start and end times
-        //const durationMs = event.end - event.start;
-        //const durationHours = durationMs / (1000 * 60 * 60);
-        //return total + durationHours;
-      //}
-      return total;
-    }, 0);
+const totalDuration = dayEvents.reduce((total, event) => {
+  // Проверяем extendedProps через optional chaining
+  const lengthValue = (event.extendedProps as any)?.length;
+  
+  if (lengthValue) {
+    const lengthNumber = parseFloat(lengthValue);
+    return total + (isNaN(lengthNumber) ? 0 : lengthNumber);
+  }
+  
+  // Если нет length, считаем из start/end
+  if (event.start && event.end) {
+    const durationMs = event.end.getTime() - event.start.getTime();
+    return total + (durationMs / (1000 * 60 * 60)); // часы
+  }
+  
+  return total;
+}, 0);
     
     // Format duration display
-    const formatDuration = (hours) => {
+    const formatDuration = (hours: number) => {
       if (hours < 1) {
         return `${Math.round(hours * 60)} ${t('min')}`;
       } else if (hours % 1 === 0) {
@@ -534,17 +599,19 @@ const  RenderEventContent = ({eventInfo, t, locale}) => {
   }
   
   // Original timeGridWeek view logic
-  const MILLISEC_IN_HOUR = 1000 * 60 * 60;
-  const duration = (eventInfo.event.end - eventInfo.event.start) / MILLISEC_IN_HOUR;
-  
+  //const MILLISEC_IN_HOUR = 1000 * 60 * 60;
+  const startTime = eventInfo.event.start.getTime();
+  const endTime = eventInfo.event.end.getTime();
+  const duration = (endTime - startTime) / MILLISEC_IN_HOUR;
+
   return (
     <div>
-      <b>{eventInfo.timeText}</b>
+      <b>{eventInfo.timeText as string}</b>
       {duration !== 0.5 && (<br />)}
       <label>{'  '}{eventInfo.event.title}</label>
       {duration > 1 && (
         <div>
-          <label><i>{eventInfo.event.extendedProps.subtitle}</i></label>
+          <label><i>{String(eventInfo.event.extendedProps?.subtitle || '')}</i></label>
         </div>
       )}
     </div>
