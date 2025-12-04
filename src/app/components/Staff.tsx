@@ -9,7 +9,7 @@ import { useModal } from '../hooks/useModal';
 import { useEmployee } from '../hooks/useEmployee';
 import useNotification from '../hooks/useNotification';
 import NotificationContainer from './NotificationContainer';
-import { formatPhone, unformatPhone } from '../utils/format';
+import { unformatPhone } from '../utils/format';
 
 
 const Staff = () => {
@@ -18,35 +18,33 @@ const Staff = () => {
   
   const [mode, setMode] = useState<Mode>("view");
   
-  const [loader, setLoader] = useState(false)
+  const { notifications, addNotification, removeNotification } = useNotification();
 
-  const { notifications, addNotification, removeNotification, clearAll } = useNotification();
-  
-  const showNotification = (type, style = 'default') => {
+  type NotificationType = 'success' | 'error' | 'warning' | 'info';
+  const showNotification = (type: NotificationType , style = 'default') => {
     const messages = {
       success: 'Employee record was created.',
       error: 'Something went wrong. Please try again.',
       warning: 'Select a project code.',
       info: 'Employee record was deleted.'
     };
-
     addNotification(messages[type], { type, style});
   }; 
 
-  interface employeesData {
-    id: number;
-    name: string;
-    email: string;
-    phone: string;
-    dept: string;
-    projects: string;
-    position: string;
-    status: string;
-    location: string;
-    hireDate: string;
-  }
+  // interface employeesData {
+  //   id: number;
+  //   name: string;
+  //   email: string;
+  //   phone: string;
+  //   dept: string;
+  //   projects: string;
+  //   position: string;
+  //   status: string;
+  //   location: string;
+  //   hireDate: string;
+  // }
 
-  const { employees, reloadEmplData } = useEmployee<employeesData>();
+  const { employees, reloadEmplData } = useEmployee();
 
   const { isModalOpen, open, close} = useModal();
   const openModal = () => {
@@ -111,6 +109,7 @@ const Staff = () => {
     }
 
     // Apply active filters from tags
+
     activeFilters.forEach(filter => {
       results = results.filter(employee => employee[filter.type] === filter.value);
     });
@@ -130,12 +129,12 @@ const Staff = () => {
   }, [employees, searchTerm, filters, activeFilters, sortBy]);
 
   // Handle search input change
-  const handleSearchChange = (e) => {
+  const handleSearchChange = (e: { target: { value: React.SetStateAction<string>; }; }) => {
     setSearchTerm(e.target.value);
   };
 
   // Handle filter changes
-  const handleFilterChange = (filterType, value) => {
+  const handleFilterChange = (filterType: string, value: string) => {
     setFilters(prev => ({
       ...prev,
       [filterType]: value
@@ -143,7 +142,7 @@ const Staff = () => {
   };
 
   // Handle quick filter click
-  const handleQuickFilter = (filter) => {
+  const handleQuickFilter = (filter: { label?: string; value: any; type: any; }) => {
     // Check if filter is already active
     const isAlreadyActive = activeFilters.some(
       activeFilter => activeFilter.type === filter.type && activeFilter.value === filter.value
@@ -180,7 +179,7 @@ const Staff = () => {
     id: number;
     name: string;
     email: string;
-    phone: string;
+    phone: string | null;
     dept: string;
     projects: string;
     position: string;
@@ -202,14 +201,14 @@ const Staff = () => {
   }
 
   // Add new employee
-  const addNewEmpl = () => {
-    setMode('add')
-    setEmplData('')
-    openModal()
-  }
+  // const addNewEmpl = () => {
+  //   setMode('add')
+  //   setEmplData('')
+  //   openModal()
+  // }
   
   // Edit info of current employee
-  const editEmpInfo = (id) => {
+  const editEmpInfo = () => {
     //console.log('editEmpInfo: ', id)
     setMode('edit')
   }
@@ -218,8 +217,8 @@ const Staff = () => {
     closeModal()
   }
 
-  const handleNotify = (status) => {
-    showNotification(status)
+  const handleNotify = (status: string) => {
+    showNotification(status as NotificationType)
   }
 
   return (
@@ -234,6 +233,7 @@ const Staff = () => {
             />
           ) : mode === 'add' ? (
             <StaffAddForm
+              emplData={null}
               handleModal={handleModal}
               handleNotify={handleNotify}
               reload={reloadEmplData}
@@ -241,7 +241,7 @@ const Staff = () => {
             />
           ) : (
             <StaffAddForm
-              emplData={emplData}
+              emplData={emplData ? emplData : null}
               handleModal={handleModal}
               handleNotify={handleNotify}
               reload={reloadEmplData}

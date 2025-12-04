@@ -11,19 +11,27 @@ import { formatPhone, unformatPhone } from '../utils/format';
 
 interface StaffAddFormProps {
   emplData: {
-    id: number,
-    name: string,
-    email: string,
-    phone: string,
-    dept: string,
-    project: string,
-    position: string,
-    status: string,
-    hiredate: string,
-    password: string,
-  };
+    // id: number,
+    // name: string,
+    // email: string,
+    // phone: string,
+    // dept: string,
+    // project: string,
+    // position: string,
+    // status: string,
+    // hiredate: string,
+    // password: string,
+    id: number;
+    name: string;
+    email: string;
+    phone: string;
+    dept: string;
+    projects: string;
+    position: string;
+    status: string;
+  } | null ;
   handleModal: () => void;
-  handleNotify: () => void;
+  handleNotify: (status: string) => void;
   reload: () => void;
   mode: string;
 }

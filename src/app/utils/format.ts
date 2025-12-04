@@ -16,7 +16,7 @@ export function formatTime(dateString: string) {
   });
 }
 
-function fastFormatPhone(phone) {
+function fastFormatPhone(phone: string) {
   // Remove all non-digit characters
   const cleaned = phone.toString().replace(/\D/g, '');
   
@@ -31,7 +31,7 @@ function fastFormatPhone(phone) {
 
 const symbols = ['+', ' ', '-', '(', ')'];
 
-export const formatPhone = (phone, e) => {
+export const formatPhone = (phone: string, e: React.KeyboardEvent<HTMLButtonElement>) => {
   
   if (!phone) {
     return null;
@@ -39,7 +39,7 @@ export const formatPhone = (phone, e) => {
 
   
   if (e?.code != 'Backspace' || !e ) {
-    if (phone.length == 1 && !phone.includes('+','8')) return `+7 (`
+    if (phone.length == 1 && !phone.includes('+', 8)) return `+7 (`
     if (phone.length == 7 ) return `${phone}) `
     if (phone.length == 12 || phone.length == 15) return `${phone}-`
     if (phone.length === 11 && phone.slice(0, 1) == '8') return fastFormatPhone(phone);
@@ -50,13 +50,13 @@ export const formatPhone = (phone, e) => {
   }
 }
 
-export const unformatPhone = (phone) => {
+export const unformatPhone = (phone: string) => {
   if (!phone || phone.length < 1) {
     return null;
   }
   const phoneArr = phone?.split('');
   for (let i = 0; i < phoneArr.length; i++) {
-    if (i == 1 && phoneArr.length > 10) phoneArr[i] = 8;
+    if (i == 1 && phoneArr.length > 10) phoneArr[i] = '8';
     if (symbols.includes(phoneArr[i])) phoneArr[i] = '';
   }
   return phoneArr.join('');
@@ -69,7 +69,7 @@ export const unformatPhone = (phone) => {
   //return `${hoursPart}h ${minutesPart}m`;
 //};
 
-export function formatDuration(duration) {
+export function formatDuration(duration: string) {
   const durationFloat = parseFloat(duration) * 60
   const hours = Math.floor(durationFloat / 60);
   const minutes = durationFloat % 60;

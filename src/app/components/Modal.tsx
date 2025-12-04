@@ -10,7 +10,7 @@ interface ModalProps {
   children: React.ReactNode;
 }
 
-const Modal = ({ isOpen, onClose, children }: { ModalProps }) => {
+const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
   
   const [isVisible, setIsVisible] = useState(false);
 

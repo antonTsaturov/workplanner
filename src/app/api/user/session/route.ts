@@ -1,5 +1,5 @@
 // app/api/session/route.ts
-import { decrypt, getCurrentSession, destroySession, validateSession } from '../../../lib/session';
+import { getCurrentSession } from '../../../lib/session';
 import { NextResponse } from 'next/server';
 
 export async function GET() {
@@ -15,10 +15,10 @@ export async function GET() {
     return NextResponse.json({
       authenticated: true,
       user: {
-        userId: (session as any).userId,
-        email: (session as any).email,
-        name: (session as any).name,
-        dept: (session as any).dept,
+        userId: session.userId,
+        email: session.email,
+        name: session.name,
+        dept: session.dept,
       }
     });
   } catch (error) {

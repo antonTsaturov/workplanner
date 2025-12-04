@@ -1,9 +1,9 @@
 /* /api/user/register */
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
-import { getDatabase, getUserByEmail, insert } from '../../../lib/database';
+import { getDatabase, insert } from '../../../lib/database';
 
-export async function POST(request) {
+export async function POST(request: Request) {
   try {
     const { name, email, password, dept } = await request.json();
 
@@ -35,7 +35,6 @@ export async function POST(request) {
     const hashedPassword = await bcrypt.hash(password, 12);
 
     // Save to DB
-    //console.log({name: name, email: email, password: hashedPassword, dept: dept})
     await insert('users', {name: name, email: email, password: hashedPassword, dept: dept})
 
     return NextResponse.json(

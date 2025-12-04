@@ -3,6 +3,13 @@ import { handleFetch } from '../lib/fetch'
 
 
 interface EmployeeInfo {
+  phone: any;
+  dept: any;
+  projects: any;
+  status: string;
+  id: number;
+  email: any;
+  name: any;
   emplData: {
     id: number,
     name: string,

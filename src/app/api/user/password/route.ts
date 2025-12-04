@@ -2,19 +2,22 @@
 import { getUserByEmail } from '../../../lib/database';
 import { getCurrentSession } from '../../../lib/session';
 import bcrypt from 'bcryptjs';
-import { query, insert, remove, update } from '../../../lib/database';
+import { update } from '../../../lib/database';
 import { NextResponse } from 'next/server';
 
 
-
-export async function PUT(request) {
+export async function PUT(request: Request) {
   try {
     
     const { current, newpass } = await request.json();
     
     // Get user hash by email from session
     const session = await getCurrentSession();
-    const email = (session as any).email;
+    //const email = (session as any).email;
+    const email = session? session.email : null;
+    if (!email) {
+      return;
+    }
     const user = await getUserByEmail(email);
 
     // Check is current password is valid
@@ -32,20 +35,20 @@ export async function PUT(request) {
     const data = {id: user.id, password: hashedPassword}
     
     // Update pass hash in DB
-    const result = update('users', data)
+    update('users', data)
 
     return NextResponse.json(
-      { 
-        success: true, 
-        message: 'Password updated successfully',
-        id: result.lastInsertRowid 
-      },
+      { success: true, message: 'Password updated successfully' },
       { status: 201 }
     );
   } catch (error) {
-        
-    return NextResponse.json(
-      { error: true, message: error.message },
+
+    const errorMessage = error instanceof Error 
+      ? error.message 
+      : 'An unexpected error occurred';
+
+      return NextResponse.json(
+      { error: true, message: errorMessage },
       { status: 500 }
     );
   }
