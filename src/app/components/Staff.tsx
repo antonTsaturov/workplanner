@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, MouseEvent, useLayoutEffect, useMemo } from 'react';
 import '../styles/Staff.css';
 import '../globals.css';
 
@@ -11,18 +11,65 @@ import useNotification from '../hooks/useNotification';
 import NotificationContainer from './NotificationContainer';
 import { unformatPhone } from '../utils/format';
 
+export interface Employee {
+  id: number;
+  name: string;
+  email: string;
+  phone: string | null;
+  dept: string | null;
+  projects: string | null;
+  position: string | null;
+  status: string | null;
+  location: string | null;
+  hireDate: string | null;
+}
+
+interface Filters {
+  dept?: string;
+  projects?: string;
+  status?: string;
+}
+
+interface FilterTag {
+  type: string;
+  value: string;
+  label?: string;
+}
+
+interface QuickFilter {
+  label: string;
+  value: string;
+  type: string;
+}
+
+interface DeptOption {
+  title: string;
+  code: string;
+}
+
+// interface TargetEmployeInfo {
+//   id: number;
+//   name: string;
+//   email: string;
+//   phone: string;
+//   dept: string;
+//   projects: string;
+//   position: string;
+//   status: string;
+//   location?: string;
+//   hireDate?: string;
+// }
+
+type Mode = "view" | "edit";
+type NotificationType = 'success' | 'error' | 'warning' | 'info';
 
 const Staff = () => {
-  
-  type Mode = "view" | "add" | "edit";
-  
   const [mode, setMode] = useState<Mode>("view");
   
   const { notifications, addNotification, removeNotification } = useNotification();
 
-  type NotificationType = 'success' | 'error' | 'warning' | 'info';
-  const showNotification = (type: NotificationType , style = 'default') => {
-    const messages = {
+  const showNotification = (type: NotificationType, style = 'default') => {
+    const messages: Record<NotificationType, string> = {
       success: 'Employee record was created.',
       error: 'Something went wrong. Please try again.',
       warning: 'Select a project code.',
@@ -31,110 +78,97 @@ const Staff = () => {
     addNotification(messages[type], { type, style});
   }; 
 
-  // interface employeesData {
-  //   id: number;
-  //   name: string;
-  //   email: string;
-  //   phone: string;
-  //   dept: string;
-  //   projects: string;
-  //   position: string;
-  //   status: string;
-  //   location: string;
-  //   hireDate: string;
-  // }
-
   const { employees, reloadEmplData } = useEmployee();
 
-  const { isModalOpen, open, close} = useModal();
+  const { isModalOpen, open, close } = useModal();
   const openModal = () => {
     open();
   }
   const closeModal = () => {
     close();
-    setTimeout (()=> {setMode('view')}, 500)
+    setTimeout(() => { setMode('view') }, 500);
   }
 
   // State for filters and search
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filters, setFilters] = useState({
-    dept: '',
-    projects: '',
-    status: ''
-  });
-  const [activeFilters, setActiveFilters] = useState([]);
-  const [sortBy, setSortBy] = useState('name');
-  const [filteredEmployees, setFilteredEmployees] = useState([]);
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [filters, setFilters] = useState<Filters>({});
+  const [activeFilters, setActiveFilters] = useState<FilterTag[]>([]);
+  const [sortBy, setSortBy] = useState<string>('name');
+  //const [filteredEmployees, setFilteredEmployees] = useState<Employee[]>([]);
 
-  const depts = [
-    {title: 'Clinical',         code: 'CLN'},
-    {title: 'Data managment',   code: 'DM'},
-    {title: 'Medical writing',  code: 'MW'},
+  const depts: DeptOption[] = [
+    { title: 'Clinical', code: 'CLN' },
+    { title: 'Data managment', code: 'DM' },
+    { title: 'Medical writing', code: 'MW' },
   ];
-  const projects = ['3456', '9872', '2900'];
-  const statusOptions = ['Active', 'On Leave', 'Inactive'];
+  
+  const projects: string[] = ['3456', '9872', '2900'];
+  const statusOptions: string[] = ['Active', 'On Leave', 'Inactive'];
 
   // Quick filter options
-  const quickFilters = [
+  const quickFilters: QuickFilter[] = [
     { label: 'Clinical', value: 'CLN', type: 'dept' },
     { label: 'Active', value: 'Active', type: 'status' },
     { label: '9872', value: '9872', type: 'projects' }
   ];
 
   // Filter employees based on search and filters
-  useEffect(() => {
-    let results = employees;
+// Replace useEffect with useMemo
+const filteredEmployees = useMemo(() => {
+  const employeeArray: Employee[] = Array.isArray(employees) ? employees : [];
+  let results: Employee[] = [...employeeArray];
 
-    // Apply search term
-    if (searchTerm) {
-      const term = searchTerm.toLowerCase();
-      results = results.filter(employee =>
-        employee.name.toLowerCase().includes(term) ||
-        employee.email.toLowerCase().includes(term) ||
-        employee.phone?.toLowerCase().includes(term) ||
-        employee.dept?.toLowerCase().includes(term) ||
-        employee.projects?.toLowerCase().includes(term)
-      );
+  // Apply search term
+  if (searchTerm && results.length > 0) {
+    const term = searchTerm.toLowerCase();
+    results = results.filter((employee: Employee) =>
+      employee.name.toLowerCase().includes(term) ||
+      employee.email.toLowerCase().includes(term) ||
+      (employee.phone?.toLowerCase() || '').includes(term) ||
+      (employee.dept?.toLowerCase() || '').includes(term) ||
+      (employee.projects?.toLowerCase() || '').includes(term)
+    );
+  }
+
+  // Apply individual filters
+  if (filters.dept) {
+    results = results.filter(employee => employee.dept === filters.dept);
+  }
+  if (filters.projects) {
+    results = results.filter(employee => employee.projects === filters.projects);
+  }
+  if (filters.status) {
+    results = results.filter(employee => employee.status === filters.status);
+  }
+
+  // Apply active filters from tags
+  activeFilters.forEach(filter => {
+    results = results.filter(employee => 
+      employee[filter.type as keyof Employee] === filter.value
+    );
+  });
+
+  // Apply sorting
+  const sortedResults = [...results].sort((a: Employee, b: Employee) => {
+    if (sortBy === 'name') {
+      return (a.name || '').localeCompare(b.name || '');
+    } else if (sortBy === 'dept') {
+      return (a.dept || '').localeCompare(b.dept || '');
     }
-
-    // Apply individual filters
-    if (filters.dept) {
-      results = results.filter(employee => employee.dept === filters.dept);
-    }
-    if (filters.projects) {
-      results = results.filter(employee => employee.projects === filters.projects);
-    }
-    if (filters.status) {
-      results = results.filter(employee => employee.status === filters.status);
-    }
-
-    // Apply active filters from tags
-
-    activeFilters.forEach(filter => {
-      results = results.filter(employee => employee[filter.type] === filter.value);
-    });
-
-    // Apply sorting
-    results = [...results].sort((a, b) => {
-      if (sortBy === 'name') {
-        return a.name.localeCompare(b.name);
-      } else if (sortBy === 'dept') {
-        return a.dept.localeCompare(b.dept);
-      }
-      return 0;
-    });
-
-    setFilteredEmployees(results);
-    console.log(filteredEmployees)
-  }, [employees, searchTerm, filters, activeFilters, sortBy]);
+    return 0;
+  });
+  
+  console.log('filteredEmployees: ', sortedResults);
+  return sortedResults;
+}, [employees, searchTerm, filters, activeFilters, sortBy]);
 
   // Handle search input change
-  const handleSearchChange = (e: { target: { value: React.SetStateAction<string>; }; }) => {
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
   };
 
   // Handle filter changes
-  const handleFilterChange = (filterType: string, value: string) => {
+  const handleFilterChange = (filterType: keyof Filters, value: string) => {
     setFilters(prev => ({
       ...prev,
       [filterType]: value
@@ -142,7 +176,7 @@ const Staff = () => {
   };
 
   // Handle quick filter click
-  const handleQuickFilter = (filter: { label?: string; value: any; type: any; }) => {
+  const handleQuickFilter = (filter: QuickFilter) => {
     // Check if filter is already active
     const isAlreadyActive = activeFilters.some(
       activeFilter => activeFilter.type === filter.type && activeFilter.value === filter.value
@@ -154,101 +188,95 @@ const Staff = () => {
   };
 
   // Remove active filter
-  const removeActiveFilter = (index:number) => {
+  const removeActiveFilter = (index: number) => {
     setActiveFilters(prev => prev.filter((_, i) => i !== index));
   };
 
   // Clear all filters
   const clearAllFilters = () => {
     setSearchTerm('');
-    setFilters({ dept: '', projects: '', status: '' });
+    setFilters({});
     setActiveFilters([]);
   };
 
   // Get initials for avatar
-  const getInitials = (name:string) => {
+  const getInitials = (name: string): string => {
+    if (!name) return '??';
     return name
       .split(' ')
-      .map(part => part[0])
+      .map(part => part[0] || '')
       .join('')
       .toUpperCase()
       .slice(0, 2);
   };
 
-  interface TargetEmployeInfo {
-    id: number;
-    name: string;
-    email: string;
-    phone: string | null;
-    dept: string;
-    projects: string;
-    position: string;
-    status: string;
-  }
-  // Show detailed employe card
-  const [emplData, setEmplData] = useState<TargetEmployeInfo>()
+  // Show detailed employee card
+  //const [emplData, setEmplData] = useState<TargetEmployeInfo | undefined>(undefined);
+  const [emplData, setEmplData] = useState<Employee>();
   
-  const showEmplCard = (id:number) => {
-    const [targetEmployeInfo] = employees
-    .filter(item => item.id == id)
+  const showEmplCard = (id: number, e: MouseEvent) => {
+    e.stopPropagation();
+    
+    const employee = employees.find((item: Employee) => item.id === id);
+    
+    if (!employee) {
+      console.error('Employee not found with id:', id);
+      return;
+    }
+    
     openModal();
-    //console.log(targetEmployeInfo)
-    //setEmplData(targetEmployeInfo)
-    setEmplData({
-      ...targetEmployeInfo,
-      phone: unformatPhone(targetEmployeInfo?.phone)
-    })
+
+    const unformatPh = employee.phone ? unformatPhone(employee.phone) : '';
+
+    // Transform Employee to TargetEmployeInfo with non-nullable strings
+    const transformedData: Employee = {
+      id: employee.id,
+      name: employee.name,
+      email: employee.email,
+      phone: unformatPh || '',
+      dept: employee.dept || '',
+      projects: employee.projects || '',
+      position: employee.position || '',
+      status: employee.status || '',
+      location: employee.location || '',
+      hireDate: employee.hireDate || '',
+    };
+
+    setEmplData(transformedData);
   }
 
-  // Add new employee
-  // const addNewEmpl = () => {
-  //   setMode('add')
-  //   setEmplData('')
-  //   openModal()
-  // }
-  
   // Edit info of current employee
   const editEmpInfo = () => {
-    //console.log('editEmpInfo: ', id)
-    setMode('edit')
+    setMode('edit');
   }
 
   const handleModal = () => {
-    closeModal()
+    closeModal();
   }
 
   const handleNotify = (status: string) => {
-    showNotification(status as NotificationType)
+    showNotification(status as NotificationType);
   }
+
+  const employeesCount = Array.isArray(employees) ? employees.length : 0;
 
   return (
     <div className="staff-container">
-    
       <Modal isOpen={isModalOpen} onClose={closeModal}>
-        {
-          mode === 'view' ? (
-            <StaffViewForm 
-              emplData={emplData}
-              editEmpInfo={editEmpInfo}
-            />
-          ) : mode === 'add' ? (
-            <StaffAddForm
-              emplData={null}
-              handleModal={handleModal}
-              handleNotify={handleNotify}
-              reload={reloadEmplData}
-              mode={mode}
-            />
-          ) : (
-            <StaffAddForm
-              emplData={emplData ? emplData : null}
-              handleModal={handleModal}
-              handleNotify={handleNotify}
-              reload={reloadEmplData}
-              mode={mode}
-            />
-          )
-        }
+        {mode === 'view' ? (
+          <StaffViewForm 
+            emplData={emplData}
+            editEmpInfo={editEmpInfo}
+          />
+        ) : (
+          <StaffAddForm
+            emplData={emplData}
+            handleModal={handleModal}
+            handleNotify={handleNotify}
+            reload={reloadEmplData}
+            mode={mode}
+          />
+        )}
       </Modal>
     
       <NotificationContainer 
@@ -295,7 +323,7 @@ const Staff = () => {
               <div className="staff-filter-tags">
                 {activeFilters.map((filter, index) => (
                   <span key={index} className="staff-filter-tag">
-                    {filter.label}
+                    {filter.label || filter.value}
                     <button
                       className="staff-filter-tag-remove"
                       onClick={() => removeActiveFilter(index)}
@@ -315,7 +343,7 @@ const Staff = () => {
             <label className="staff-filter-label">department</label>
             <select
               className="staff-content-select"
-              value={filters.dept}
+              value={filters.dept || ''}
               onChange={(e) => handleFilterChange('dept', e.target.value)}
             >
               <option value="">All</option>
@@ -329,12 +357,12 @@ const Staff = () => {
             <label className="staff-filter-label">project</label>
             <select
               className="staff-content-select"
-              value={filters.projects}
+              value={filters.projects || ''}
               onChange={(e) => handleFilterChange('projects', e.target.value)}
             >
               <option value="">All</option>
-              {projects.map(projects => (
-                <option key={projects} value={projects}>{projects}</option>
+              {projects.map(project => (
+                <option key={project} value={project}>{project}</option>
               ))}
             </select>
           </div>
@@ -343,7 +371,7 @@ const Staff = () => {
             <label className="staff-filter-label">Status</label>
             <select
               className="staff-content-select"
-              value={filters.status}
+              value={filters.status || ''}
               onChange={(e) => handleFilterChange('status', e.target.value)}
             >
               <option value="">All</option>
@@ -356,13 +384,12 @@ const Staff = () => {
           <button className="staff-button-clear" onClick={clearAllFilters}>
             Clear Filters
           </button>
-
         </div>
 
         {/* Results Summary */}
         <div className="staff-results-summary">
           <div className="staff-results-count">
-            Showing {filteredEmployees.length} of {employees.length} employees
+            Showing {filteredEmployees.length} of {employeesCount} employees
           </div>
           <select
             className="staff-sort-select"
@@ -375,27 +402,31 @@ const Staff = () => {
         </div>
 
         {/* Employee List */}
-        <div className="staff-content-items"  >
+        <div className="staff-content-items">
           {filteredEmployees.length > 0 ? (
             filteredEmployees.map(employee => (
-              <div id={employee.id} key={employee.id} className="staff-item" onClick={(item)=>showEmplCard(item.target.id)} >
-                <div id={employee.id} className="staff-item-avatar">
+              <div 
+                key={employee.id} 
+                className="staff-item" 
+                onClick={(e) => showEmplCard(employee.id, e)}
+              >
+                <div className="staff-item-avatar">
                   {getInitials(employee.name)}
                 </div>
-                <div id={employee.id} className="staff-item-details">
-                  <div id={employee.id} className="staff-item-name">{employee.name}</div>
-                  <div id={employee.id} className="staff-item-meta">
-                    <span id={employee.id} className="staff-item-contact">
+                <div className="staff-item-details">
+                  <div className="staff-item-name">{employee.name}</div>
+                  <div className="staff-item-meta">
+                    <span className="staff-item-contact">
                       📧 {employee.email}
                     </span>
-                    <span id={employee.id} className="staff-item-contact">
+                    <span className="staff-item-contact">
                       {'             '}
                     </span>
-                    <span id={employee.id} className="staff-item-contact">
-                      📞 {employee.phone}
+                    <span className="staff-item-contact">
+                      📞 {employee.phone || 'N/A'}
                     </span>
-                    <span id={employee.id} className="staff-item-contact">
-                      💼 {employee.position}
+                    <span className="staff-item-contact">
+                      💼 {employee.position || 'N/A'}
                     </span>
                   </div>
                 </div>
@@ -407,21 +438,14 @@ const Staff = () => {
               <div className="staff-empty-text">
                 No employees found matching your criteria.
               </div>
-            {!filters &&
-              (<button className="staff-button-clear" onClick={clearAllFilters}>
-                Clear All Filters
-              </button>)
-            }            
+              {activeFilters.length > 0 && (
+                <button className="staff-button-clear" onClick={clearAllFilters}>
+                  Clear All Filters
+                </button>
+              )}            
             </div>
           )}
         </div>
-
-        {/* Action Buttons 
-        <div className="staff-button-container">
-          <button className="staff-button-save" onClick={addNewEmpl}>
-            <span className="button-text">Add new employee</span>
-          </button>
-        </div>*/}
       </div>
     </div>
   );

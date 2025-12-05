@@ -1,24 +1,26 @@
 import { makeAutoObservable } from 'mobx';
+import  FullCalendar  from '@fullcalendar/react';
+import { RefObject } from 'react';
 
 class DateStore {
   //date = '';
-  fcDate = ''; //Current date of FullCalendar
-  fcApi = null;
-  duration = null; //Duration of all events of current view (during a week)
+  fcDate: Date | undefined = undefined; //Current date of FullCalendar
+  fcApi: RefObject<FullCalendar> | undefined = undefined; // Fullcalendar API
+  duration: number | undefined = undefined; //Duration of all events of current view (during a week)
 
   constructor() {
     makeAutoObservable(this);
   }
   
-  setFcDate(dat) {
+  setFcDate(dat: Date) {
     this.fcDate = dat;
   }
   
-  setFcApi(api) {
+  setFcApi(api: RefObject<FullCalendar>) {
     this.fcApi = api;
   }
   
-  setDuration(int) {
+  setDuration(int: number) {
     this.duration = int;
   }
 }

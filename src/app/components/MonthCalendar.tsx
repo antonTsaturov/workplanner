@@ -6,16 +6,35 @@ import { ru } from "react-day-picker/locale";
 import "react-day-picker/style.css";
 import { observer } from 'mobx-react';
 import { dateStore } from '../store/dateStore';
-import { useLocale, useTranslations } from 'next-intl';
+import { useLocale } from 'next-intl';
 import { format } from "date-fns";
+import  FullCalendar  from '@fullcalendar/react';
+import { RefObject } from 'react';
+
+
+const getFcApi = () => {
+  try {
+    if (dateStore.fcApi && 
+        typeof dateStore.fcApi === 'object' && 
+        'current' in dateStore.fcApi && 
+        dateStore.fcApi.current) {
+      return (dateStore.fcApi as RefObject<FullCalendar>).current.getApi();
+    }
+    return null;
+  } catch (error) {
+    console.error('Error getting fcApi:', error);
+    return null;
+  }
+};
+
 
 const MonthCalendar = observer(() => {
-  const [selected, setSelected] = useState<string>();
+  const [selected, setSelected] = useState<Date>();
   
-  const fcApi = dateStore.fcApi.current.getApi();
+  const fcApi = getFcApi(); 
   
   const globalLocale = useLocale(); //String
-  const locale = globalLocale === 'ru' ? ru : null; //Object
+  const locale = globalLocale === 'ru' ? ru : undefined; //Object
   
   return (
     <DayPicker
@@ -28,24 +47,24 @@ const MonthCalendar = observer(() => {
       }}
       weekStartsOn={1}
       month={dateStore.fcDate}
-      //If not do it - month will not be swithed after calendarApi.next or prev
       onMonthChange={(e)=>{
-        console.log(e)
-        dateStore.setFcDate()
+        console.log(e)            // !!! If not do it - month will not be swithed
       }} 
       mode="single"
       selected={selected}
       //showWeekNumber={true}
       showOutsideDays={true}
-      onSelect={(date)=>{
+      onSelect={(date: Date | undefined)=>{
         if (typeof date !== 'undefined') { //Prevent error if the same date was clicked twice
+          //console.log(date)
           setSelected(date)
-          fcApi.gotoDate(date)
-          dateStore.setFcDate(date) // set this date for rerender workload after click here
+          fcApi?.gotoDate(date)
+          dateStore.setFcDate(date) // set this date for rerender completness after click on date
         }
       }}
       numberOfMonths={1}
       disabled={{ dayOfWeek: [0, 6] }}
+      required={false}
       //footer={
         //selected ? `Selected: ${selected}` : "Pick a day."
       //}

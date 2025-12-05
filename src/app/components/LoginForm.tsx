@@ -21,7 +21,6 @@ export default function LoginForm({ onToggleToRegister }: LoginFormProps) {
   const [error, setError] = useState('');
   
   const validateField = (name: string, value: string): string => {
-    const containNumberRegex = /[0-9]/g;
     switch (name) {
       case 'email':
         if (!value.trim()) return ' is required';
@@ -36,6 +35,11 @@ export default function LoginForm({ onToggleToRegister }: LoginFormProps) {
         return '';
     }
   };
+
+  interface FormErrors {
+      email?: string;
+      password?: string;
+  }
 
   const [errors, setErrors] = useState<FormErrors>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
@@ -84,7 +88,12 @@ export default function LoginForm({ onToggleToRegister }: LoginFormProps) {
     
     try {
       const result = await handleFetch('login', 'POST', formData);
-      result.error ? setError(result.error) : window.location.href = '/pages/calendar'
+
+      if (result.error) {
+        setError(result.error)
+      } else {
+        window.location.href = '/pages/calendar'
+      }
       
     } catch (err) {
       setError('Login failed. Please check your credentials.');
@@ -103,7 +112,7 @@ export default function LoginForm({ onToggleToRegister }: LoginFormProps) {
           <label htmlFor="email" className="form-label">
             {t('email')}
             <label className="error-message">
-              {errors.email && touched.email ? errors.email : null}
+              {errors.email && touched.email && errors.email}
             </label>
           </label>
           <input
@@ -122,7 +131,7 @@ export default function LoginForm({ onToggleToRegister }: LoginFormProps) {
           <label htmlFor="password" className="form-label">
             {t('password')}
             <label className="error-message">
-              {errors.password && touched.password ? errors.password : null}
+              {errors.password && touched.password && errors.password}
             </label >
           </label>
           <input

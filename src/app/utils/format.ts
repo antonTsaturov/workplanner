@@ -31,7 +31,7 @@ function fastFormatPhone(phone: string) {
 
 const symbols = ['+', ' ', '-', '(', ')'];
 
-export const formatPhone = (phone: string, e: React.KeyboardEvent<HTMLButtonElement>) => {
+export const formatPhone = (phone: string | null, e: React.KeyboardEvent<HTMLInputElement> | undefined) => {
   
   if (!phone) {
     return null;

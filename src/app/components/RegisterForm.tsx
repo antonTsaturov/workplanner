@@ -5,13 +5,20 @@ import { handleFetch } from '../lib/fetch';
 import { weakPasswordPatterns } from '../utils/passcheck';
 import { useTranslations } from 'next-intl';
 
-
-
 interface RegisterFormProps {
   onToggleToLogin: () => void;
 }
 
+interface FormErrors {
+    name?: string;
+    email?: string;
+    password?: string;
+}
+
+
 const EMAIL_RGX = /^(?:(?!\.)[a-zA-Z0-9._%+-]+(?<!\.))@(?:(?!-)[a-zA-Z0-9-]+(?<!-)\.)+(?:[a-zA-Z]{2,}|com|org|net|edu|gov|mil|biz|info|mobi|name|aero|asia|jobs|museum)$/
+
+
 
 export default function RegisterForm({ onToggleToLogin }: RegisterFormProps) {
   
@@ -31,7 +38,6 @@ export default function RegisterForm({ onToggleToLogin }: RegisterFormProps) {
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   
   const validateField = (name: string, value: string): string => {
-    const restrictedRegex = /[0-9!@#$%^&*()_+{}[]]/g;
     switch (name) {
       case 'name':
         if (!value.trim()) return ' is required.';
@@ -55,8 +61,9 @@ export default function RegisterForm({ onToggleToLogin }: RegisterFormProps) {
     }
   };
 
+  type FormElement = HTMLInputElement | HTMLSelectElement;
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<FormElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -190,7 +197,7 @@ export default function RegisterForm({ onToggleToLogin }: RegisterFormProps) {
         </div>
 
         <div className="form-group">
-          <label htmlFor="confirmPassword" className="form-label" unselectable="true">
+          <label htmlFor="department" className="form-label" unselectable="on">
             {t('departmentSelect')}
           </label>
           <select

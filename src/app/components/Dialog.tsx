@@ -3,18 +3,18 @@
 import { handleFetch } from '../lib/fetch';
 
 export interface EventFormProps {
-  eventInfo: {
-    start: string,
-    end: string,
-    length: string,
+  eventInfo?: {
+    start?: string,
+    end?: string,
+    length?: string,
     title?: string,
     subtitle?: string,
     project?: string,
     comments?: string,
   };
-  userData: {
-    dept: string,
-    author: string,
+  userData?: {
+    dept?: string,
+    author?: string,
   };
   handleModal: () => void;
   handleNotify: (message: string) => void;
@@ -25,7 +25,7 @@ const Dialog = ({eventInfo, handleModal, handleNotify}: EventFormProps) => {
   console.log(eventInfo)
 
   const updateEvent = async () => {
-    const response = await handleFetch('event', 'PUT', eventInfo )
+    const response = await handleFetch('event', 'PUT', eventInfo as object )
     if (response.success) {
       handleModal()
       setTimeout(()=> {handleNotify('success')}, 500 )

@@ -1,11 +1,17 @@
-import React from 'react';
 import '../styles/StaffViewForm.css';
 import { formatPhone } from '../utils/format';
+import { Employee } from './Staff';
 
 
-const StaffViewForm = ({ emplData, editEmpInfo }) => {
+interface StaffAddFormProps {
+  emplData: Employee | null | undefined;
+  editEmpInfo: (id: number) => void;
+}
+
+
+const StaffViewForm = ({ emplData, editEmpInfo }: StaffAddFormProps) => {
   
-  const formatDate = (dateString) => {
+  const formatDate = (dateString: string) => {
     if (!dateString) return 'Not specified';
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -60,14 +66,14 @@ const StaffViewForm = ({ emplData, editEmpInfo }) => {
           <div className="employee-info-group">
             <label className="employee-info-label">Phone</label>
             <div className="employee-info-value">
-              {emplData?.phone ? formatPhone(emplData.phone) : <span className="employee-info-value-empty">Not specified</span>}
+              {emplData?.phone ? formatPhone(emplData.phone, undefined) : <span className="employee-info-value-empty">Not specified</span>}
             </div>
           </div>
 
           <div className="employee-info-group">
             <label className="employee-info-label">Hire Date</label>
             <div className="employee-info-value">
-              {emplData?.hiredate ? formatDate(emplData.hiredate) : <span className="employee-info-value-empty">Not specified</span>}
+              {emplData?.hireDate ? formatDate(emplData.hireDate) : <span className="employee-info-value-empty">Not specified</span>}
             </div>
           </div>
 
@@ -128,7 +134,10 @@ const StaffViewForm = ({ emplData, editEmpInfo }) => {
         <div className="employee-view-actions">
           <button 
             className="employee-view-button-edit" 
-            onClick={()=> {editEmpInfo(emplData?.id)}}
+            onClick={()=> {
+              const id = emplData?.id as number
+              editEmpInfo(id)
+            }}
             type="button"
           >
             Edit Info

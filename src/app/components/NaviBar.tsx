@@ -1,5 +1,6 @@
 'use client'
-import React, { useEffect, useState } from 'react';
+import { SetStateAction, useState } from 'react';
+import Image from "next/image";
 import Link from 'next/link'
 import '../globals.css';
 import { useTranslations } from 'next-intl';
@@ -14,15 +15,14 @@ import { useModal } from '../hooks/useModal';
 import UserSettings from './UserSettings';
 import {useLangSwitcher} from '../hooks/useLangSwitcher';
 
-const NaviBar = ({resetSession}) => {
-  const { session, isLoading, refreshSession } = useSession();
+const NaviBar = ({ resetSession }: { resetSession: () => void }) => {
+  const { session } = useSession();
   const { isModalOpen, open, close} = useModal();
   
   const {switchLanguage} = useLangSwitcher();
   
   const t = useTranslations('naviBar');
   
-  const initialPath = usePathname()
 
   const [pathname, setPathname] = useState(usePathname())
   
@@ -31,13 +31,13 @@ const NaviBar = ({resetSession}) => {
   const hadleLogout = async () => {
     
     resetSession()
-    await handleFetch('logout', 'GET');
-    await router.push('/auth');
+    await handleFetch('logout', 'GET', null);
+    router.push('/auth');
     storage.remove('user')
     setPathname('auth');
   }
 
-  const handleClick = (e) => {
+  const handleClick = (e: SetStateAction<string>) => {
     setPathname(e)
   }
   
@@ -56,27 +56,33 @@ const NaviBar = ({resetSession}) => {
 
           {/* Left block */}
           <div className="nav-section">
-            <img src="/assets/workplanner_icon.png" alt="Workplanner" style={{ height: '2rem', marginLeft: '1rem'}} />
+            <Image
+              src="/assets/workplanner_icon.png"
+              alt="Workplanner"
+              style={{ marginLeft: '1rem'}}
+              height={40}
+              width={60}
+            />
 
             <div className="nav-links">
               <Link
                 href="/pages/calendar"
                 className={`nav-link ${pathname?.includes('calendar') ? 'active' : ''}`}
-                onClick={(e:string)=>handleClick('calendar')}
+                onClick={()=>handleClick('calendar')}
               >
                 {t('calendar')}
               </Link>
               <Link
                 href="/pages/staff"
                 className={`nav-link ${pathname?.includes('staff') ? 'active' : ''}`}
-                onClick={(e:string)=>handleClick('staff')}
+                onClick={()=>handleClick('staff')}
               >
                 {t('staff')}
               </Link>
               <Link
                 href="/pages/dashboard"
                 className={`nav-link ${pathname?.includes('dashboard') ? 'active' : ''}`}
-                onClick={(e:string)=>handleClick('dashboard')}
+                onClick={()=>handleClick('dashboard')}
               >
                 {t('dashboard')}
               </Link>

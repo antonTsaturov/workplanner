@@ -40,7 +40,7 @@ export function SessionProvider({
   async function loadSession() {
     try {
       setIsLoading(true);
-      const sessionData = await handleFetch('session', 'GET');
+      const sessionData = await handleFetch('session', 'GET', null);
       storage.set('user', sessionData.user)
       //console.log('sessionData.user: ', sessionData.user)
       setSession(sessionData);

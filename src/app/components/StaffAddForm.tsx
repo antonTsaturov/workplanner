@@ -3,33 +3,14 @@
 import '../styles/StaffAddForm.css';
 import '../styles/ProjectsInput.css';
 
-import Loader from './Loader';
-
-import { useState, useEffect } from 'react';
+import { KeyboardEvent, SetStateAction, useState } from 'react';
 import { handleFetch } from '../lib/fetch';
 import { formatPhone, unformatPhone } from '../utils/format';
 
+import { Employee } from './Staff';
+
 interface StaffAddFormProps {
-  emplData: {
-    // id: number,
-    // name: string,
-    // email: string,
-    // phone: string,
-    // dept: string,
-    // project: string,
-    // position: string,
-    // status: string,
-    // hiredate: string,
-    // password: string,
-    id: number;
-    name: string;
-    email: string;
-    phone: string;
-    dept: string;
-    projects: string;
-    position: string;
-    status: string;
-  } | null ;
+  emplData: Employee  | null | undefined; 
   handleModal: () => void;
   handleNotify: (status: string) => void;
   reload: () => void;
@@ -46,86 +27,52 @@ interface FormErrors {
     position?: string;
     status?: string;
     hiredate?: string;
-    password: string;
 }
-
-function fastFormatPhone(phone) {
-  // Remove all non-digit characters
-  const cleaned = phone.toString().replace(/\D/g, '');
-  
-  // Check if it's a Russian number starting with 8 or 7
-  if (cleaned.length === 11 && (cleaned.startsWith('8') || cleaned.startsWith('7'))) {
-    return `+7 (${cleaned.slice(1, 4)}) ${cleaned.slice(4, 7)}-${cleaned.slice(7, 9)}-${cleaned.slice(9)}`;
-  }
-  
-  // Return original if doesn't match expected format
-  return phone;
-}
-
 
 const StaffAddForm = ({ emplData, handleModal, handleNotify, reload, mode }:StaffAddFormProps) => {
-  
-  //console.log('StaffAddForm: ', emplData)
-  const [projects, setProjects] = useState([])
+    
+  //const [projects, setProjects] = useState<string>();
 
-  const [formData, setFormData] = useState(!emplData ? {
-    name: '',
-    email: '',
-    dept: '',
-    phone: '',
-    location: '',
-    projects: '',
-    position: '',
-    status: '',
-    hiredate: '',
-    password: 'null',
-  } : {
-    name: emplData?.name,
-    email: emplData?.email,
-    dept: emplData?.dept,
-    phone: emplData?.phone,
-    location: emplData?.location,
-    projects: emplData?.projects,
-    position: emplData?.position,
-    status: emplData?.status,
-    hiredate: emplData?.hiredate,
+ const [formData, setFormData] = useState<Employee>(() => {
+    // Handle the case when emplData is undefined/null
+    if (!emplData) {
+      return {
+        id: 0,
+        name: '',
+        email: '',
+        dept: null,
+        phone: null,
+        location: null,
+        projects: null,
+        position: null,
+        status: null,
+        hireDate: null,
+      };
+    }
+    
+    return {
+      id: emplData.id,
+      name: emplData.name,
+      email: emplData.email,
+      dept: emplData.dept,
+      phone: emplData.phone,
+      location: emplData.location,
+      projects: emplData.projects,
+      position: emplData.position,
+      status: emplData.status,
+      hireDate: emplData.hireDate,
+    };
   });
 
-  const [errors, setErrors] = useState<FormErrors>({});
+  const [errors, setErrors] = useState<Partial<FormErrors>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
 
-  const checkEmail = async (email) => {
-    
-    if (!/^[a-zA-Z._0-9^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      return;
-    }
-    
-    try {
-      const response = await handleFetch('staff', 'GET', email);
-      //return response.check
-      console.log('checkEmail: ', response.check)
-      if (response.check == false) {
-        setErrors(prev => ({
-          ...prev,
-          email: response.message
-        }));
-      } else {
-        setErrors(prev => ({
-          ...prev,
-          email: ''
-        }));
-        
-      }
-      
-    } catch (err) {
-      console.log('checkEmail error: ', err)
-    }
-    
-  }
   
   // Validation rules
   const validateField = (name: string, value: string): string => {
     const containNumberRegex = /[0-9]/g;
+    const phoneRegex = /\+\d\s\(\d{3}\)\s\d{3}-\d{2}-\d{2}/;
+
     switch (name) {
       case 'name':
         if (!value.trim()) return 'Name is required';
@@ -136,7 +83,7 @@ const StaffAddForm = ({ emplData, handleModal, handleNotify, reload, mode }:Staf
       case 'email':
         if (!value.trim()) return 'Email is required';
         if (!/^(?!.*\.\.)(?!.*\.$)(?!^\.)[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]{1,64}@(?!.*\.\.)(?!.*\.$)(?!^\.)[a-zA-Z0-9.-]{1,253}\.[a-zA-Z]{2,}$/i.test(value)) return 'Please enter a valid email';
-        if ( value == false) return 'Employee with same email exist'
+        //if ( value === false) return 'Employee with same email exist'
         return '';
       
       case 'dept':
@@ -146,9 +93,9 @@ const StaffAddForm = ({ emplData, handleModal, handleNotify, reload, mode }:Staf
         return '';
       
       case 'phone':
+        const formattedPhone = unformatPhone(value.trim());
         if (!value.trim()) return 'Phone number is required';
-        if (unformatPhone(value.trim()).length < 11) return 'Phone number too short';
-        const phoneRegex = /\+\d\s\(\d{3}\)\s\d{3}-\d{2}-\d{2}/;
+        if (formattedPhone && formattedPhone.length < 11) return 'Phone number too short';
         if (!value.trim().match(phoneRegex)) return 'Format mistakes';
         return '';
       
@@ -185,29 +132,31 @@ const StaffAddForm = ({ emplData, handleModal, handleNotify, reload, mode }:Staf
     }
   };
 
-  const validateForm = (): boolean => {
-    const newErrors: FormErrors = {};
+const validateForm = (): boolean => {
+  const newErrors: Partial<FormErrors> = {};
+  
+  Object.keys(formData).forEach(key => {
+    const value = formData[key as keyof typeof formData];
     
-    Object.keys(formData).forEach(key => {
-      const error = validateField(key, formData[key as keyof typeof formData]);
-      if (error) {
-        newErrors[key as keyof FormErrors] = error;
-      }
-    });
+    const stringValue = String(value || '');
+    const error = validateField(key, stringValue);
+    if (error) {
+      newErrors[key as keyof FormErrors] = error;
+    }
+  });
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-    
-  };
+  setErrors(newErrors as FormErrors);
+  return Object.keys(newErrors).length === 0;
+};
 
   const [fillCount, setFillCount] = useState(0)
 
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    // setFormData(prev => ({
+    //   ...prev,
+    //   [name]: value
+    // }));
 
     // Validate field immediately after change if it's been touched
     if (touched[name]) {
@@ -219,10 +168,23 @@ const StaffAddForm = ({ emplData, handleModal, handleNotify, reload, mode }:Staf
     }
 
     // Check how much fields are filled
-    const filled = Object.values(formData).filter(item => 
-      item?.length > 0 
-    )
-    setFillCount(filled.length)
+    setFormData(prev => {
+      const updated = { ...prev, [name]: value };
+      
+      // Check how much fields are filled (only string fields)
+      const filled = Object.entries(updated)
+        .filter(([key, val]) => 
+          key !== 'id' && 
+          typeof val === 'string' && 
+          val.trim().length > 0
+        )
+        .length;
+      
+      setFillCount(filled);
+      console.log(updated);
+      
+      return updated;
+    });
     console.log(formData)
   };
 
@@ -241,7 +203,7 @@ const StaffAddForm = ({ emplData, handleModal, handleNotify, reload, mode }:Staf
     }));
     
     if (name == 'email') {
-      checkEmail(value)
+      //checkEmail(value)
     }
     console.log(formData)
   };
@@ -317,43 +279,44 @@ const StaffAddForm = ({ emplData, handleModal, handleNotify, reload, mode }:Staf
 
   const [projectInputValue, setProjectInputValue] = useState('')
   
-  const handleProjectInputChange = (e) => {
+  const handleProjectInputChange = (e: { target: { value: SetStateAction<string>; }; }) => {
     setProjectInputValue(e.target.value);
   };
 
   
-  const addProject = (prj) => {
-    if (prj && !projects.includes(prj)) {
-      setProjects([...projects, prj]);
-      setProjectInputValue('');
-      setFormData(prev => ({
-        ...prev,
-        projects: [...prev.projects, prj]
-      }));
+  // const addProject = (prj: string) => {
+  //   if (prj && !projects.includes(prj)) {
+  //     const updatedProjects = [...projects, prj];
+  //     setProjects(updatedProjects);
+  //     setProjectInputValue('');
+      
+  //     setFormData(prev => ({
+  //       ...prev,
+  //       projects: updatedProjects
+  //     }));
+  //   }
+  // };
 
-    }
-  };
-
-  const removeProject = (indexToRemove) => {
-    setProjects(projects.filter((_, index) => index !== indexToRemove));
-    setFormData(prev => ({
-      ...prev,
-      projects: [...prev.projects.filter((_, index) => index !== indexToRemove)]
-    }));
-  };
+  // const removeProject = (indexToRemove: number) => {
+  //   setProjects(projects.filter((_, index) => index !== indexToRemove));
+  //   setFormData(prev => ({
+  //     ...prev,
+  //     projects: [...prev.projects.filter((_, index) => index !== indexToRemove)]
+  //   }));
+  // };
   
-  const handleInputKeyDown = (e) => {
-    const keycodes = ['Enter', 'Space', 'Comma', 'Period']
-    if (keycodes.includes(e.code)) {
-      e.preventDefault();
-      addProject(projectInputValue.trim());
-    } else if (e.key === 'Backspace' && projectInputValue === '' && projects.length > 0) {
-      removeProject(projects.length - 1);
-    }
-  };
+  // const handleInputKeyDown = (e: { code: string; preventDefault: () => void; key: string; }) => {
+  //   const keycodes = ['Enter', 'Space', 'Comma', 'Period']
+  //   if (keycodes.includes(e.code)) {
+  //     e.preventDefault();
+  //     addProject(projectInputValue.trim());
+  //   } else if (e.key === 'Backspace' && projectInputValue === '' && projects.length > 0) {
+  //     removeProject(projects.length - 1);
+  //   }
+  // };
   
-  const [e, setE] = useState(false)
-  const handleKeyDown = (e) => {
+  const [e, setE] = useState<KeyboardEvent<HTMLInputElement>>()
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     // Разрешаем: цифры, Backspace, Delete, Tab, Arrow keys
     if (
       !/[0-9]/.test(e.key) &&
@@ -391,7 +354,7 @@ const StaffAddForm = ({ emplData, handleModal, handleNotify, reload, mode }:Staf
             />
             <span className="error-message">{errors.name && touched.name ? errors.name : null}</span>
 
-            <label className="staff-form-label">Email *</label>
+{/*            <label className="staff-form-label">Email *</label>
             <input
               className={getInputClassName('email')}
               type='email'
@@ -403,22 +366,18 @@ const StaffAddForm = ({ emplData, handleModal, handleNotify, reload, mode }:Staf
               placeholder="employee@company.com"
             />
             <span className="error-message">{errors.email && touched.email ? errors.email : null}</span>
-
+*/}
             <label className="staff-form-label">Department *</label>
             <input
               className={getInputClassName('dept')}
               type='text'
               name="dept"
-              value={formData.dept}
+              value={formData.dept || undefined}
               onChange={handleFormChange}
               onBlur={handleBlur}
               placeholder="e.g., Engineering, Marketing"
             />
             <span className="error-message">{errors.dept && touched.dept ? errors.dept : null}</span>
-          </div>
-
-          {/* Second Column */}
-          <div>
             <label className="staff-form-label">Phone *</label>
             <input
               className={getInputClassName('phone')}
@@ -426,7 +385,7 @@ const StaffAddForm = ({ emplData, handleModal, handleNotify, reload, mode }:Staf
               name='phone'
               inputMode="numeric"
               pattern="[0-9]*"
-              value={formatPhone(formData.phone, e) || ''}
+              value={formatPhone(formData.phone, e) || undefined}
               //value={formData.phone}
               maxLength={18}
               onChange={handleFormChange}
@@ -438,7 +397,9 @@ const StaffAddForm = ({ emplData, handleModal, handleNotify, reload, mode }:Staf
               placeholder="+ 7 (***) ***-**-**"
             />
             <span className="error-message">{errors.phone && touched.phone ? errors.phone : null}</span>
-
+          </div>
+            {/* Second Column */}
+          <div>
             <label className="staff-form-label">Location *</label>
             <input
               className={getInputClassName('location')}
@@ -463,10 +424,6 @@ const StaffAddForm = ({ emplData, handleModal, handleNotify, reload, mode }:Staf
             />
             <span className="error-message">{errors.position && touched.position ? errors.position : null}</span>
 
-          </div>
-
-          {/* Third Column */}
-          <div>
 
             <label className="staff-form-label">Status *</label>
             <select
@@ -481,13 +438,16 @@ const StaffAddForm = ({ emplData, handleModal, handleNotify, reload, mode }:Staf
               <option value="Inactive">Inactive</option>
             </select>
             <span className="error-message">{errors.status && touched.status ? errors.status : null}</span>
+          </div>
 
+          {/* Third Column */}
+          <div>
             <label className="staff-form-label">Hire date *</label>
             <input
               className={getInputClassName('hiredate')}
               type='date'
               name="hiredate"
-              value={formData.hiredate || ''}
+              value={formData.hireDate || ''}
               onChange={handleFormChange}
               onBlur={handleBlur}
             />
@@ -497,7 +457,7 @@ const StaffAddForm = ({ emplData, handleModal, handleNotify, reload, mode }:Staf
         
         <label className="staff-form-label">Projects</label>
         <div className="projects-input-container"> 
-          {projects.map((item, index) => (
+          {/* {projects.map((item, index) => (
             <div key={item} className="project-item">
               <span className="project-text">{item}</span>
               <button
@@ -508,7 +468,7 @@ const StaffAddForm = ({ emplData, handleModal, handleNotify, reload, mode }:Staf
                 ×
               </button>
             </div>
-          ))}            
+          ))}             */}
           <input
             //className={getInputClassName('projects')}
             className="projects-input"
@@ -520,7 +480,7 @@ const StaffAddForm = ({ emplData, handleModal, handleNotify, reload, mode }:Staf
             onChange={handleProjectInputChange}
             onBlur={handleBlur}
             placeholder="Projects (optional)"
-            onKeyDown={handleInputKeyDown}
+            //onKeyDown={handleInputKeyDown}
           />
         </div>
         <span className="error-message">{errors.projects && touched.projects  ? errors.projects : null}</span>

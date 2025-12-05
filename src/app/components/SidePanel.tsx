@@ -1,31 +1,28 @@
 'use client'
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import '../styles/SidePanel.css'
 import MonthCalendar from './MonthCalendar'
 import { observer } from 'mobx-react';
 import { dateStore } from '../store/dateStore';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 
 
 
-const AnimatedProgressBar = observer(({ 
-  targetProgress = 0, 
-  height = 8,
-  completed = '#10B981',
-  inProgress = 'linear-gradient(90deg, #3B82F6, #60A5FA, #3B82F6)',
-}) => {
+const AnimatedProgressBar = observer(() => {
+  
+  const height = 8;
   const [progress, setProgress] = useState(0);
   const duration = dateStore.duration;
-  
+  console.log(duration)
   
   useEffect(() => {
-    if (duration > 0.5) {
+    if (duration && duration > 0.5) {
       const durationPercent = (duration * 100) / 45;
       setProgress(durationPercent)
     } else {
       setProgress(0)
     }
-  }, [dateStore.duration]);
+  }, [duration]);
   
   
   return (
@@ -40,19 +37,24 @@ const AnimatedProgressBar = observer(({
   );
 });
 
-function getWeekNumberISO(date) {
+function getWeekNumberISO(date: Date) {
   // Копируем дату, чтобы не менять оригинал
   if (date){
+    //console.log(typeof date.getMonth === 'function')
     const d = new Date(Date.UTC(date?.getFullYear(), date.getMonth(), date.getDate()));
-    
+    //console.log(d)
     // Устанавливаем на четверг этой недели
     d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
     
     // Получаем 1 января
     const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
     
+    // Вычисляем разницу в миллисекундах и конвертируем в дни
+    const diffInMs = d.getTime() - yearStart.getTime();
+    const diffInDays = diffInMs / 86400000;
+    
     // Вычисляем номер недели
-    const weekNumber = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+    const weekNumber = Math.ceil((diffInDays + 1) / 7);
     
     return weekNumber;
   } else {
@@ -60,14 +62,14 @@ function getWeekNumberISO(date) {
   }
 }
 
-
-const SidePanel = observer(({ isPanelVisible, children }) => {
+const SidePanel = observer(({ isPanelVisible }) => {
   
   const t = useTranslations('sidePanel');
   
+  //const selectedDate = new Date(dateStore.fcDate);
   const selectedDate = dateStore.fcDate;
   
-  const weekNumber = getWeekNumberISO(selectedDate); // Current weekNumber
+  const weekNumber = getWeekNumberISO(selectedDate); // Get current week number
   
   const [shouldRender, setShouldRender] = useState(isPanelVisible);
 

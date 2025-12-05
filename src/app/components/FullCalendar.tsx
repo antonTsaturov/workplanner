@@ -1,14 +1,18 @@
 'use client'
 import React, { useEffect, useState, useRef, useCallback } from 'react';
+import  RefObject  from 'react';
+
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { EventImpl } from '@fullcalendar/core/internal';
+//import { EventDropArg } from '@fullcalendar/core';
 
 import { useLocale, useTranslations } from 'next-intl';
 import { observer } from 'mobx-react';
 import { dateStore } from '../store/dateStore';
+import { reaction } from 'mobx';
 
 import '../styles/Calendar2.css'
 
@@ -23,7 +27,7 @@ import useNotification from '../hooks/useNotification';
 import { useEvents } from '../hooks/useEvents';
 import { useModal } from '../hooks/useModal';
 import { useSession } from './Providers';
-import { DateSelectArg, EventClickArg, EventMountArg } from '@fullcalendar/core/index.js';
+import { DateSelectArg, EventClickArg, EventMountArg, EventDropArg } from '@fullcalendar/core/index.js';
 
 const MILLISEC_IN_HOUR = 3600000;
 
@@ -56,7 +60,7 @@ const Calendar = observer(() => {
   const [isEventUpdated, setIsEventUpdated] = useState(false);
   
   const [selectedPeriodInfo, setSelectedPeriodInfo] = useState({});
-  const [selected, setSelected] = useState<boolean>(false);
+  const [selected, setSelected] = useState<DateSelectArg | false>();
   const [clickInfo, setClickInfo] = useState<EventImpl | undefined>();
 
   function handleEventClick(info: EventClickArg) {
@@ -122,7 +126,7 @@ const Calendar = observer(() => {
   }
   
   const handleNewEvent = (e: DateSelectArg) => {
-    setSelected(true)
+    setSelected(e)
     setIsEventUpdated(false);
     open() //open modal
     setSelectedPeriodInfo({
@@ -140,7 +144,7 @@ const Calendar = observer(() => {
 
     setSelected(false) 
 
-    if (subaction === 'eventDelete' && clickInfo) {
+    if (subaction === 'EVENT_DELETE' && clickInfo) {
       clickInfo.remove();
     }
     //Remove info about clicked event
@@ -159,12 +163,29 @@ const Calendar = observer(() => {
     showNotification(status as NotificationType)
   }
   
-  const handleEventUpdate = (eventDropInfo: { event: { id: string; start: Date; end: Date; title: string; extendedProps: { subtitle: string; project: string; comments: string; }; }; }) => {
+  // const handleEventUpdate = (
+  //   eventDropInfo: { 
+  //     event: { 
+  //       id: string; 
+  //       start: Date | null;  // Allow start to be null
+  //       end: Date | null;    // Allow end to be null
+  //       title: string; 
+  //       extendedProps: { 
+  //         subtitle: string; 
+  //         project: string; 
+  //         comments: string; 
+  //       }; 
+  //     }; 
+  //   }
+  // ) => {
+const handleEventUpdate = (eventDropInfo: EventDropArg) => {  
     setIsEventUpdated(true);
     open();
 
-    const startTime = eventDropInfo.event.start?.getTime() || 0;
-    const endTime = eventDropInfo.event.end?.getTime() || 0;
+    const start = eventDropInfo.event.start || new Date();
+    const end = eventDropInfo.event.end || new Date();
+    const startTime = start.getTime();
+    const endTime = end.getTime();
 
     setSelectedPeriodInfo({
       id: eventDropInfo.event.id,
@@ -194,7 +215,7 @@ const Calendar = observer(() => {
     if (!isPanelVisible) {
       panelButton.classList.add('fc-button-active');
       setIsPanelVisible(true)
-      dateStore.setFcApi(calendarRef) //Month calendar will change view in FullCalendar
+      dateStore.setFcApi(calendarRef as React.RefObject<FullCalendar>) //Month calendar will change view form FullCalendar
     } else {
       panelButton.classList.remove('fc-button-active');
       setIsPanelVisible(false)
@@ -218,19 +239,26 @@ const Calendar = observer(() => {
         })
         .reduce((acc, num) => {return acc + num}, 0);
 
-      dateStore.setDuration(eventsVisibleDuration)
+      dateStore.setDuration(eventsVisibleDuration as number)
       
     } else {
       console.log('Calendar API not available')
     }
   }, [events])
   
-  const [curDate, setCurDate] = useState<Date | null>(null);
-  
-  useEffect (()=> {
-    getEventsDuration()
-  }, [events, curDate,  getEventsDuration]) //dateStore.fcDate,
-  
+  // useEffect for updating week complentness
+  useEffect(() => {
+    // Create a reaction that runs when dateStore.fcDate changes
+    const dispose = reaction(
+      () => dateStore.fcDate,
+      () => {
+        getEventsDuration();
+      },
+      { fireImmediately: true } // Run immediately on mount
+    );
+    // Cleanup reaction on unmount
+    return () => dispose();
+  }, [getEventsDuration]); // Keep dependency if dateStore reference changes  
   
   const calendarRerender = () => {
     if (calendarRef.current) {
@@ -326,7 +354,7 @@ const Calendar = observer(() => {
                   const targetDate = calendarApi.getDate()
                   dateStore.setFcDate(targetDate);
                   //setCurDate(calendarApi.currentData.currentDate);
-                  setCurDate(targetDate);
+                  //setCurDate(targetDate);
                 }
               }
             },
@@ -339,7 +367,7 @@ const Calendar = observer(() => {
                   calendarApi.prev();
                   const targetDate = calendarApi.getDate();
                   dateStore.setFcDate(targetDate);
-                  setCurDate(targetDate);
+                  //setCurDate(targetDate);
                 }
               }
             }
@@ -384,7 +412,7 @@ const Calendar = observer(() => {
           select={(info) => {
             if (info.view.type !== 'dayGridMonth') {
               handleNewEvent(info);
-              setSelected(true);
+              //setSelected(info);
             }
           }}
           eventContent={(eventInfo) => (
@@ -432,7 +460,8 @@ const Calendar = observer(() => {
             }
           }}
           eventDrop={handleEventUpdate}
-          eventResize={handleEventUpdate}
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          eventResize={handleEventUpdate as any}
           eventDidMount={(info) => {
             handleMonthClick(info)
           }}
@@ -465,18 +494,18 @@ const Calendar = observer(() => {
         />
       </div>
 
-      <Modal isOpen={isModalOpen} onClose={handleModal}>
+      <Modal isOpen={isModalOpen} onClose={()=>handleModal('open')}>
         {!isEventUpdated ? (
           <EventForm
-            handleNotify={handleNotify}
+            handleNotify={()=>handleNotify('')}
             eventInfo={selectedPeriodInfo}
             userData={user}
-            handleModal={handleModal}
+            handleModal={()=>handleModal('')}
           />
           ) : (
           <Dialog 
             eventInfo={selectedPeriodInfo}
-            handleModal={handleModal}
+            handleModal={()=>handleModal('')}
             handleNotify={handleNotify}
           />
           )
@@ -490,31 +519,36 @@ const Calendar = observer(() => {
   )
 })
 
-interface CalendarEventInfo {
-  view: {
-    type: string;
-    calendar: {
-      getEvents: () => unknown[];
-    };
-  };
-  event: {
-    start: Date;
-    end: Date;
-    title: string;
-    extendedProps?: Record<string, unknown>;
-    [key: string]: unknown;
-  };
-  [key: string]: unknown;
-}
+
+// interface CalendarEventInfo {
+//   view: {
+//     type: string;
+//     calendar: {
+//       getEvents: () => unknown[];
+//     };
+//   };
+//   event: {
+//     start: Date | null;
+//     end: Date | null;
+//     title: string;
+//     extendedProps?: Record<string, unknown>;
+//     [key: string]: unknown;
+//   };
+//   [key: string]: unknown;
+// }
 
 interface RenderEventContentProps {
-  eventInfo: CalendarEventInfo; 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  eventInfo: any;//CalendarEventInfo; 
   t: (key: string) => string;
   locale: string;
 }
 
 const  RenderEventContent = ({ eventInfo, t, locale }: RenderEventContentProps) => {
-  //console.log(locale)
+
+  if (!eventInfo) {
+    return null;
+  }
   // For dayGridMonth view - show aggregated summary per day
   if (eventInfo.view.type === 'dayGridMonth') {
     const currentDateStr = eventInfo.event.start.toISOString().split('T')[0];
@@ -544,6 +578,7 @@ const  RenderEventContent = ({ eventInfo, t, locale }: RenderEventContentProps) 
     // Calculate total duration in hours from all events
 const totalDuration = dayEvents.reduce((total, event) => {
   // Проверяем extendedProps через optional chaining
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const lengthValue = (event.extendedProps as any)?.length;
   
   if (lengthValue) {

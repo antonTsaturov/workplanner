@@ -80,8 +80,8 @@
   font-weight: bold !important;
 }
 
-.fc-icon .fc-icon-chevron-left .fc-icon-chevron-rigth {
-  margin-bottom: 1px;
+.fc .fc-button .fc-icon {
+  margin-bottom: 2px;
 }
 
 .fc-customNext-button:hover,

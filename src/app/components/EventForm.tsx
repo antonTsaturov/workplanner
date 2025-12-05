@@ -7,21 +7,24 @@ import { handleFetch } from '../lib/fetch'
 import { formatDate, formatTime } from '../utils/format'
 
 export interface EventFormProps {
-  eventInfo: {
-    start: string,
-    end: string,
-    length: string,
+  eventInfo?: {
+    id?: string,
+    start?: string,
+    end?: string,
+    length?: string,
     title?: string,
     subtitle?: string,
     project?: string,
     comments?: string,
   };
-  userData: {
-    dept: string,
-    author: string,
+  userData?: {
+    dept?: string,
+    email?: string,
+    name?: string,
   };
-  handleModal: () => void;
-  handleNotify: () => void;
+
+  handleModal: (message: string) => void;
+  handleNotify: (message: string) => void;
 }
 
 const MILLISEC_IN_HOUR = 3600000;
@@ -35,25 +38,32 @@ const EventForm = ({eventInfo, userData, handleModal, handleNotify}: EventFormPr
     {id: 3, code: 2900},
   ];
     
-  const [formData, setFormData] = useState({
-    start: eventInfo.start,
-    end: eventInfo.end,
-    length: ((new Date(eventInfo.end) - new Date(eventInfo.start)) / MILLISEC_IN_HOUR),
-    title: eventInfo?.title,
-    subtitle: eventInfo?.subtitle,
-    project: eventInfo?.project,
-    comments: eventInfo?.comments,
-    dept: userData.dept,
-    author: userData.email,
-    name: userData.name,
+  const [formData, setFormData] = useState(() => {
+    const start = eventInfo?.start ? new Date(eventInfo.start) : new Date();
+    const end = eventInfo?.end ? new Date(eventInfo.end) : new Date();
+    
+    return {
+      start: start,
+      end: end,
+      length: eventInfo?.start && eventInfo?.end 
+        ? ((new Date(eventInfo.end).getTime() - new Date(eventInfo.start).getTime()) / MILLISEC_IN_HOUR)
+        : 0,
+      title: eventInfo?.title || '',
+      subtitle: eventInfo?.subtitle || '',
+      project: eventInfo?.project || '',
+      comments: eventInfo?.comments || '',
+      dept: userData?.dept || '',
+      author: userData?.email || '',
+      name: userData?.name || '',
+    };
   });
-  
+
   const isChanged = useMemo(() => 
     JSON.stringify({
-      project: eventInfo.project,
-      title: eventInfo.title,
-      subtitle: eventInfo.subtitle,
-      comments: eventInfo.comments
+      project: eventInfo?.project,
+      title: eventInfo?.title,
+      subtitle: eventInfo?.subtitle,
+      comments: eventInfo?.comments
     }) !== JSON.stringify({
       project: formData.project,
       title: formData.title,
@@ -64,7 +74,10 @@ const EventForm = ({eventInfo, userData, handleModal, handleNotify}: EventFormPr
   );
 
 
-  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>
+    | React.ChangeEvent<HTMLSelectElement>
+    | React.ChangeEvent<HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -72,16 +85,16 @@ const EventForm = ({eventInfo, userData, handleModal, handleNotify}: EventFormPr
     }));
   };
   
-  useEffect(() => {
-    if (eventInfo.title) {
-      setFormData(prev => ({
-        ...prev,
-        id: eventInfo.id
-      }));
-    }
-  }, [])
+  // useEffect(() => {
+  //   if (eventInfo?.title) {
+  //     setFormData(prev => ({
+  //       ...prev,
+  //       id: eventInfo?.id
+  //     }));
+  //   }
+  // }, [eventInfo?.id, eventInfo?.title])
   
-  const [emptyField, setEmptyField] = useState([])
+  const [emptyField, setEmptyField] = useState<string[]>([])
   
   const hilightEmptyFields = () => {
     setEmptyField([])
@@ -107,7 +120,7 @@ const EventForm = ({eventInfo, userData, handleModal, handleNotify}: EventFormPr
       const response = await handleFetch('event', 'POST', formData);
       
       if (!response.error) {
-        handleModal()
+        handleModal('')
         setTimeout(()=> {handleNotify('success')}, 400 )
       } else {
         console.log('response: ', response.message)
@@ -123,8 +136,13 @@ const EventForm = ({eventInfo, userData, handleModal, handleNotify}: EventFormPr
   const deleteEvent = async (e: React.FormEvent) => {
       e.preventDefault();
       try {
-        const response = await handleFetch('event', 'DELETE', eventInfo.id);
-        handleModal('eventDelete')
+        //const response = 
+        if (eventInfo) {
+          const idToDel = eventInfo?.id as string;
+          await handleFetch('event', 'DELETE', idToDel);
+        }
+        
+        handleModal('EVENT_DELETE')
         setTimeout(()=> {handleNotify('info')}, 500 )
         
       } catch (err) {
@@ -135,10 +153,16 @@ const EventForm = ({eventInfo, userData, handleModal, handleNotify}: EventFormPr
   
   const updateEvent = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (eventInfo?.title) {
+      setFormData(prev => ({
+        ...prev,
+        id: eventInfo?.id
+      }));
+    }
     //const id = eventInfo.id;
     const response = await handleFetch('event', 'PUT', formData)
     if (response.success) {
-      handleModal()
+      handleModal('')
       setTimeout(()=> {handleNotify('success')}, 500 )
     } else {
       console.log(response)
@@ -161,7 +185,7 @@ const EventForm = ({eventInfo, userData, handleModal, handleNotify}: EventFormPr
                 type="text"
                 readOnly
                 onChange={handleFormChange}
-                value={formatDate(eventInfo.start)}
+                value={eventInfo?.start && formatDate(eventInfo.start)}
                 disabled  
               />
               <label className="event-form-label">Time start</label>
@@ -170,9 +194,10 @@ const EventForm = ({eventInfo, userData, handleModal, handleNotify}: EventFormPr
                 type='text'
                 readOnly
                 name="start"
-                value={formData.start}
+                //value={formData.start}
                 onChange={handleFormChange}
-                value={formatTime(eventInfo.start)}
+                // eslint-disable-next-line react/jsx-no-duplicate-props
+                value={eventInfo?.start && formatTime(eventInfo.start)}
                 disabled
               />
               <label className="event-form-label">Time end</label>
@@ -181,9 +206,9 @@ const EventForm = ({eventInfo, userData, handleModal, handleNotify}: EventFormPr
                 type='text'
                 readOnly
                 name="end"
-                value={formData.end}
+                //value={formData.end}
                 onChange={handleFormChange}
-                value={formatTime(eventInfo.end)}
+                value={eventInfo?.end && formatTime(eventInfo.end)}
                 disabled
               />
             </div>
@@ -199,10 +224,16 @@ const EventForm = ({eventInfo, userData, handleModal, handleNotify}: EventFormPr
               >
                 <option disabled>Please, select task</option>
               {
-                subtasks[`${userData.dept}`].map(item => {
-                  return <option key={item.head} value={item.head}>{item.head}</option>
-                })
-              }            
+                (() => {
+                  const dept = userData?.dept;
+                  if (dept && (dept === 'CLN' || dept === 'DM')) {
+                    return subtasks[dept]?.map((item: { head: string }) => (
+                      <option key={item.head} value={item.head}>{item.head}</option>
+                    ));
+                  }
+                  return null;
+                })()
+              }             
               </select>
 
               <label className="event-form-label">Sub-task *</label>                 {/*SUBTITLE*/}
@@ -213,14 +244,23 @@ const EventForm = ({eventInfo, userData, handleModal, handleNotify}: EventFormPr
                 onChange={handleFormChange}
               >
                 <option></option>
-              { 
-                subtasks[`${userData.dept}`].map(item => {
-                  if (item.head === formData.title || item.head === eventInfo?.title) {
-                    return item.details.map(subitem => {
-                      return <option key={subitem.id} value={subitem.subtitle}>{subitem.subtitle}</option>
-                    })
-                  } 
-                })
+              {
+                (() => {
+                  const dept = userData?.dept as 'CLN' | 'DM' | undefined;
+                  
+                  if (!dept || !subtasks[dept]) return null;
+                  
+                  return subtasks[dept].map(item => {
+                    if (item.head === formData.title || item.head === eventInfo?.title) {
+                      return item.details.map(subitem => (
+                        <option key={subitem.id} value={subitem.subtitle}>
+                          {subitem.subtitle}
+                        </option>
+                      ));
+                    }
+                    return null;
+                  });
+                })()
               }
               </select>
               <label className="event-form-label">Project *</label>
@@ -250,7 +290,7 @@ const EventForm = ({eventInfo, userData, handleModal, handleNotify}: EventFormPr
             />
           
           <div className="event-button-container">
-          { eventInfo.title ? (
+          { eventInfo?.title ? (
             <div>
               <button onClick={deleteEvent} className="event-button-delete">
                   <h4 className="button-text">Delete</h4>
