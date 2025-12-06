@@ -207,7 +207,7 @@ const handleEventUpdate = (eventDropInfo: EventDropArg) => {
     
     if (close) {
       setIsPanelVisible(false);
-      calendarRerender();
+      setTimeout(()=> {calendarRerender()}, 200)
       panelButton.classList.remove('fc-button-active');
       return;
     }
@@ -497,7 +497,7 @@ const handleEventUpdate = (eventDropInfo: EventDropArg) => {
       <Modal isOpen={isModalOpen} onClose={()=>handleModal('open')}>
         {!isEventUpdated ? (
           <EventForm
-            handleNotify={()=>handleNotify('')}
+            handleNotify={handleNotify}
             eventInfo={selectedPeriodInfo}
             userData={user}
             handleModal={()=>handleModal('')}

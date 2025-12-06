@@ -38,6 +38,10 @@ const MonthCalendar = observer(() => {
   
   return (
     <DayPicker
+      //captionLayout="dropdown"
+      startMonth={new Date(2020, 0)}
+      endMonth={new Date(2030, 11)}
+      navLayout="around"  
       locale={locale}
       formatters={{
         formatCaption: (date, options) => {
@@ -48,7 +52,8 @@ const MonthCalendar = observer(() => {
       weekStartsOn={1}
       month={dateStore.fcDate}
       onMonthChange={(e)=>{
-        console.log(e)            // !!! If not do it - month will not be swithed
+        dateStore.setFcDate(undefined)     // !!! If not do it - month will not be swithed
+        //console.log(e)            
       }} 
       mode="single"
       selected={selected}

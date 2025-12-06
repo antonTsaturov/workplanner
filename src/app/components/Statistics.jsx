@@ -1,13 +1,9 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import {
   BarChart,
   Bar,
-  LineChart,
-  Line,
   PieChart,
   Pie,
-  AreaChart,
-  Area,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -33,10 +29,36 @@ const MONTH_NOW = new Date().getMonth() + 1;
 const YEAR_NOW = new Date().getFullYear();
 export const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
 
+const CustomTooltip = ({ active, payload, label }) => {
+      
+  if (active && payload && payload.length) {
+    return (
+      <div className="custom-tooltip" style={{
+        backgroundColor: 'white',
+        padding: '10px',
+        border: '1px solid #d1d5db',
+        borderRadius: '0.5rem',
+        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+      }}>
+        <p className="label" style={{ fontWeight: '600', marginBottom: '5px' }}>{` ${label}`}</p>
+        {payload.map((entry, index) => (
+          <p
+            key={index} 
+            //style={{ color: entry.color, fontSize: '0.875rem' }}>
+            style={{ color: COLORS[index % COLORS.length], fontSize: '0.875rem' }}>
+            {`${entry.name}: ${entry.value}${entry.dataKey && entry.dataKey.includes('length') ? ' h' : ' h'}`}
+          </p>
+        ))}
+      </div>
+    );
+  }
+  return null;
+};
+
 
 const Statistics = () => {
 
-  const { events, reloadEvents } = useEvents({props: 'all'});
+  const { events } = useEvents({props: 'all'});
   
   const [statistics, setStatistics] = useState({
     totalProjects: 0,
@@ -58,7 +80,7 @@ const Statistics = () => {
   const [activeChart, setActiveChart] = useState(''); // project, dept, empls
   
   // activeSubChart it is array of projects names OR  departments names + 'All'
-  const [activeSubChart, setActiveSubChart] = useState(null) 
+  const [activeSubChart, setActiveSubChart] = useState([]) 
   // activeSubChartItem it is string of current selected item (project name od dept name), or 'All'
   const [activeSubChartItem, setActiveSubChartItem] = useState('All')
     
@@ -92,8 +114,8 @@ const Statistics = () => {
       const year = new Date().getFullYear()
       setPeriod({
         ...period,
-        start: new Date(year, monthIndex - 1, 0),
-        end: new Date(year, monthIndex, 1),
+        start: new Date(year, parseInt(monthIndex) - 1, 0),
+        end: new Date(year, parseInt(monthIndex), 1),
       })
       console.log('month period: ', period, year)
       
@@ -101,13 +123,13 @@ const Statistics = () => {
       const year = e.target.value;
       setPeriod({
         ...period,
-        start: new Date(year - 1, 11, 31),
-        end: new Date(year, 11, 31),
+        start: new Date(parseInt(year) - 1, 11, 31),
+        end: new Date(parseInt(year), 11, 31),
       })
       console.log('year period: ', period)
     }
   }
-  
+
   const getSubChart = (chart) => {
     const target = chart === 'dept' ? 'dept' : 'project';
     const subChart = new Set(events.map(item => item[target]))
@@ -115,7 +137,7 @@ const Statistics = () => {
     setActiveSubChartItem('All')
   }
   
-  const getUserDetails = (user: string) => {
+  const getUserDetails = (user) => {
     setActiveUser(user)
     const project = activeSubChartItem;
     
@@ -124,7 +146,7 @@ const Statistics = () => {
     .reduce((acc, item) => {
       const { name, title } = item;
       
-      let existingName = acc.find(i => i.name === name);
+      let existingName = acc.find((i) => i && i.name === name);
       if (!existingName) {
         existingName = { name: name, dept: item.dept, data: [] };
         acc.push(existingName);
@@ -149,7 +171,7 @@ const Statistics = () => {
     setStatDetails(result)
   }
   
-  const getDeptDetails = (e: {}) => {
+  const getDeptDetails = (e) => {
     
     const project = e.payload.project
     const dept = Object.entries(e.payload)
@@ -161,7 +183,7 @@ const Statistics = () => {
     .filter(item => item.dept == dept && item.project == project)
     //.filter(item => item.project === targetProject)
     .reduce((acc, item) => {
-      const { dept, name, title, length } = item;
+      const { name, title, length } = item;
       const groupName = `${name}`;
       const numLength = parseFloat(length);
       
@@ -384,31 +406,6 @@ const Statistics = () => {
   //const colors = ['#8884d8', '#82ca9d', '#ffc658', '#ff8042', '#00C49F'];
   
 
-  const CustomTooltip = ({ active, payload, label }) => {
-        
-    if (active && payload && payload.length) {
-      return (
-        <div className="custom-tooltip" style={{
-          backgroundColor: 'white',
-          padding: '10px',
-          border: '1px solid #d1d5db',
-          borderRadius: '0.5rem',
-          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-        }}>
-          <p className="label" style={{ fontWeight: '600', marginBottom: '5px' }}>{` ${label}`}</p>
-          {payload.map((entry, index) => (
-            <p
-              key={index} 
-              //style={{ color: entry.color, fontSize: '0.875rem' }}>
-              style={{ color: COLORS[index % COLORS.length], fontSize: '0.875rem' }}>
-              {`${entry.name}: ${entry.value}${entry.dataKey && entry.dataKey.includes('length') ? ' h' : ' h'}`}
-            </p>
-          ))}
-        </div>
-      );
-    }
-    return null;
-  };
 
   return (
     <div className="staff-statistics" style={{
@@ -502,7 +499,7 @@ const Statistics = () => {
                 getSubChart(chart)
                 setActiveUser('')
                 setStatDetails('')
-                chart === 'employees' && setActiveSubChart('')
+                if (chart === 'employees')  setActiveSubChart('')
               }}
               style={{
                 padding: '0.5rem 1rem',

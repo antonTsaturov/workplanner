@@ -29,6 +29,6 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts"
-, "src/app/api/route.js"  ],
+, "src/app/api/route.js", "src/app/components/Statistics.jsx"  ],
   "exclude": ["node_modules"]
 }

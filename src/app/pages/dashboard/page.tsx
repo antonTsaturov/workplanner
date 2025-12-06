@@ -1,7 +1,4 @@
 'use client'
-import { useEffect } from "react";
-import styles from "../../page.module.css";
-//import { useRouter } from 'next/navigation';
 import  Statistics from "../../components/Statistics"
 import Loader  from '../../components/Loader';
 import { usePageLoad } from '../../hooks/usePageLoad';

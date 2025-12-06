@@ -7,8 +7,8 @@ export function useLangSwitcher() {
   const currentLocale = useLocale();
   
   const switchLanguage = () => {
-    currentLocale === 'en' ? setSessionLang('ru') : setSessionLang('en');
-    };
+    if (currentLocale === 'en' ) setSessionLang('ru'); else setSessionLang('en');
+  };
   
   return {switchLanguage};
 }

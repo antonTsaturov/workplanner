@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect, useCallback } from 'react';
+import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { validateField } from '../../utils/validateField';
 import { handleFetch } from '../../lib/fetch'
@@ -8,25 +9,47 @@ import { handleFetch } from '../../lib/fetch'
 import Loader from '../Loader';
 
 import '../../styles/ChangePassword.css';
-const eyeOpen = <img src="/assets/eye.svg" alt="Show password" style={{heigth:'24px', width:'24px'}}/>
-const eyeClosed = <img src="/assets/eye_closed.svg" alt="Show password" style={{heigth:'24px', width:'24px'}}/>
 
-const CustomPasswordInput = ({reset = false, onBlur, handleValue, value: externalValue, onChange, maskChar = '●', maskWhileTyping = true, ...props }) => {
-    
+const eyeOpen = <Image src="/assets/eye.svg" alt="Show password" height='24' width='24' />
+const eyeClosed = <Image src="/assets/eye_closed.svg" alt="Show password" height='24' width='24' />
+
+interface CustomPasswordInputProps {
+  reset?: boolean;
+  onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void;
+  handleValue?: (value: string) => void;
+  value?: string;
+  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  maskChar?: string;
+  maskWhileTyping?: boolean;
+  placeholder?: string;
+  disabled?: boolean;
+  className?: string;
+  name?: string;
+}
+
+const CustomPasswordInput = ({
+  reset = false, 
+  onBlur, 
+  handleValue, 
+  value: externalValue, 
+  onChange,
+  maskChar = '●', 
+  maskWhileTyping = true,
+}: CustomPasswordInputProps) => {
+
     const [isFocused, setIsFocused] = useState(false);
     const [internalValue, setInternalValue] = useState(externalValue || '');
     const [displayValue, setDisplayValue] = useState('');
-    const inputRef = useRef(null);
+    //const inputRef = useRef(null);
+    const inputRef = useRef<HTMLInputElement>(null);
     const [revealOnFocus, setRevealOnFocus] = useState(false);   // Показывать оригинал при фокусе
-
-    
 
     // Используем внешнее значение если оно передано, иначе внутреннее
     const actualValue = externalValue !== undefined ? externalValue : internalValue;
     
     
     // Функция для применения маски
-    const applyMask = useCallback((value) => {
+    const applyMask = useCallback((value: string) => {
         return maskChar.repeat(value.length);
     }, [maskChar]);
 
@@ -47,7 +70,9 @@ const CustomPasswordInput = ({reset = false, onBlur, handleValue, value: externa
             setDisplayValue(actualValue);
         }
         // Всегда передавать немаскированное значение родителю
-        handleValue(internalValue)
+        if (handleValue) {
+          handleValue(internalValue);
+        }
 
     }, [actualValue, isFocused, maskWhileTyping, revealOnFocus, applyMask]);
     
@@ -60,8 +85,13 @@ const CustomPasswordInput = ({reset = false, onBlur, handleValue, value: externa
             setIsFocused(false);
             
             // Notify parent about reset
-            handleValue?.(emptyValue);
-            onChange?.(emptyValue);
+            if (handleValue) {
+              handleValue(emptyValue);
+            }
+            if (onChange) {
+              const event = { target: { value: emptyValue } } as React.ChangeEvent<HTMLInputElement>;
+              onChange(event);
+            }
         }
     }, [reset, handleValue, onChange]);
 
@@ -69,45 +99,53 @@ const CustomPasswordInput = ({reset = false, onBlur, handleValue, value: externa
         setIsFocused(true);
     }, []);
 
-    const handleBlur = useCallback(() => {
+    // const handleBlur = useCallback(() => {
+    //     setIsFocused(false);
+    //     onBlur(event)
+    // }, []);
+    const handleBlur = useCallback((e: React.FocusEvent<HTMLInputElement>) => {
         setIsFocused(false);
-        onBlur(event)
-    }, []);
-
-const handleChange = useCallback((e) => {
-    // If reset is active, ignore changes
-    if (reset) return;
-    
-    const newValue = e.target.value;
-    
-    // If masking while typing, need to correct the value
-    let processedValue = newValue;
-    
-    if (maskWhileTyping && isFocused) {
-        // When masking during input we get masked characters
-        // Need to determine if it was adding or deleting characters
-        
-        if (newValue.length > actualValue.length) {
-            // Adding a character - determine which one
-            const addedChar = newValue[newValue.length - 1];
-            processedValue = actualValue + addedChar;
-        } else if (newValue.length < actualValue.length) {
-            // Deleting a character
-            processedValue = actualValue.slice(0, -1);
+        if (onBlur) {
+            onBlur(e);
         }
-    }
+    }, [onBlur]);
 
-    if (externalValue !== undefined) {
-        // Controlled mode
-        onChange?.(processedValue);
-    } else {
-        // Uncontrolled mode
-        setInternalValue(processedValue);
-    }
-}, [externalValue, onChange, actualValue, maskWhileTyping, isFocused, reset]);
+    const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        // If reset is active, ignore changes
+        if (reset) return;
+        
+        const newValue = e.target.value;
+        
+        // If masking while typing, need to correct the value
+        let processedValue = newValue;
+        
+        if (maskWhileTyping && isFocused) {
+            // When masking during input we get masked characters
+            // Need to determine if it was adding or deleting characters
+            
+            if (newValue.length > actualValue.length) {
+                // Adding a character - determine which one
+                const addedChar = newValue[newValue.length - 1];
+                processedValue = actualValue + addedChar;
+            } else if (newValue.length < actualValue.length) {
+                // Deleting a character
+                processedValue = actualValue.slice(0, -1);
+            }
+        }
+
+        if (externalValue !== undefined) {
+            if (onChange) {
+                const newEvent = { ...e, target: { ...e.target, value: processedValue } } as React.ChangeEvent<HTMLInputElement>;
+                onChange(newEvent);
+            }
+        } else {
+            setInternalValue(processedValue);
+        }
+    }, [externalValue, onChange, actualValue, maskWhileTyping, isFocused, reset]);
   
   const toggleVisibility = () => {
-    revealOnFocus ? setRevealOnFocus(false) : setRevealOnFocus(true);
+    //revealOnFocus ? setRevealOnFocus(false) : setRevealOnFocus(true);
+    setRevealOnFocus(prev => !prev);
    // console.log()
   }
 
@@ -139,15 +177,26 @@ const handleChange = useCallback((e) => {
   );
 };
 
+interface FormData {
+  current: string;
+  newpass: string;
+  confirm: string;
+}
+
+interface FormErrors {
+  current?: string;
+  newpass?: string;
+  confirm?: string;
+}
 
 const ChangePassword = () => {
   
   const t = useTranslations('userSettings');
   
-  const [message, setMessage] = useState('')
-  const [error, setError] = useState('')
-  const [opacity, setOpacity] = useState(1)
-  const [reset, setReset] = useState(false)
+  const [message, setMessage] = useState<string>('')
+  const [error, setError] = useState<string>('')
+  const [opacity, setOpacity] = useState<number>(1)
+  const [reset, setReset] = useState<boolean>(false)
   
   const [errors, setErrors] = useState<FormErrors>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
@@ -159,7 +208,7 @@ const ChangePassword = () => {
       confirm: ''
   });
   
-  const handleValue = (name, value) => {
+  const handleValue = (name: keyof FormData, value: string) => {
     setReset(false)
     if (value.length == 0) {
       return
@@ -176,11 +225,11 @@ const ChangePassword = () => {
     }));
   }
   
-  const handleBlur = (name, event) => {
-    console.log('Blurred with value:', event.target.value);
+  const handleBlur = (name: keyof FormData, event: React.FocusEvent<HTMLInputElement>) => {
+    //console.log('Blurred with value:', event.target.value);
     setMessage('');
     setError('');
-    if (event.target.value == 0) {
+    if (event.target.value.length === 0) {
       return
     }
     setTouched(prev => ({
@@ -196,7 +245,7 @@ const ChangePassword = () => {
     }));
   };
   
-  const submitEvent = async (e) => {
+  const submitEvent = async (e: React.FormEvent) => {
     e.preventDefault();
     setReset(true)
     setOpacity(0.4)
@@ -239,7 +288,7 @@ const ChangePassword = () => {
       return
     }
 
-    if (errors.newpass.length == 0 && errors.current.length == 0 && errors.confirm.length == 0) {
+    if (formData.newpass.length === 0 && formData.current.length === 0 && formData.confirm.length === 0) {
       const response = await handleFetch('password', 'PUT', formData);
       
       if (!response.error) {

@@ -1,8 +1,5 @@
 'use client'
-import { useEffect } from "react";
-import styles from "../../page.module.css";
 import FullCalendar  from '../../components/FullCalendar';
-import { useRouter } from 'next/navigation';
 import Loader  from '../../components/Loader';
 import { usePageLoad } from '../../hooks/usePageLoad';
 

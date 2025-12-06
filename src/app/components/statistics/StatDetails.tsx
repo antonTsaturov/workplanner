@@ -1,27 +1,30 @@
 
 import { COLORS } from '../Statistics';
 
-interface statDetailsProps {
-  [
-    {
-      "name": string,
-      "dept": string,
-      "data": [
-        {
-          "title": string,
-          "value": number,
-          "entries": number,
-        },
-      ]
-    }
-  ]
+interface StatDataItem {
+  title: string;
+  value: number;
+  entries: number;
 }
 
-const StatDetails = ({statDetails, activeUser}) => {
+interface StatDetailItem {
+  name: string;
+  dept: string;
+  data: StatDataItem[];
+}
+
+type StatDetailsData = StatDetailItem[];
+
+interface StatDetailsProps {
+  statDetails: StatDetailsData | null; // если используете type StatDetailsData
+  activeUser: string;
+}
+
+const StatDetails = ({statDetails, activeUser}: StatDetailsProps) => {
   
   const department = statDetails ? statDetails[0].dept : null;
   //const department =  null;
-  //console.log(statDetails)
+  console.log(statDetails)
   
   return (
     <div style={{

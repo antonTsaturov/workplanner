@@ -12,7 +12,7 @@ class DateStore {
     makeAutoObservable(this);
   }
   
-  setFcDate(dat: Date) {
+  setFcDate(dat: Date | undefined) {
     this.fcDate = dat;
   }
   

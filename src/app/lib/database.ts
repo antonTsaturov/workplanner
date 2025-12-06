@@ -108,8 +108,8 @@ import { Pool, QueryResult as PGQueryResult } from 'pg';
 
 // Define types
 interface QueryResult {
-  rows: any[];
-  rowCount?: number;
+  rows: string[];
+  rowCount?: number | null  | string;
 }
 
 // PostgreSQL connection pool
@@ -181,7 +181,7 @@ async function initializeDatabase(): Promise<void> {
   }
 }
 
-export async function query(sql: string, params: any[] = []): Promise<QueryResult> {
+export async function query(sql: string, params: string[] = []): Promise<QueryResult> {
   try {
     console.log(sql, params);
     const db = getDatabase();
@@ -201,7 +201,8 @@ export async function query(sql: string, params: any[] = []): Promise<QueryResul
   }
 }
 
-export async function getUserByEmail(email: string): Promise<any | null> {
+
+export async function getUserByEmail(email: string): Promise<unknown | null> {
   try {
     const result = await query(
       'SELECT * FROM users WHERE email = $1',
@@ -216,7 +217,8 @@ export async function getUserByEmail(email: string): Promise<any | null> {
   }
 }
 
-export async function insert(table: string, data: Record<string, any>): Promise<QueryResult> {
+
+export async function insert(table: string, data: object): Promise<QueryResult> {
   
   //Create columns list (string) and add "" for column with title end
   const columns = Object.keys(data).map(item => { 
@@ -230,7 +232,7 @@ export async function insert(table: string, data: Record<string, any>): Promise<
   return await query(sql, values);
 }
 
-export async function update(table: string, data: Record<string, any>): Promise<QueryResult> {
+export async function update(table: string, data: Record<string, string>): Promise<QueryResult> {
   const id = data.id
   
   const setClause = Object.keys(data).map((key, index) => {
@@ -243,7 +245,7 @@ export async function update(table: string, data: Record<string, any>): Promise<
   return await query(sql, values);
 }
 
-export async function remove(table: string, id: number): Promise<QueryResult> {
+export async function remove(table: string, id: string): Promise<QueryResult> {
   const sql = `DELETE FROM ${table} WHERE id = $1`;
   return await query(sql, [id]);
 }

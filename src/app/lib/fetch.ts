@@ -53,7 +53,6 @@ export const handleFetch = async (pathKey: ApiPathKey, method: string, data: obj
     };
   }
   
-  console.log(data === typeof string)
   try {
     const response = await fetch(apiPath, config);
     // All responses sending to client side 

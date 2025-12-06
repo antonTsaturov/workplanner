@@ -1,7 +1,7 @@
 'use client';
 
 export const storage = {
-  // Получить данные
+  // Получить 
   get: <T,>(key: string, defaultValue?: T): T | null => {
     if (typeof window === 'undefined') return defaultValue || null;
     
@@ -14,7 +14,7 @@ export const storage = {
     }
   },
 
-  // Сохранить данные
+  // Сохранить 
   set: <T,>(key: string, value: T): void => {
     if (typeof window === 'undefined') return;
     
@@ -25,7 +25,7 @@ export const storage = {
     }
   },
 
-  // Удалить данные
+  // Удалить 
   remove: (key: string): void => {
     if (typeof window === 'undefined') return;
     window.localStorage.removeItem(key);
@@ -37,19 +37,3 @@ export const storage = {
     window.localStorage.clear();
   }
 };
-
-// Использование
-//export default function Settings() {
-  //const saveSettings = () => {
-    //storage.set('settings', {
-      //theme: 'dark',
-      //language: 'ru',
-      //notifications: true
-    //});
-  //};
-
-  //const loadSettings = () => {
-    //const settings = storage.get('settings');
-    //console.log('Settings:', settings);
-  //};
-//}
