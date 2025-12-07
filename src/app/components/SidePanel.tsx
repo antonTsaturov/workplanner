@@ -69,7 +69,7 @@ const SidePanel = observer(({ isPanelVisible }) => {
   //const selectedDate = new Date(dateStore.fcDate);
   const selectedDate = dateStore.fcDate;
   
-  const weekNumber = getWeekNumberISO(selectedDate); // Get current week number
+  const weekNumber = getWeekNumberISO(selectedDate as Date); // Get current week number
   
   const [shouldRender, setShouldRender] = useState(isPanelVisible);
 

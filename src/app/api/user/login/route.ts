@@ -10,6 +10,7 @@ export async function POST(request: Request) {
     const { email, password } = await request.json();
 
     // Search user
+    //const user = await getUserByEmail(email);
     const user = await getUserByEmail(email);
 
     if (!user) {
@@ -38,7 +39,7 @@ export async function POST(request: Request) {
     }
 
     // Create session (sets HTTP-only cookie)
-    const token = await createSessionToken(sessionPayload)
+    const token = createSessionToken(sessionPayload)
 
     const cookieStore = await cookies();
     cookieStore.set('session', token, {

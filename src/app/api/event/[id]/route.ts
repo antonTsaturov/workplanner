@@ -122,7 +122,7 @@ export async function DELETE(request: Request) {
     }
 
     // Delete the event
-    remove('events', parseInt(id))
+    remove('events', (id))
 
     return NextResponse.json({
       success: true,

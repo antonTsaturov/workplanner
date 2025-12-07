@@ -109,7 +109,7 @@ import { Pool, QueryResult as PGQueryResult } from 'pg';
 // Define types
 interface QueryResult {
   rows: string[];
-  rowCount?: number | null  | string;
+  rowCount: number;
 }
 
 // PostgreSQL connection pool
@@ -187,11 +187,11 @@ export async function query(sql: string, params: string[] = []): Promise<QueryRe
     const db = getDatabase();
     const result: PGQueryResult = await db.query(sql, params);
     
-    //console.log(result.rows)
+    console.log('database query result: ', result.rowCount)
     // For all query types, return the standardized format
     return {
       rows: result.rows,
-      rowCount: result.rowCount
+      rowCount: result.rowCount as number
     };
 
   } catch (error) {
@@ -201,15 +201,27 @@ export async function query(sql: string, params: string[] = []): Promise<QueryRe
   }
 }
 
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  password: string;
+  dept: string;
+}
 
-export async function getUserByEmail(email: string): Promise<unknown | null> {
+export async function getUserByEmail(email: string): Promise<User | null> {
   try {
     const result = await query(
       'SELECT * FROM users WHERE email = $1',
       [email]
     );
     
-    return result.rows.length > 0 ? result.rows[0] : null;
+    if (result.rows.length > 0) {
+      // Type assertion since TypeScript doesn't know the shape of database rows
+      return result.rows[0] as unknown as User;
+    }
+    
+    return null;
     
   } catch (error) {
     console.error('Error getting user by email:', error);

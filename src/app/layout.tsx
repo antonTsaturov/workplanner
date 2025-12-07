@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { SessionProvider } from './components/Providers';
 import {NextIntlClientProvider} from 'next-intl';
 

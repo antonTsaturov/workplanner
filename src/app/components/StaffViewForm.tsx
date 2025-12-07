@@ -4,13 +4,10 @@ import { Employee } from './Staff';
 
 
 interface StaffAddFormProps {
-  emplData: Employee | null | undefined;
+  emplData: Employee;
   editEmpInfo: (id: number) => void;
 }
 
-
-const StaffViewForm = ({ emplData, editEmpInfo }: StaffAddFormProps) => {
-  
   const formatDate = (dateString: string) => {
     if (!dateString) return 'Not specified';
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -20,6 +17,9 @@ const StaffViewForm = ({ emplData, editEmpInfo }: StaffAddFormProps) => {
     });
   };
 
+const StaffViewForm = ({ emplData, editEmpInfo }: StaffAddFormProps) => {
+  
+  //console.log('StaffViewForm emplData: ', emplData)
   
   return (
     <div className="employee-view-container">
@@ -73,7 +73,7 @@ const StaffViewForm = ({ emplData, editEmpInfo }: StaffAddFormProps) => {
           <div className="employee-info-group">
             <label className="employee-info-label">Hire Date</label>
             <div className="employee-info-value">
-              {emplData?.hireDate ? formatDate(emplData.hireDate) : <span className="employee-info-value-empty">Not specified</span>}
+              {emplData ? formatDate(emplData.hiredate as string) : <span className="employee-info-value-empty">Not specified</span>}
             </div>
           </div>
 
@@ -108,9 +108,10 @@ const StaffViewForm = ({ emplData, editEmpInfo }: StaffAddFormProps) => {
             {emplData?.projects ? (
               <div style={{ whiteSpace: 'pre-line' }}>
                 {
-                  emplData.projects.includes(',') 
-                  ? JSON.parse(emplData.projects).join(', ')
-                  : <span className="employee-status-active">{emplData.projects.replace(/[^a-zA-Z0-9]/g, "")}</span>
+                  emplData.projects &&
+                  emplData.projects
+                    .split(',')
+                    .map((item: string) => (<span key={item} className="employee-status-active">{item}</span>))
                 }
               </div>
             ) : (

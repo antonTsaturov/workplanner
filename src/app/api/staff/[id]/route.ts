@@ -1,6 +1,6 @@
 
 
-import { query, insert } from '../../../lib/database';
+import { query, update } from '../../../lib/database';
 import { NextResponse } from 'next/server';
 
 
@@ -63,19 +63,32 @@ export async function GET(request: Request) {
 }
 
 
-export async function POST(request: Request) {
+export async function PUT(request: Request) {
   try {
     const data = await request.json();
-    const result = insert('users', data)
+    const result = await update('users', data)
     
-    return NextResponse.json(
-      { 
-        success: true, 
-        message: 'Employee record created successfully',
-        data: result 
-      },
-      { status: 201 }
-    );
+    console.log('API Staff POST: ', result)
+
+    if (result.rowCount > 0)  {
+      return NextResponse.json(
+        { 
+          success: true, 
+          message: 'Employee record was updated',
+          data: result 
+        },
+        { status: 201 }
+      );
+    } else {
+      return NextResponse.json(
+        { 
+          success: false, 
+          message: 'Employee record no updated',
+          data: result.rows
+        },
+        { status: 201 }
+      );
+    }
   } catch (error) {
     const errorMessage = error instanceof Error 
       ? error.message 

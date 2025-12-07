@@ -34,7 +34,7 @@ interface Employee {
   position: string | null;
   status: string | null;
   location: string | null;
-  hireDate: string | null;
+  hiredate: string | null;
 }
 
 

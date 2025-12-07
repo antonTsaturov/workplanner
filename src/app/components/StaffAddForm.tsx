@@ -3,7 +3,7 @@
 import '../styles/StaffAddForm.css';
 import '../styles/ProjectsInput.css';
 
-import { KeyboardEvent, SetStateAction, useState } from 'react';
+import { KeyboardEvent, SetStateAction, useEffect, useState } from 'react';
 import { handleFetch } from '../lib/fetch';
 import { formatPhone, unformatPhone } from '../utils/format';
 
@@ -31,9 +31,7 @@ interface FormErrors {
 
 const StaffAddForm = ({ emplData, handleModal, handleNotify, reload, mode }:StaffAddFormProps) => {
     
-  //const [projects, setProjects] = useState<string>();
-
- const [formData, setFormData] = useState<Employee>(() => {
+  const [formData, setFormData] = useState<Employee>(() => {
     // Handle the case when emplData is undefined/null
     if (!emplData) {
       return {
@@ -46,7 +44,7 @@ const StaffAddForm = ({ emplData, handleModal, handleNotify, reload, mode }:Staf
         projects: null,
         position: null,
         status: null,
-        hireDate: null,
+        hiredate: null,
       };
     }
     
@@ -60,7 +58,7 @@ const StaffAddForm = ({ emplData, handleModal, handleNotify, reload, mode }:Staf
       projects: emplData.projects,
       position: emplData.position,
       status: emplData.status,
-      hireDate: emplData.hireDate,
+      hiredate: emplData.hiredate,
     };
   });
 
@@ -71,7 +69,7 @@ const StaffAddForm = ({ emplData, handleModal, handleNotify, reload, mode }:Staf
   // Validation rules
   const validateField = (name: string, value: string): string => {
     const containNumberRegex = /[0-9]/g;
-    const phoneRegex = /\+\d\s\(\d{3}\)\s\d{3}-\d{2}-\d{2}/;
+    //const phoneRegex = /\+\d\s\(\d{3}\)\s\d{3}-\d{2}-\d{2}/;
 
     switch (name) {
       case 'name':
@@ -96,7 +94,7 @@ const StaffAddForm = ({ emplData, handleModal, handleNotify, reload, mode }:Staf
         const formattedPhone = unformatPhone(value.trim());
         if (!value.trim()) return 'Phone number is required';
         if (formattedPhone && formattedPhone.length < 11) return 'Phone number too short';
-        if (!value.trim().match(phoneRegex)) return 'Format mistakes';
+        //if (!value.trim().match(phoneRegex)) return 'Format mistakes';
         return '';
       
       case 'location':
@@ -149,8 +147,6 @@ const validateForm = (): boolean => {
   return Object.keys(newErrors).length === 0;
 };
 
-  const [fillCount, setFillCount] = useState(0)
-
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     // setFormData(prev => ({
@@ -167,25 +163,11 @@ const validateForm = (): boolean => {
       }));
     }
 
-    // Check how much fields are filled
     setFormData(prev => {
-      const updated = { ...prev, [name]: value };
-      
-      // Check how much fields are filled (only string fields)
-      const filled = Object.entries(updated)
-        .filter(([key, val]) => 
-          key !== 'id' && 
-          typeof val === 'string' && 
-          val.trim().length > 0
-        )
-        .length;
-      
-      setFillCount(filled);
-      console.log(updated);
-      
+      const updated = name !== 'phone' ? { ...prev, [name]: value } : { ...prev, [name]: unformatPhone(value) };
       return updated;
     });
-    console.log(formData)
+    //console.log('handleFormChange: ', formData)
   };
 
   const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -236,7 +218,7 @@ const validateForm = (): boolean => {
     console.log('Form data is valid:', formData);
     
     try {
-      const response = await handleFetch('staff', 'POST', formData);
+      const response = await handleFetch('staff', 'PUT', formData);
       
     if (!response.error) {
       console.log(response)
@@ -269,11 +251,11 @@ const validateForm = (): boolean => {
     }
     
     .staff-form-label {
-      display: block;
-      font-size: 0.875rem;
-      font-weight: 500;
-      color: #374151;
-      margin-bottom: 0.5rem;
+      color: #5f5f5f;
+        margin-bottom: .5rem;
+        font-size: .75rem;
+        font-weight: 600;
+        display: block;
     }
   `;
 
@@ -283,37 +265,47 @@ const validateForm = (): boolean => {
     setProjectInputValue(e.target.value);
   };
 
-  
-  // const addProject = (prj: string) => {
-  //   if (prj && !projects.includes(prj)) {
-  //     const updatedProjects = [...projects, prj];
-  //     setProjects(updatedProjects);
-  //     setProjectInputValue('');
-      
-  //     setFormData(prev => ({
-  //       ...prev,
-  //       projects: updatedProjects
-  //     }));
-  //   }
-  // };
+  type Project = string;
+  type ProjectsArray = Project[];
 
-  // const removeProject = (indexToRemove: number) => {
-  //   setProjects(projects.filter((_, index) => index !== indexToRemove));
-  //   setFormData(prev => ({
-  //     ...prev,
-  //     projects: [...prev.projects.filter((_, index) => index !== indexToRemove)]
-  //   }));
-  // };
+  const [projects, setProjects] = useState<ProjectsArray>([]);
+
+  const addProject = (prj: string) => {
+    if (prj.trim()) {
+      setProjects(prev => [...prev, prj]);
+      setProjectInputValue('');    
+    }
+    //console.log('Projects added: ', formData)
+  };
+
+  useEffect(() => {
+    setFormData(prev => ({
+      ...prev,
+      projects: projects.toString()
+    }));
+  }, [projects])
+
+
+  useEffect(() => {
+    const prjArray = emplData?.projects?.split(',')
+    setProjects(prjArray);
+  }, [])
+
+
+  const removeProject = (indexToRemove: number) => {
+    setProjects(projects.filter((_, index) => index !== indexToRemove));
+    console.log('Projects removed:', formData)
+  };
   
-  // const handleInputKeyDown = (e: { code: string; preventDefault: () => void; key: string; }) => {
-  //   const keycodes = ['Enter', 'Space', 'Comma', 'Period']
-  //   if (keycodes.includes(e.code)) {
-  //     e.preventDefault();
-  //     addProject(projectInputValue.trim());
-  //   } else if (e.key === 'Backspace' && projectInputValue === '' && projects.length > 0) {
-  //     removeProject(projects.length - 1);
-  //   }
-  // };
+  const handleInputKeyDown = (e: { code: string; preventDefault: () => void; key: string; }) => {
+    const keycodes = ['Enter', 'Space', 'Comma', 'Period']
+    if (keycodes.includes(e.code)) {
+      e.preventDefault();
+      addProject(projectInputValue.trim());
+    } else if (e.key === 'Backspace' && projectInputValue === '' && projects.length > 0) {
+      removeProject(projects.length - 1);
+    }
+  };
   
   const [e, setE] = useState<KeyboardEvent<HTMLInputElement>>()
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -447,7 +439,7 @@ const validateForm = (): boolean => {
               className={getInputClassName('hiredate')}
               type='date'
               name="hiredate"
-              value={formData.hireDate || ''}
+              value={formData.hiredate || ''}
               onChange={handleFormChange}
               onBlur={handleBlur}
             />
@@ -457,20 +449,21 @@ const validateForm = (): boolean => {
         
         <label className="staff-form-label">Projects</label>
         <div className="projects-input-container"> 
-          {/* {projects.map((item, index) => (
-            <div key={item} className="project-item">
-              <span className="project-text">{item}</span>
-              <button
-                type="button"
-                className="project-remove"
-                onClick={() => removeProject(index)}
-              >
-                ×
-              </button>
-            </div>
-          ))}             */}
+          {projects &&
+            projects.map((item, index) => (
+              <div key={item} className="project-item">
+                <span className="project-text">{item}</span>
+                <button
+                  type="button"
+                  className="project-remove"
+                  onClick={() => removeProject(index)}
+                >
+                  ×
+                </button>
+              </div>
+            ))
+          }             
           <input
-            //className={getInputClassName('projects')}
             className="projects-input"
             type='text'
             name="projects"
@@ -480,17 +473,15 @@ const validateForm = (): boolean => {
             onChange={handleProjectInputChange}
             onBlur={handleBlur}
             placeholder="Projects (optional)"
-            //onKeyDown={handleInputKeyDown}
+            onKeyDown={handleInputKeyDown}
           />
         </div>
-        <span className="error-message">{errors.projects && touched.projects  ? errors.projects : null}</span>
         
         <div className="event-button-container">
           <button 
             type="submit" 
             onClick={submit} 
             className="event-button-save"
-            disabled={ fillCount < 8 }//&& Object.values(errors).length > 0
           >
             <h4 className="button-text">
               Save

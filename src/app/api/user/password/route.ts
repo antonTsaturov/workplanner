@@ -21,26 +21,27 @@ export async function PUT(request: Request) {
     const user = await getUserByEmail(email);
 
     // Check is current password is valid
-    const isPasswordValid = await bcrypt.compare(current, user.password);
+    if (user) {
+      const isPasswordValid = await bcrypt.compare(current, user.password);
+      
+      if (!isPasswordValid) {
+        return NextResponse.json(
+          { error: 'Wrong email or password' },
+          { status: 401 }
+        );
+      }
+      // Create hash from newpass and create object data
+      const hashedPassword = await bcrypt.hash(newpass, 12);
+      const stringId = user.id.toString();
+      const data = {id: stringId, password: hashedPassword};
+      // Update pass hash in DB
+      update('users', data)
 
-    if (!isPasswordValid) {
       return NextResponse.json(
-        { error: 'Wrong email or password' },
-        { status: 401 }
+        { success: true, message: 'Password updated successfully' },
+        { status: 201 }
       );
     }
-    
-    // Create hash from newpass and create object data
-    const hashedPassword = await bcrypt.hash(newpass, 12);
-    const data = {id: user.id, password: hashedPassword}
-    
-    // Update pass hash in DB
-    update('users', data)
-
-    return NextResponse.json(
-      { success: true, message: 'Password updated successfully' },
-      { status: 201 }
-    );
   } catch (error) {
 
     const errorMessage = error instanceof Error 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, MouseEvent, useLayoutEffect, useMemo } from 'react';
+import React, { useState, MouseEvent, useMemo } from 'react';
 import '../styles/Staff.css';
 import '../globals.css';
 
@@ -9,7 +9,6 @@ import { useModal } from '../hooks/useModal';
 import { useEmployee } from '../hooks/useEmployee';
 import useNotification from '../hooks/useNotification';
 import NotificationContainer from './NotificationContainer';
-import { unformatPhone } from '../utils/format';
 
 export interface Employee {
   id: number;
@@ -21,7 +20,7 @@ export interface Employee {
   position: string | null;
   status: string | null;
   location: string | null;
-  hireDate: string | null;
+  hiredate: string | null;
 }
 
 interface Filters {
@@ -57,7 +56,7 @@ interface DeptOption {
 //   position: string;
 //   status: string;
 //   location?: string;
-//   hireDate?: string;
+//   hiredate?: string;
 // }
 
 type Mode = "view" | "edit";
@@ -70,9 +69,9 @@ const Staff = () => {
 
   const showNotification = (type: NotificationType, style = 'default') => {
     const messages: Record<NotificationType, string> = {
-      success: 'Employee record was created.',
+      success: 'Employee record was updated.',
       error: 'Something went wrong. Please try again.',
-      warning: 'Select a project code.',
+      warning: ' ',
       info: 'Employee record was deleted.'
     };
     addNotification(messages[type], { type, style});
@@ -80,6 +79,7 @@ const Staff = () => {
 
   const { employees, reloadEmplData } = useEmployee();
 
+  //console.log('Staff: ', employees)
   const { isModalOpen, open, close } = useModal();
   const openModal = () => {
     open();
@@ -158,7 +158,7 @@ const filteredEmployees = useMemo(() => {
     return 0;
   });
   
-  console.log('filteredEmployees: ', sortedResults);
+  //console.log('filteredEmployees: ', sortedResults);
   return sortedResults;
 }, [employees, searchTerm, filters, activeFilters, sortBy]);
 
@@ -217,8 +217,10 @@ const filteredEmployees = useMemo(() => {
   const showEmplCard = (id: number, e: MouseEvent) => {
     e.stopPropagation();
     
+    // Find current employe
     const employee = employees.find((item: Employee) => item.id === id);
     
+    //console.log('Staff showEmplCard: ', employee)
     if (!employee) {
       console.error('Employee not found with id:', id);
       return;
@@ -226,23 +228,24 @@ const filteredEmployees = useMemo(() => {
     
     openModal();
 
-    const unformatPh = employee.phone ? unformatPhone(employee.phone) : '';
+    // const unformatPh = employee.phone ? unformatPhone(employee.phone) : '';
 
-    // Transform Employee to TargetEmployeInfo with non-nullable strings
-    const transformedData: Employee = {
-      id: employee.id,
-      name: employee.name,
-      email: employee.email,
-      phone: unformatPh || '',
-      dept: employee.dept || '',
-      projects: employee.projects || '',
-      position: employee.position || '',
-      status: employee.status || '',
-      location: employee.location || '',
-      hireDate: employee.hireDate || '',
-    };
+    // // Transform Employee to TargetEmployeInfo with non-nullable strings
+    // const transformedData: Employee = {
+    //   id: employee.id,
+    //   name: employee.name,
+    //   email: employee.email,
+    //   phone: unformatPh || '',
+    //   dept: employee.dept || '',
+    //   projects: employee.projects || '',
+    //   position: employee.position || '',
+    //   status: employee.status || '',
+    //   location: employee.location || '',
+    //   hiredate: employee.hiredate || '',
+    // };
 
-    setEmplData(transformedData);
+    // setEmplData(transformedData);
+    setEmplData(employee);
   }
 
   // Edit info of current employee
@@ -265,7 +268,7 @@ const filteredEmployees = useMemo(() => {
       <Modal isOpen={isModalOpen} onClose={closeModal}>
         {mode === 'view' ? (
           <StaffViewForm 
-            emplData={emplData}
+            emplData={emplData as Employee}
             editEmpInfo={editEmpInfo}
           />
         ) : (

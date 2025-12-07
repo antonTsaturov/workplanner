@@ -14,7 +14,7 @@ export const handleFetch = async (pathKey: ApiPathKey, method: string, data: obj
   
   // Get the API path template
   let apiPath = API_PATHS[pathKey]
-  
+  console.log(apiPath)
   //Read email and return events of current user
   if (method === 'GET' && typeof data === 'string' &&  data?.includes('@') && pathKey == 'event') {
       apiPath += `?email=${data}`;
