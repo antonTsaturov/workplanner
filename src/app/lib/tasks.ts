@@ -104,3 +104,7 @@ export const subtasks = {
     },
   ],
 }
+
+export const projectsList = {
+  projects: ['0000', '1234', '8301']
+}

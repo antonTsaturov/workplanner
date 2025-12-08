@@ -30,7 +30,7 @@ const StaffViewForm = ({ emplData, editEmpInfo }: StaffAddFormProps) => {
           {/* Personal Information */}
           <div className="employee-info-group">
             <label className="employee-info-label">Full Name</label>
-            <div className="employee-info-value">
+            <div className="employee-info-value name">
               {emplData?.name || <span className="employee-info-value-empty">Not specified</span>}
             </div>
           </div>

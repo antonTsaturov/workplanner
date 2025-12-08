@@ -2,9 +2,11 @@
 
 import '../styles/EventForm.css';
 import { subtasks} from '../lib/tasks'
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { handleFetch } from '../lib/fetch'
 import { formatDate, formatTime } from '../utils/format'
+import { useTranslations } from 'next-intl';
+
 
 export interface EventFormProps {
   eventInfo?: {
@@ -31,6 +33,8 @@ const MILLISEC_IN_HOUR = 3600000;
 
 const EventForm = ({eventInfo, userData, handleModal, handleNotify}: EventFormProps) => {
   
+  const t = useTranslations('eventForm');
+
   const projects = [
     {id: 0, code: 'Please, select a project'},
     {id: 1, code: 3456},
@@ -175,11 +179,14 @@ const EventForm = ({eventInfo, userData, handleModal, handleNotify}: EventFormPr
       <div className="event-form-container">
         <form className="event-form-content">
           <div className="event-form-title">
-          <h3>Event Form</h3>
+            {
+              eventInfo?.title ? <h3>{t('titleEvent')}</h3> : <h3>{t('titleNewEvent')}</h3>
+            }
+          
           </div>
           <div className="event-form-content-columns">
             <div>
-              <label className="event-form-label">Event date</label>
+              <label className="event-form-label">{t('eventDateLabel')}</label>
               <input
                 className="event-form-input disabled"   
                 type="text"
@@ -188,7 +195,7 @@ const EventForm = ({eventInfo, userData, handleModal, handleNotify}: EventFormPr
                 value={eventInfo?.start && formatDate(eventInfo.start)}
                 disabled  
               />
-              <label className="event-form-label">Time start</label>
+              <label className="event-form-label">{t('eventStartLabel')}</label>
               <input
                 className="event-form-input disabled"
                 type='text'
@@ -200,7 +207,7 @@ const EventForm = ({eventInfo, userData, handleModal, handleNotify}: EventFormPr
                 value={eventInfo?.start && formatTime(eventInfo.start)}
                 disabled
               />
-              <label className="event-form-label">Time end</label>
+              <label className="event-form-label">{t('eventEndLabel')}</label>
               <input
                 className="event-form-input disabled"
                 type='text'
@@ -214,7 +221,7 @@ const EventForm = ({eventInfo, userData, handleModal, handleNotify}: EventFormPr
             </div>
             
             <div>
-              <label className="event-form-label">Task *</label>                     {/*TITLE*/}
+              <label className="event-form-label">{t('taskLabel')}</label>                     {/*TITLE*/}
               <select
                 className={`${!emptyField?.includes('title') ? "event-form-select" : "event-form-select empty"}`}
                 name="title"
@@ -236,7 +243,7 @@ const EventForm = ({eventInfo, userData, handleModal, handleNotify}: EventFormPr
               }             
               </select>
 
-              <label className="event-form-label">Sub-task *</label>                 {/*SUBTITLE*/}
+              <label className="event-form-label">{t('subTaskLabel')}</label>                 {/*SUBTITLE*/}
               <select
                 className={`${!emptyField?.includes('subtitle') ? "event-form-select" : "event-form-select empty"}`}
                 name="subtitle"
@@ -263,7 +270,7 @@ const EventForm = ({eventInfo, userData, handleModal, handleNotify}: EventFormPr
                 })()
               }
               </select>
-              <label className="event-form-label">Project *</label>
+              <label className="event-form-label">{t('projectLabel')}</label>
               <select 
                 className={`${!emptyField?.includes('project') ? "event-form-select" : "event-form-select empty"}`}
                 name="project"
@@ -279,7 +286,7 @@ const EventForm = ({eventInfo, userData, handleModal, handleNotify}: EventFormPr
             </div>
           </div>
           
-            <label className="event-form-label">Comments</label>
+            <label className="event-form-label">{t('commentsLabel')}</label>
             <textarea
               className="event-form-textarea"
               name="comments"
@@ -293,7 +300,7 @@ const EventForm = ({eventInfo, userData, handleModal, handleNotify}: EventFormPr
           { eventInfo?.title ? (
             <div>
               <button onClick={deleteEvent} className="event-button-delete">
-                  <h4 className="button-text">Delete</h4>
+                  <h4 className="button-text">{t('deleteButtonText')}</h4>
               </button>
 
               <button
@@ -301,13 +308,13 @@ const EventForm = ({eventInfo, userData, handleModal, handleNotify}: EventFormPr
                 className={`${isChanged ? "event-button-save" : "event-button-save disabled-btn"}`}
                 disabled={isChanged ? false : true }
               >
-                  <h4 className="button-text">Update</h4>
+                  <h4 className="button-text">{t('updateButtonText')}</h4>
               </button>
             </div>
 
             ) : (
             <button onClick={submitEvent} className="event-button-save" >
-                <h4 className="button-text">Save</h4>
+                <h4 className="button-text">{t('saveButtonText')}</h4>
             </button>
             )
           }

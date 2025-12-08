@@ -271,10 +271,10 @@ const validateForm = (): boolean => {
   const [projects, setProjects] = useState<ProjectsArray>([]);
 
   const addProject = (prj: string) => {
-    if (prj.trim()) {
+    if (prj.trim() && !projects.includes(prj.trim())) {
       setProjects(prev => [...prev, prj]);
-      setProjectInputValue('');    
     }
+    setProjectInputValue(''); 
     //console.log('Projects added: ', formData)
   };
 
@@ -290,7 +290,7 @@ const validateForm = (): boolean => {
 
   useEffect(() => {
     const prjArray = emplData?.projects?.split(',')
-    setProjects(prjArray);
+    setProjects(prjArray as ProjectsArray);
   }, [])
 
 

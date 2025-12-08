@@ -43,8 +43,8 @@
     "toggleButtonText": "Sign in"
   },
   "fullCalendar": {
-    "sidePanelButtonText_close": "Show panel",
-    "sidePanelButtonText_open": "Hide panel",
+    "sidePanelButtonText_close": "Navigation",
+    "sidePanelButtonText_open": "Hide Navigation",
     "todayButtonText": "Today",
     "weekButtonText": "Week",
     "monthButtonText": "Month",
@@ -56,5 +56,19 @@
   "sidePanel": {
     "sidePanelProgressTitle": "Completness",
     "sidePanelProgressSubTitle": "Week"
+  },
+  "eventForm": {
+    "titleEvent": "Event Form",
+    "titleNewEvent": "Create New Event",
+    "eventDateLabel": "Event date",
+    "eventStartLabel": "Time start",
+    "eventEndLabel": "Time end",
+    "taskLabel": "Task *",
+    "subTaskLabel": "Sub-task *",
+    "projectLabel": "Project *",
+    "commentsLabel": "Comments",
+    "deleteButtonText": "Delete",
+    "updateButtonText": "Update",
+    "saveButtonText": "Save"
   }
 }

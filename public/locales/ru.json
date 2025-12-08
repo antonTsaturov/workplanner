@@ -43,8 +43,8 @@
     "toggleButtonText": "Войти"
   },
   "fullCalendar": {
-    "sidePanelButtonText_close": "Открыть панель",
-    "sidePanelButtonText_open": "Скрыть панель",
+    "sidePanelButtonText_close": "Навигация",
+    "sidePanelButtonText_open": "Скрыть",
     "todayButtonText": "Сегодня",
     "weekButtonText": "Неделя",
     "monthButtonText": "Месяц",
@@ -56,6 +56,19 @@
   "sidePanel": {
     "sidePanelProgressTitle": "Заполненность",
     "sidePanelProgressSubTitle": "Неделя"
+  },
+  "eventForm": {
+    "titleEvent": "Форма События",
+    "titleNewEvent": "Создать новое событие",
+    "eventDateLabel": "Дата",
+    "eventStartLabel": "Начало",
+    "eventEndLabel": "Окончание",
+    "taskLabel": "Задача *",
+    "subTaskLabel": "Подзадача *",
+    "projectLabel": "Проект *",
+    "commentsLabel": "Комментарии",
+    "deleteButtonText": "Удалить",
+    "updateButtonText": "Обновить",
+    "saveButtonText": "Сохранить"
   }
-
 }
