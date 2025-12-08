@@ -24,7 +24,7 @@ const StaffViewForm = ({ emplData, editEmpInfo }: StaffAddFormProps) => {
   return (
     <div className="employee-view-container">
       <div className="employee-view-content">
-        <h2 className="employee-view-title">Employee Information</h2>
+        <h2 className="employee-view-title">View Employee Details</h2>
         
         <div className="employee-view-content-columns">
           {/* Personal Information */}
@@ -66,7 +66,7 @@ const StaffViewForm = ({ emplData, editEmpInfo }: StaffAddFormProps) => {
           <div className="employee-info-group">
             <label className="employee-info-label">Phone</label>
             <div className="employee-info-value">
-              {emplData?.phone ? formatPhone(emplData.phone, undefined) : <span className="employee-info-value-empty">Not specified</span>}
+              {emplData?.phone ? emplData.phone : <span className="employee-info-value-empty">Not specified</span>}
             </div>
           </div>
 

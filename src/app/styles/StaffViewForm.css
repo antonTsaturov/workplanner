@@ -36,7 +36,7 @@
 }
 
 .employee-view-title {
-  font-size: 1.2rem;
+  font-size: 16px;
   font-weight: 700;
   color: var(--text-primary);
   text-align: center;
@@ -186,7 +186,7 @@
   font-size: 0.75rem;
   font-weight: 600;
   display: inline-block;
-  margin-right: 1em;
+  margin: 0.51em;
 }
 
 .employee-status-inactive {

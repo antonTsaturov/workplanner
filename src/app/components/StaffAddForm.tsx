@@ -69,7 +69,7 @@ const StaffAddForm = ({ emplData, handleModal, handleNotify, reload, mode }:Staf
   // Validation rules
   const validateField = (name: string, value: string): string => {
     const containNumberRegex = /[0-9]/g;
-    //const phoneRegex = /\+\d\s\(\d{3}\)\s\d{3}-\d{2}-\d{2}/;
+    const phoneRegex = /\+\d\s\(\d{3}\)\s\d{3}-\d{2}-\d{2}/;
 
     switch (name) {
       case 'name':
@@ -94,7 +94,7 @@ const StaffAddForm = ({ emplData, handleModal, handleNotify, reload, mode }:Staf
         const formattedPhone = unformatPhone(value.trim());
         if (!value.trim()) return 'Phone number is required';
         if (formattedPhone && formattedPhone.length < 11) return 'Phone number too short';
-        //if (!value.trim().match(phoneRegex)) return 'Format mistakes';
+        if (!value.trim().match(phoneRegex)) return 'Format mistakes';
         return '';
       
       case 'location':
@@ -164,7 +164,7 @@ const validateForm = (): boolean => {
     }
 
     setFormData(prev => {
-      const updated = name !== 'phone' ? { ...prev, [name]: value } : { ...prev, [name]: unformatPhone(value) };
+      const updated = { ...prev, [name]: value };
       return updated;
     });
     //console.log('handleFormChange: ', formData)
@@ -201,7 +201,7 @@ const validateForm = (): boolean => {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Mark all fields as touched on submit
     const allTouched: Record<string, boolean> = {};
     Object.keys(formData).forEach(key => {
@@ -279,10 +279,12 @@ const validateForm = (): boolean => {
   };
 
   useEffect(() => {
-    setFormData(prev => ({
-      ...prev,
-      projects: projects.toString()
-    }));
+    if (projects) {
+      setFormData(prev => ({
+        ...prev,
+        projects: projects.toString()
+      }));
+    }
   }, [projects])
 
 
@@ -308,27 +310,33 @@ const validateForm = (): boolean => {
   };
   
   const [e, setE] = useState<KeyboardEvent<HTMLInputElement>>()
-  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    // Разрешаем: цифры, Backspace, Delete, Tab, Arrow keys
-    if (
-      !/[0-9]/.test(e.key) &&
-      e.key !== 'Backspace' &&
-      e.key !== 'Delete' &&
-      e.key !== 'Tab' &&
-      e.key !== 'ArrowLeft' &&
-      e.key !== 'ArrowRight'
-    ) {
-      e.preventDefault();
-    }
-  };
+
+const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+  // Разрешаем только цифровые клавиши (по их физическому расположению)
+  const isDigit = /^(Digit|Numpad)[0-9]$/.test(e.code);
   
+  // Разрешаем управляющие клавиши
+  const allowedKeys = [
+    'Backspace', 'Delete', 'Tab', 'ArrowLeft', 'ArrowRight',
+    'Home', 'End'
+  ];
+  
+  // Разрешаем Ctrl/Cmd комбинации
+  const isCtrlOrCmd = e.ctrlKey || e.metaKey;
+  const isAllowedCtrlKey = ['a', 'c', 'v', 'x', 'z'].includes(e.key.toLowerCase());
+
+  if (!isDigit && !allowedKeys.includes(e.key) && !(isCtrlOrCmd && isAllowedCtrlKey)) {
+    e.preventDefault();
+  }
+};
+
   return (
     <div className="staff-form-container">
       <style>{errorStyles}</style>
       
       <form className="staff-form-content" noValidate>
         <div className="staff-form-title">
-          <h3>{`${mode === 'add' ?'Add new employee' : 'Edit employee info'}`}</h3>
+          <h3>{`${mode === 'add' ?'Add new employee' : 'Edit Employee Details'}`}</h3>
         </div>
         
         <div className="staff-form-content-columns">
@@ -376,7 +384,7 @@ const validateForm = (): boolean => {
               type='tel'
               name='phone'
               inputMode="numeric"
-              pattern="[0-9]*"
+              //pattern="[0-9]*"
               value={formatPhone(formData.phone, e) || undefined}
               //value={formData.phone}
               maxLength={18}

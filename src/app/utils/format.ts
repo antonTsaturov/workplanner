@@ -36,17 +36,17 @@ export const formatPhone = (phone: string | null, e: React.KeyboardEvent<HTMLInp
   if (!phone) {
     return null;
   }
-
   
   if (e?.code != 'Backspace' || !e ) {
-    if (phone.length == 1 && !phone.includes('+', 8)) return `+7 (`
-    if (phone.length == 7 ) return `${phone}) `
-    if (phone.length == 12 || phone.length == 15) return `${phone}-`
-    if (phone.length === 11 && phone.slice(0, 1) == '8') return fastFormatPhone(phone);
+    if (phone.length === 18) return fastFormatPhone(phone);
+    if (phone.length === 1 && !phone.includes('+', 8)) return `+7 (`
+    if (phone.length === 7 ) return `${phone}) `
+    if (phone.length === 12 || phone.length == 15) return `${phone}-`
+    //if (phone.length === 11 && phone.slice(0, 1) == '8') return fastFormatPhone(phone);
     
   } else if (e?.code == 'Backspace')  {
-    //return `${phone}`;
-    return fastFormatPhone(phone);
+    return `${phone}`;
+    //return fastFormatPhone(phone);
   }
 }
 
