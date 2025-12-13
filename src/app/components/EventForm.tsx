@@ -62,21 +62,21 @@ const EventForm = ({eventInfo, userData, handleModal, handleNotify}: EventFormPr
     };
   });
 
-  const isChanged = useMemo(() => 
-    JSON.stringify({
-      project: eventInfo?.project,
-      title: eventInfo?.title,
-      subtitle: eventInfo?.subtitle,
-      comments: eventInfo?.comments
-    }) !== JSON.stringify({
-      project: formData.project,
-      title: formData.title,
-      subtitle: formData.subtitle,
-      comments: formData.comments
-    }),
-    [eventInfo, formData]
-  );
-
+  const isChanged = useMemo(() => {
+    if (eventInfo && formData) {
+      return JSON.stringify({
+        project: eventInfo.project,
+        title: eventInfo.title,
+        subtitle: eventInfo.subtitle,
+        comments: eventInfo.comments
+      }) !== JSON.stringify({
+        project: formData.project,
+        title: formData.title,
+        subtitle: formData.subtitle,
+        comments: formData.comments
+      })
+    }
+  },[eventInfo, formData] );
 
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>
     | React.ChangeEvent<HTMLSelectElement>
@@ -88,16 +88,7 @@ const EventForm = ({eventInfo, userData, handleModal, handleNotify}: EventFormPr
       [name]: value
     }));
   };
-  
-  // useEffect(() => {
-  //   if (eventInfo?.title) {
-  //     setFormData(prev => ({
-  //       ...prev,
-  //       id: eventInfo?.id
-  //     }));
-  //   }
-  // }, [eventInfo?.id, eventInfo?.title])
-  
+    
   const [emptyField, setEmptyField] = useState<string[]>([])
   
   const hilightEmptyFields = () => {

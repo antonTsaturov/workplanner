@@ -9,7 +9,7 @@ export default function Calendar() {
   const {pageIsLoad} = usePageLoad();
   
   return (
-    <div style={{display:'flex', width: '100%'}}>
+    <div>
       { !pageIsLoad ? <Loader /> : <FullCalendar/> }
     </div>
   );

@@ -27,6 +27,7 @@ export default function AuthPage() {
         width={24}  
         height={24}
         onClick={switchLanguage}
+        loading="eager"
       />
       <span className="language-tooltip">{locle.toUpperCase()}</span>
     </div>

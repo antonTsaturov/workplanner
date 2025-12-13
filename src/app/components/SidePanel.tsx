@@ -90,6 +90,7 @@ const SidePanel = observer(({ isPanelVisible }) => {
   if (!shouldRender) return null;
 
   return (
+    <aside className="sidebar">
     <div className={`side-panel ${isPanelVisible ? 'visible' : 'hidden'}`}>
       
       <MonthCalendar />
@@ -104,6 +105,7 @@ const SidePanel = observer(({ isPanelVisible }) => {
       
       <AnimatedProgressBar />
     </div>
+    </aside>
   );
 });
 

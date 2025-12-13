@@ -137,10 +137,14 @@ const Calendar = observer(() => {
   
   const handleModal = (subaction: string) => {
     close(); // close modal
-
     if (selected) {
       selected.view.calendar.unselect();
     }
+    if (calendarRef.current) {
+      const calendarApi = calendarRef?.current.getApi()
+      //calendarApi.view.calendar.refetchEvents()
+    }
+    
 
     setSelected(false) 
 
@@ -149,7 +153,7 @@ const Calendar = observer(() => {
     }
     //Remove info about clicked event
     setClickInfo(undefined) 
-    //Reload all events after new event added only
+    //Reload all events after if new event added
     if (!subaction) {
       setTimeout(() => { 
         reloadEvents();
@@ -163,22 +167,7 @@ const Calendar = observer(() => {
     showNotification(status as NotificationType)
   }
   
-  // const handleEventUpdate = (
-  //   eventDropInfo: { 
-  //     event: { 
-  //       id: string; 
-  //       start: Date | null;  // Allow start to be null
-  //       end: Date | null;    // Allow end to be null
-  //       title: string; 
-  //       extendedProps: { 
-  //         subtitle: string; 
-  //         project: string; 
-  //         comments: string; 
-  //       }; 
-  //     }; 
-  //   }
-  // ) => {
-const handleEventUpdate = (eventDropInfo: EventDropArg) => {  
+  const handleEventUpdate = (eventDropInfo: EventDropArg) => {  
     setIsEventUpdated(true);
     open();
 
@@ -270,15 +259,15 @@ const handleEventUpdate = (eventDropInfo: EventDropArg) => {
   
   return (
     <div
-      className='demo-app'
-      style={{display: 'flex', flexDirection:'row', width: '-webkit-fill-available'}}
+      className='app'
+      style={{display: 'flex', flexDirection:'row', width: '-webkit-fill-available', flexGrow: 1, justifyContent: 'center'}}
     >
     
       <SidePanel
         isPanelVisible={isPanelVisible}
       />
 
-      <div className='demo-app-main'style={{width: '100%' }}>
+      <div className='app-main'style={{width: '80%' }}>
         <FullCalendar
           locale={locale}
           views={{
@@ -400,13 +389,12 @@ const handleEventUpdate = (eventDropInfo: EventDropArg) => {
             endTime: '19:00',
           }}
           slotMinTime={'09:00:00'}
-          slotMaxTime={'20:00:00'}
+          slotMaxTime={'22:00:00'}
           contentHeight={570}
           slotLabelFormat={{
             hour: '2-digit',
             minute: '2-digit',
             omitZeroMinute: false,
-            meridiem: 'short'  // 'short', 'narrow', false
           }}
           events={events}
           select={(info) => {
@@ -459,11 +447,25 @@ const handleEventUpdate = (eventDropInfo: EventDropArg) => {
 
             }
           }}
-          eventDrop={handleEventUpdate}
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          eventResize={handleEventUpdate as any}
+          eventDrop={(info) => {
+            handleEventUpdate(info)
+          }}
+          eventResizeStop={(info)=>{
+            if (info.event.extendedProps.length >= 8 ) {
+              info.el.classList.remove('event-full');
+            } else {
+              info.el.classList.add('event-full');
+            }
+
+          }}
+          eventResize={(info) => {
+            handleEventUpdate(info as unknown as EventDropArg)
+          }}
           eventDidMount={(info) => {
             handleMonthClick(info)
+            if (info.event.extendedProps.length >= 8 ) {
+              info.el.classList.add('event-full');
+            } 
           }}
           viewDidMount={(info) => {
             const myCustomButton = document.querySelector('.fc-myCustomButton-button') as HTMLElement;
@@ -490,7 +492,7 @@ const handleEventUpdate = (eventDropInfo: EventDropArg) => {
                 focusedButton.blur();
               }
             }, 10);
-          }}
+          }}          
         />
       </div>
 
@@ -576,24 +578,24 @@ const  RenderEventContent = ({ eventInfo, t, locale }: RenderEventContentProps) 
     const eventCount = dayEvents.length;
     
     // Calculate total duration in hours from all events
-const totalDuration = dayEvents.reduce((total, event) => {
-  // Проверяем extendedProps через optional chaining
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const lengthValue = (event.extendedProps as any)?.length;
-  
-  if (lengthValue) {
-    const lengthNumber = parseFloat(lengthValue);
-    return total + (isNaN(lengthNumber) ? 0 : lengthNumber);
-  }
-  
-  // Если нет length, считаем из start/end
-  if (event.start && event.end) {
-    const durationMs = event.end.getTime() - event.start.getTime();
-    return total + (durationMs / (1000 * 60 * 60)); // часы
-  }
-  
-  return total;
-}, 0);
+    const totalDuration = dayEvents.reduce((total, event) => {
+      // Проверяем extendedProps через optional chaining
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const lengthValue = (event.extendedProps as any)?.length;
+      
+      if (lengthValue) {
+        const lengthNumber = parseFloat(lengthValue);
+        return total + (isNaN(lengthNumber) ? 0 : lengthNumber);
+      }
+      
+      // Если нет length, считаем из start/end
+      if (event.start && event.end) {
+        const durationMs = event.end.getTime() - event.start.getTime();
+        return total + (durationMs / (1000 * 60 * 60)); // часы
+      }
+      
+      return total;
+    }, 0);
     
     // Format duration display
     const formatDuration = (hours: number) => {

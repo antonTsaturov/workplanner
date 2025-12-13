@@ -23,40 +23,6 @@ interface useEventsProps {
   props?: string; //'all' || null
 }
 
-// export function useEvents({props}:useEventsProps = {}) {
-
-//   const [events, setEvents] = useState<CalendarEvent[]>([]);
-  
-//   const { session, isLoading, refreshSession } = useSession();
-    
-//   const fetchEvents = async () => {
-    
-//     if (!isLoading) {
-//       try {
-//         const userEmail = props === 'all' ? null : session.user.email;
-//         handleFetch('event', 'GET', userEmail)
-//         .then(result => {
-//           console.log(`${result.data.rows.length} events loaded.`)
-//           setEvents(result.data.rows);
-//         });
-//       } catch (error) {
-//         console.log(error)
-//       }
-//     }
-//   };
-
-//   useEffect(() => {
-//     fetchEvents();
-//   }, [isLoading]);
-  
-//   const reloadEvents = useCallback(() => {
-//     fetchEvents();
-//   })
-    
-//   return { events, reloadEvents };
-// }
-
-
 interface UseEventsReturn {
   events: CalendarEvent[];
   reloadEvents: () => void;

@@ -27,7 +27,7 @@ const calendar = {
 
 const MONTH_NOW = new Date().getMonth() + 1;
 const YEAR_NOW = new Date().getFullYear();
-export const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
+export const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#17d406ff'];
 
 const CustomTooltip = ({ active, payload, label }) => {
       
@@ -46,7 +46,7 @@ const CustomTooltip = ({ active, payload, label }) => {
             key={index} 
             //style={{ color: entry.color, fontSize: '0.875rem' }}>
             style={{ color: COLORS[index % COLORS.length], fontSize: '0.875rem' }}>
-            {`${entry.name}: ${entry.value}${entry.dataKey && entry.dataKey.includes('length') ? ' h' : ' h'}`}
+            {`${entry.name}: ${entry.value}${entry.dataKey?.includes('length') ? ' h' : ' h'}`}
           </p>
         ))}
       </div>
@@ -55,6 +55,28 @@ const CustomTooltip = ({ active, payload, label }) => {
   return null;
 };
 
+
+// interface ProjectBarChart {
+//   name: string; //"2900" or "Anton Tsaturov"
+//   value: number; //28,
+//   duration: string; //"28h 0m"
+// }
+// interface DeptBarChart {
+//   CLN: number;
+//   DM: number;
+//   project: string;
+// }
+// type Month = 
+//   | "Jan" | "Feb" | "Mar" | "Apr" | "May" | "Jun"
+//   | "Jul" | "Aug" | "Sep" | "Oct" | "Nov" | "Dec";
+// interface annualActivity {
+//   month: string;
+//   [key: string]: number | string;
+// }
+// interface emplStats {
+//   name: string;
+//   hours: number;
+// }
 
 const Statistics = () => {
 
@@ -73,11 +95,9 @@ const Statistics = () => {
   
   // statDetails contain detailed data for month-view statistics
   const [statDetails, setStatDetails] = useState(null)
-  // annualStat contain data for year-view statistics
-  //const [annualStat, setAnnualStat] = useState(null);
   
   const [activeUser, setActiveUser] = useState('')
-  const [activeChart, setActiveChart] = useState(''); // project, dept, empls
+  const [activeChart, setActiveChart] = useState(''); // project, dept, name
   
   // activeSubChart it is array of projects names OR  departments names + 'All'
   const [activeSubChart, setActiveSubChart] = useState([]) 
@@ -242,15 +262,11 @@ const Statistics = () => {
   
   useEffect(() => {
     const fetchStatistics = async () => {
-      // This would be your actual API call
-      // const response = await fetch('/api/staff-statistics');
-      // const data = await response.json();
-
-      // Mock data based on your database structure
       const mockData = {
         totalProjects: new Set(events.map(item => item.project)).size,
         projectsList: [...new Set(events.map(item => item.project))],
         totalEmployees: new Set(events.map(item => item.author)).size,
+        emplList: [...new Set(events.map(item => item.name))],
         totalDepts: new Set(events.map(item => item.dept)).size,
         deptList: [...new Set(events.map(item => item.dept))],
         
@@ -305,7 +321,9 @@ const Statistics = () => {
           }
         }),
         
-        departments: events.reduce((acc, item) => {
+        departments: events
+        .filter(item => activeSubChartItem !== 'All' ? item.dept === activeSubChartItem : item)
+        .reduce((acc, item) => {
           const { project, dept, length } = item;
           const lengthNum = parseFloat(length);
           
@@ -330,32 +348,16 @@ const Statistics = () => {
           
           return acc;
         }, []),
-        
-        monthlyData: [
-          { month: 'Jan', entries: 12, duration: 35.5 },
-          { month: 'Feb', entries: 18, duration: 52.8 },
-          { month: 'Mar', entries: 15, duration: 44.2 },
-          { month: 'Apr', entries: 22, duration: 64.7 },
-          { month: 'May', entries: 19, duration: 55.9 },
-          { month: 'Jun', entries: 25, duration: 73.4 }
-        ],
-        
+
         annualActivity: events
-        .filter(item => {
-          // Filter by selected project or show all projects
-          if (activeChart === 'project') {
-            return activeSubChartItem !== 'All' ? item.project === activeSubChartItem : item;
-          }
-          if (activeChart === 'dept') {
-            return activeSubChartItem !== 'All' ? item.dept === activeSubChartItem : item;
-          }
-        })
+        //Filtering by Projects, Departments or Employee name
+        .filter(item => activeSubChartItem !== 'All' ? item[activeChart] === activeSubChartItem : item)
         .reduce((acc, item) => {
           if (new Date(item.start) > period.start && new Date(item.end) < period.end) {
           
             const month = new Date(item.start).toLocaleString('default', { month: 'short' });
             const existMonth = acc.find(i => i.month === month);
-            // reduce by project or by dept
+            // reduce by project / dept / employee name
             if (!existMonth[item[activeChart]]) {
               existMonth[item[activeChart]] = parseFloat(item.length);
             } else {
@@ -365,14 +367,7 @@ const Statistics = () => {
           
           return acc;
         }, initialAccumulator),
-        
-        topProjects: [
-          { project: 'Project Alpha', hours: 132.25, entries: 45 },
-          { project: 'Project Beta', hours: 118.75, entries: 38 },
-          { project: 'Project Gamma', hours: 85.33, entries: 28 },
-          { project: 'Internal Tasks', hours: 67.42, entries: 22 },
-          { project: 'Client Support', hours: 54.15, entries: 18 }
-        ],
+
         emplStats: events.reduce((acc, item) => {
           const { length, name } = item;
           const lengthNum = parseFloat(length);
@@ -391,8 +386,6 @@ const Statistics = () => {
               acc.push(newUser);
             }
           }
-          
-          //console.log(acc)
           return acc;
         }, []),
       };
@@ -403,10 +396,7 @@ const Statistics = () => {
     fetchStatistics();
   }, [events, period, activeSubChartItem, activeChart]);
   
-  //const colors = ['#8884d8', '#82ca9d', '#ffc658', '#ff8042', '#00C49F'];
-  
-
-
+  //console.log(statistics.projects)
   return (
     <div className="staff-statistics" style={{
       background: 'var(--background-primary)',
@@ -491,7 +481,7 @@ const Statistics = () => {
         gap: '1rem'
       }}>
         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-          {['project', 'dept', 'employees'].map((chart) => (
+          {['project', 'dept', 'name'].map((chart) => (
             <button
               key={chart}
               onClick={() => {
@@ -499,22 +489,30 @@ const Statistics = () => {
                 getSubChart(chart)
                 setActiveUser('')
                 setStatDetails('')
-                if (chart === 'employees')  setActiveSubChart('')
+                // Remove subcharts for employers view
+                if (chart === 'name')  setActiveSubChart('')
               }}
               style={{
-                padding: '0.5rem 1rem',
+                padding: '0.5rem 0',
+                minWidth: '8rem',
                 borderRadius: 'var(--radius-md)',
                 border: `1.5px solid ${activeChart === chart ? 'var(--primary-color)' : 'var(--border-color)'}`,
                 background: activeChart === chart ? 'var(--primary-color)' : 'var(--background-primary)',
                 color: activeChart === chart ? 'white' : 'var(--text-secondary)',
                 fontSize: '0.875rem',
-                fontWeight: '500',
+                fontWeight: activeChart === chart ? '600' : '500',
                 cursor: 'pointer',
                 outline: 'none',
                 transition: 'var(--transition)'
               }}
             >
-              {chart.charAt(0).toUpperCase() + chart.slice(1)}
+              <div style={{margin: '  0 10px'}}>{
+                chart === 'project'
+                ? chart.charAt(0).toUpperCase() + chart.slice(1)
+                : chart === 'dept'
+                ? 'Departments'
+                : 'Employees'
+              }</div>
             </button>
           ))}
         </div>
@@ -571,6 +569,7 @@ const Statistics = () => {
       </div>
       
       {/* Chart Controls Buttons  second row */}
+      
       {activeChart && (
           <div style={{
             display: 'flex',
@@ -609,7 +608,8 @@ const Statistics = () => {
           </div>
       )}
 
-      {/* Charts */}
+      {/* CHARTS */}
+
       <div style={{ marginBottom: '2rem' }}>
         {activeChart === 'project' && activeSubChartItem === 'All' && period.current === 'month' && (
           <div>
@@ -646,7 +646,7 @@ const Statistics = () => {
                       ))
                     }
                   </Pie>)
-                {/*<Tooltip />*/}
+                {/* {<Tooltip content={<CustomTooltip />} />} */}
                 <Legend />
               </PieChart>
             </ResponsiveContainer>
@@ -695,6 +695,7 @@ const Statistics = () => {
           </div>
         )}
 
+        {/* STATISTIC BY DEPARTMENTS */}
         {activeChart === 'dept' && period.current === 'month' && (
           <div>
             <h3 style={{ marginBottom: '1rem', color: 'var(--text-primary)' }}>Departments Workload</h3>
@@ -719,7 +720,8 @@ const Statistics = () => {
                         dataKey={deptKey}
                         fill={COLORS[index % COLORS.length]}
                         style={{cursor: 'pointer', outline: 'none'}}
-                        name={deptKey} 
+                        name={deptKey}
+                        label={({ name, percent, duration }) => `${name} (${(percent * 100).toFixed(0)}%) - ${duration}`}
                       />
                     ))
                   )
@@ -739,7 +741,7 @@ const Statistics = () => {
           </div>
         )}
 
-        {activeChart === 'employees' && (
+        {activeChart === 'name' &&  period.current === 'month' && (
           <div>
             <h3 style={{ marginBottom: '1rem', color: 'var(--text-primary)' }}>Employees Workload</h3>
             <ResponsiveContainer width="100%" height={300}>
@@ -788,14 +790,15 @@ const Statistics = () => {
             border: '1px solid var(--border-color)'
           }}>
             <h4 style={{ marginBottom: '1rem', color: 'var(--text-primary)' }}>
-            {`${activeChart == 'dept' ? 'Departments': 'Projects'} annual activity`}
+            {`${activeChart == 'dept' ? 'Departments': activeChart == 'project' ? 'Projects' : 'Employees'} annual activity`}
             </h4>
-            <ResponsiveContainer width="100%" height={200}>
+            <ResponsiveContainer width="100%" height={300}>
               <BarChart data={statistics.annualActivity}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" />
-                <YAxis />
+                <YAxis domain={[0, 'auto']} />
                 <Tooltip content={<CustomTooltip />} />
+                <Legend />
                 {
                   activeChart === 'project' ? (
                    
@@ -806,18 +809,28 @@ const Statistics = () => {
                       dataKey={project} 
                       stackId="a" 
                       fill={COLORS[index % COLORS.length]} 
-                      name={`Project ${project}`}
+                      name={`${project}`}
                     />
                   }))
-                  : (
+                  : activeChart === 'dept' ? (
                     statistics.deptList.map((dept, index) => {
-                      console.log(dept)
                       return <Bar 
                         key={dept} 
                         dataKey={dept} 
                         stackId="a" 
                         fill={COLORS[index % COLORS.length]} 
-                        name={`Project ${dept}`}
+                        name={`${dept}`}
+                      />
+                    })
+                  )
+                  : (
+                    statistics.emplList.map((name, index) => {
+                      return <Bar 
+                        key={name} 
+                        dataKey={name} 
+                        stackId="a" 
+                        fill={COLORS[index % COLORS.length]} 
+                        name={`${name}`}
                       />
                     })
                   )

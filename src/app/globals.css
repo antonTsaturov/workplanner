@@ -28,12 +28,6 @@ a {
   user-zoom: fixed;
 }
 
-.demo-app {
-  flex-grow: 1;
-}
-
-
-
 .element {
   background-color: #6c47ff;
   color: white;

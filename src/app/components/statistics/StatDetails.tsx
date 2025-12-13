@@ -24,7 +24,7 @@ const StatDetails = ({statDetails, activeUser}: StatDetailsProps) => {
   
   const department = statDetails ? statDetails[0].dept : null;
   //const department =  null;
-  console.log(statDetails)
+  //console.log(statDetails)
   
   return (
     <div style={{

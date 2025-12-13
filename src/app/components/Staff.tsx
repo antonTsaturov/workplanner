@@ -288,6 +288,17 @@ const filteredEmployees = useMemo(() => {
       />
 
       <div className="staff-content">
+
+      <div style={{ marginBottom: '2rem' }}>
+        <h2 style={{ 
+          color: 'var(--text-primary)', 
+          marginBottom: '0.5rem',
+          fontSize: '1.5rem',
+          fontWeight: '600'
+        }}>
+          Employee Database
+        </h2>
+      </div>
         {/* Search Section */}
         <div className="staff-search-section">
           <div className="staff-search-container">
