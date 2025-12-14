@@ -336,7 +336,7 @@ const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
       
       <form className="staff-form-content" noValidate>
         <div className="staff-form-title">
-          <h3>{`${mode === 'add' ?'Add new employee' : 'Edit Employee Details'}`}</h3>
+          <h2>{`${mode === 'add' ?'Add new employee' : 'Edit Employee Details'}`}</h2>
         </div>
         
         <div className="staff-form-content-columns">

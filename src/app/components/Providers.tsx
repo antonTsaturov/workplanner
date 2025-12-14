@@ -37,8 +37,6 @@ export function SessionProvider({
     try {
       setIsLoading(true);
       const sessionData = await handleFetch('session', 'GET', null);
-      //storage.set('user', sessionData.user)
-      //console.log('sessionData.user: ', sessionData.user)
       setSession(sessionData);
       
     } catch (error) {

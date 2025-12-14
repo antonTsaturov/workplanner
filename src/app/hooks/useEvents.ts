@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, cache } from 'react';
 import { handleFetch } from '../lib/fetch'
 import { useSession } from '../components/Providers';
 
@@ -34,7 +34,7 @@ export function useEvents({ props }: useEventsProps = {}): UseEventsReturn {
   
   // Fetch events when dependencies change
   useEffect(() => {
-    const fetchEvents = async () => {
+    const fetchEvents = cache (async () => {
       if (isLoading) {
         return;
       }
@@ -50,7 +50,7 @@ export function useEvents({ props }: useEventsProps = {}): UseEventsReturn {
       } catch (error) {
         console.error('Error fetching events:', error);
       }
-    };
+    });
     
     fetchEvents();
   }, [isLoading, session, props]); // All dependencies here
@@ -58,11 +58,10 @@ export function useEvents({ props }: useEventsProps = {}): UseEventsReturn {
   // Create a reload function
   const reloadEvents = useCallback(() => {
     // Re-fetch with current dependencies
-    const fetchEvents = async () => {
+    const fetchEvents = cache( async () => {
       if (isLoading) {
         return;
       }
-      
       try {
         const userEmail = props === 'all' ? undefined : session?.user?.email;
         const result = await handleFetch('event', 'GET', userEmail as string);
@@ -74,7 +73,7 @@ export function useEvents({ props }: useEventsProps = {}): UseEventsReturn {
       } catch (error) {
         console.error('Error fetching events:', error);
       }
-    };
+    });
     
     fetchEvents();
   }, [isLoading, session, props]);

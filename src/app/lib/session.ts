@@ -7,18 +7,6 @@ if (!JWT_SECRET) {
   throw new Error('JWT_SECRET is not set in environment variables')
 }
 
-// export interface SessionPayload {
-//   userId: string;
-//   email: string;
-//   name?: string;
-//   dept?: string;
-// }
-
-// export interface DecodedSession extends SessionPayload {
-//   iat: number;
-//   exp: number;
-// }
-
 interface DecodedSession extends JwtPayload {
   userId: string;
   email: string;
@@ -33,14 +21,6 @@ interface SessionPayload {
   dept: string;
 }
 
-// Encrypt (sign) JWT token
-// export async function encrypt(payload: SessionPayload): Promise<string> {
-//   return jwt.sign(payload, JWT_SECRET, {
-//     expiresIn: '1d', // Token expires in 7 days
-//     issuer: 'your-app-name',
-//     audience: 'your-app-users',
-//   })
-// }
 export async function encrypt(payload: SessionPayload): Promise<string> {
   try {
     const JWT_SECRET = process.env.JWT_SECRET;
@@ -59,22 +39,6 @@ export async function encrypt(payload: SessionPayload): Promise<string> {
     throw error; // Re-throw to let the caller handle it
   }
 }
-// Decrypt (verify) JWT token
-// export async function decrypt(token: string): Promise<SessionPayload | null> {
-//   //console.log('decrypt', token.value)
-//   try {
-//     const decoded = jwt.verify(token, JWT_SECRET) as DecodedSession
-//     return {
-//       userId: decoded.userId,
-//       email: decoded.email,
-//       name: decoded.name,
-//       dept: decoded.dept,
-//     }
-//   } catch (error) {
-//     console.error('JWT verification failed:', error)
-//     return null
-//   }
-// }
 
 export async function decrypt(token: string): Promise<SessionPayload | null> {
   try {

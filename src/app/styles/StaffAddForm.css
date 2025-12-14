@@ -1,18 +1,15 @@
 
 .staff-form-container {
-
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   height: 100%;
-  padding: 0.1rem;
   background: var(--background-secondary);
   border-radius: 5px;
 }
 
 .staff-form-title {
-  font-size: 16px;
   font-weight: 700;
   color: var(--text-primary);
   margin-bottom: 3.5rem;
@@ -34,19 +31,16 @@
 
 .staff-form-content {
   background: var(--background-primary);
-  margin: 2rem 3rem 2rem;
+  margin: 2rem 3rem;
   padding: 1rem 1rem 0;
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
-  min-width: 450px;
-  max-width: 900px;
-
 }
 
 .staff-form-content-columns {
   display: flex;
   flex-direction: row;
-  column-gap: 2.5rem;
+  column-gap: 1.5rem;
   justify-content: center;
   width: 100%;
   height: 100%;
@@ -66,7 +60,8 @@
   transition: var(--transition);
   box-shadow: var(--shadow-sm);
   min-width: 10rem;
-  /* margin-bottom: 1.5rem; */
+  display: block;
+  width: 100vw;
 }
 .staff-form-input[type="date"] {
   font-family: Inter, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif;
@@ -102,27 +97,19 @@
   background-position: right 0.75rem center;
   background-size: 1rem;
   padding-right: 2.5rem;
+  max-width: 250px;
 }
 
 
 .event-button-container, .modal-dialog-container {
-/*
-  width: 100%;
-*/
   margin: 1.5rem 0 1rem 0;
   padding-top: 1.5rem;
   border-top: 1px solid var(--border-color);
   text-align: end;
-/*
-  height: 2rem;
-*/
 }
 
 .event-button-save, .modal-dialog-button-confirm {
   height: 47px;
-/*
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
-*/
   background: linear-gradient(135deg, var(--primary-color), var(--primary-color));
   color: white;
   border-radius: var(--radius-md);
@@ -210,13 +197,6 @@
   .event-button-container, .modal-dialog-container {
     justify-content: center;
   }
-
-/*
-  .event-button-save:hover, .modal-dialog-button-confirm:hover,
-  .event-button-delete:hover, .modal-dialog-button-decline:hover {
-    transform: translateY(-12px) scale(1.01);
-  }
-*/
 }
 
 

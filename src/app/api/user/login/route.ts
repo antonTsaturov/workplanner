@@ -10,7 +10,6 @@ export async function POST(request: Request) {
     const { email, password } = await request.json();
 
     // Search user
-    //const user = await getUserByEmail(email);
     const user = await getUserByEmail(email);
 
     if (!user) {

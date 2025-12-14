@@ -1,18 +1,14 @@
-/* Employee View - Modernized */
-
 .employee-view-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   height: 100%;
-  padding: 0.1rem;
   background: var(--background-secondary);
   border-radius: 5px;
 }
 
 .employee-view-title {
-  font-size: 16px;
   font-weight: 700;
   color: var(--text-primary);
   text-align: center;
@@ -34,7 +30,7 @@
 
 .employee-view-content {
   background: var(--background-primary);
-  margin: 2rem 3rem 3rem 2rem;
+  margin: 2rem 3rem;
   padding: 1.5rem;
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
@@ -93,7 +89,6 @@
 }
 
 .employee-view-actions {
-  margin: 1.5rem 0 1rem 0;
   padding-top: 1.5rem;
   border-top: 1px solid var(--border-color);
   text-align: end;

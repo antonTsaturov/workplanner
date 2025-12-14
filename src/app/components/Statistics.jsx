@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, cache } from 'react';
 import {
   BarChart,
   Bar,
@@ -157,7 +157,7 @@ const Statistics = () => {
     setActiveSubChartItem('All')
   }
   
-  const getUserDetails = (user) => {
+  const getUserDetails = cache((user) => {
     setActiveUser(user)
     const project = activeSubChartItem;
     
@@ -189,9 +189,9 @@ const Statistics = () => {
     }, []);
       
     setStatDetails(result)
-  }
+  });
   
-  const getDeptDetails = (e) => {
+  const getDeptDetails = cache((e) => {
     
     const project = e.payload.project
     const dept = Object.entries(e.payload)
@@ -227,7 +227,7 @@ const Statistics = () => {
     }, []);
     //console.log(result)
     setStatDetails(result)
-  }
+  });
 
   // Initial acc for annual project statistics
   const initialAccumulator = calendar.month.map(m => ({
@@ -260,7 +260,7 @@ const Statistics = () => {
     //setAnnualStat(annualActivity)
   //}
   
-  useEffect(() => {
+  useEffect(cache(() => {
     const fetchStatistics = async () => {
       const mockData = {
         totalProjects: new Set(events.map(item => item.project)).size,
@@ -394,7 +394,7 @@ const Statistics = () => {
     };
 
     fetchStatistics();
-  }, [events, period, activeSubChartItem, activeChart]);
+  }), [events, period, activeSubChartItem, activeChart]);
   
   //console.log(statistics.projects)
   return (

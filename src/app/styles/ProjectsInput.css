@@ -8,7 +8,7 @@
   border-radius: 0.5rem;
   background: white;
   min-height: 1.8rem;
-  max-width: 41rem;
+  /* max-width: 41rem; */
 }
 
 .projects-input-container:hover {
