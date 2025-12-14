@@ -450,22 +450,8 @@ const Calendar = observer(() => {
           eventDrop={(info) => {
             handleEventUpdate(info)
           }}
-          eventResizeStop={(info)=>{
-            if (info.event.extendedProps.length >= 8 ) {
-              info.el.classList.remove('event-full');
-            } else {
-              info.el.classList.add('event-full');
-            }
-
-          }}
           eventResize={(info) => {
             handleEventUpdate(info as unknown as EventDropArg)
-          }}
-          eventDidMount={(info) => {
-            handleMonthClick(info)
-            if (info.event.extendedProps.length >= 8 ) {
-              info.el.classList.add('event-full');
-            } 
           }}
           viewDidMount={(info) => {
             const myCustomButton = document.querySelector('.fc-myCustomButton-button') as HTMLElement;
